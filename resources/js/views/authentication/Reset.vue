@@ -143,7 +143,7 @@ export default {
             this.disableSubmit = !complete;
         },
         setupResend: function() {
-            var resendAfter = this.$cuztomisableSettings.passwords.resend_after * 1000;
+            var resendAfter = this.$cuztomisables.passwords.resend_after * 1000;
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);

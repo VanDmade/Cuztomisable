@@ -27,6 +27,7 @@ return new class extends Migration
                 ->on('users')
                 ->onUpdate('cascade')
                 ->onDelete('set null');
+            $table->string('name', 64);
             $table->string('first_name', 64);
             $table->string('middle_name', 64)->nullable();
             $table->string('last_name', 64);

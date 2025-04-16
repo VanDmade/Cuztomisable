@@ -42,6 +42,7 @@ class RegistrationController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->validated();
+            return response()->json([$data], 500);
             // Creates the user
             $user = Users\User::create([
                 'first_name' => $data['first_name'],

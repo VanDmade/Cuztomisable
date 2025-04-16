@@ -1,0 +1,91 @@
+.tablelify {
+    width: 100%;
+    .tablelify-header {
+        padding: 8px 12px;
+        .tablelify-sorter {
+            display: none;
+        }
+        .tablelify-header-text {
+            display: inline-block;
+        }
+    }
+    .tablelify-header.tablelify-sortable {
+        .tablelify-sorter {
+            display: inline-block;
+            padding-right: 8px;
+            .tablelify-sort {
+
+            }
+            .tablelify-sort-hover {
+                color: #ddd;
+            }
+        }
+    }
+    .tablelify-header:hover {
+        .tablelify-sorter {
+            .tablelify-sort-hover {
+                color: var(--bs-body-color);
+            }
+        }
+    }
+    .tablelify-header.tablelify-sortable {
+        cursor: pointer;
+    }
+    .tablelify-row {
+        .tablelify-column.pa-0 {
+            padding: 0 !important
+        }
+        .tablelify-column {
+            min-height: 42px;
+            padding: 0;
+            vertical-align: middle;
+            img {
+                height: 42px;
+            }
+        }
+    }
+    .tablelify-data {
+        padding: 8px 12px;
+    }
+    .tablelify-header-text {
+        display: none;
+    }
+}
+.tablelify-pagination {
+    margin-bottom: 16px;
+    .tablelify-button {
+        min-width: 44px;
+        @media (max-width: 768px) {
+            min-width: auto;
+        }
+    }
+    .tablelify-pagination-button {
+        @media (max-width: 768px) {
+            min-width: 38px;
+            width: 38px;
+        }
+    }
+}
+@media (max-width: 766px) {
+    .tablelify {
+        .tablelify-header {
+            display: none;
+        }
+        .tablelify-row {
+            .tablelify-column {
+                display: block;
+                img {
+                    margin: 12px;
+                }
+            }
+        }
+        .tablelify-header-text {
+            padding: 0 12px;
+            display: block;
+            font-size: 12px;
+        }
+        .tablelify-data {
+            padding: 0 12px 8px 12px;
+        }
+    }
+}

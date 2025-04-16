@@ -45,6 +45,41 @@ return [
         'length' => 6,
         // Length of time the registration code will expire
         'expires_in' => 300,
+        // List of fields that are required when signing up
+        'fields' => [
+            /*  You can add to this list if you'd like, with any custom field names. To prevent any issues with SQL
+                injection, these fields will be used to check what comes in to prevent any updates of, for example,
+                admin or roles. The template for each of these fields within the users table are as followed, If you set
+                the field to true, i.e. 'name' => true, then it will be displayed and required. You can also reorganize
+                where the fields are within the dropdown other than the password which is the last entry no matter what.
+                KEEP IN MIND, this is just for the templates with this package
+
+                'database_field' => [
+                    // Whether the system will require that the field have a value
+                    'required' => boolean,
+                    // The list is used within the select to be selected when filling out the form, if required is set to
+                    // false, then there will be a blank option that the user can default to and choose.
+                    'list' => [],
+                ] */
+            'name' => true,
+            'first_name' => false,
+            'middle_name' => false,
+            'last_name' => false,
+            'suffix' => false,
+            'title' => false,
+            'address' => [
+                'required' => false,
+                'type' => 'address',
+            ],
+            'gender' => false,
+            'username' => false,
+            'email' => true,
+            'phone' => [
+                // This is the way to set the value to not required, if it is just set the entire array index to true
+                'required' => false,
+                'type' => 'phone',
+            ],
+        ],
     ],
     // Length of the token used within the URL, max length is 64
     'token_length' => 16,

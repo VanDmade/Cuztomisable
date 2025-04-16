@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\User;
 
-class NewIpAddress extends Mailable
+class Verification extends Mailable
 {
 
     use Queueable, SerializesModels;

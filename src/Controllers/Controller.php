@@ -5,7 +5,7 @@ namespace VanDmade\Cuztomisable\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
-use VanDmade\Respondify\Respondify;
+use VanDmade\Cuztomisable\Helpers\Respondify;
 
 class Controller extends BaseController
 {

@@ -1,24 +1,31 @@
 <template>
-    <div class="page">
-        <vm-message :message="message"></vm-message>
-        <h3 class="mb-6">Login</h3>
-        <form @submit.prevent="login">
-            <vm-input
-                :label="usernameLabel"
-                v-model="form.username"
-                type="input"
-                :errors="errors.username"
-                :disabled="submitting"/>
-            <vm-input
-                label="Password"
-                v-model="form.password"
-                type="password"
-                :errors="errors.password"
-                :disabled="submitting" />
-            <router-link class="login-link mb-5" :to="{ name: 'forgot' }">Forgot password?</router-link>
-            <button type="submit" class="btn btn-primary btn-sm-full-width" :disabled="submitting">Login</button>
-        </form>
-        <router-link class="login-link new-account-link" :to="{ name: 'registration' }">New here? Create an account!</router-link>
+    <div id="login-page">
+        <div class="card ma-2 pa-6">
+            <vm-message :message="message"></vm-message>
+            <h3 class="card-title">Login</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Welcome to Cuztomisable!</h6>
+            <form @submit.prevent="login" class="mt-4">
+                <fm-input
+                    :label="usernameLabel"
+                    v-model="form.username"
+                    type="input"
+                    :errors="errors.username"
+                    :disabled="submitting" />
+                <fm-input
+                    label="Password"
+                    v-model="form.password"
+                    type="password"
+                    :errors="errors.password"
+                    :disabled="submitting" />
+                <router-link :to="{ name: 'forgot' }" class="links">Forgot password?</router-link>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Login</button>
+                </div>
+            </form>
+        </div>
+        <div class="text-center">
+            <router-link :to="{ name: 'registration' }" class="links">New here? Create an account!</router-link>
+        </div>
     </div>
 </template>
 <script>
@@ -86,7 +93,7 @@ export default {
     computed: {
         usernameLabel: function() {
             try {
-                var loginWith = this.$cuztomisableSettings.login_with ?? [];
+                var loginWith = this.$cuztomisables.login_with ?? [];
                 return loginWith.phone ?
                     (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
                     (loginWith.email ? 'Email Address' : 'Username');

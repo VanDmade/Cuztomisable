@@ -64,7 +64,7 @@ export default {
     computed: {
         usernameLabel: function() {
             try {
-                var loginWith = this.$cuztomisableSettings.login_with ?? [];
+                var loginWith = this.$cuztomisables.login_with ?? [];
                 return loginWith.phone ?
                     (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
                     (loginWith.email ? 'Email Address' : 'Username');

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Cuztomisable</title>
-    @vite(['resources/sass/app.scss'])
+    @vite(['resources/sass/app.scss','resources/sass/formora.scss','resources/sass/tablelify.scss'])
 </head>
 <body>
     <div id="app"></div>

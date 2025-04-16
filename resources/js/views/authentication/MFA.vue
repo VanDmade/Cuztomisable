@@ -179,7 +179,7 @@ export default {
             });
         },
         setupResend: function() {
-            var resendAfter = this.$cuztomisableSettings.multi_factor_authentication.resend_after * 1000;
+            var resendAfter = this.$cuztomisables.multi_factor_authentication.resend_after * 1000;
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);

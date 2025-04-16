@@ -17,6 +17,7 @@ export default {
             loading: false,
             layout: 'login-layout',
             settings: [],
+            value: [],
         }
     },
     created: function() {

@@ -1,25 +1,25 @@
 <template>
-    <div class="password-requirements-container">
+    <div id="password-requirements" :class="completed ? 'completed' : ''">
         <h5>Password Requirements</h5>
-        <div v-if="minimum != null" class="requirement">
-            <span class="material-icons requirement-check"
-                :class="checked('minimum') ? 'checked' : ''">{{ checked('minimum') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span> {{ minimum }} Minimum Characters
+        <div v-if="minimum != null" class="requirement" :class="checked('minimum') ? 'checked' : ''">
+            <span class="material-icons requirement-check">{{ checked('minimum') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span>
+            <span class="requirement-title">{{ minimum }} Minimum Characters</span>
         </div>
-        <div v-if="maximum != null && maximum != 0" class="requirement">
-            <span class="material-icons requirement-check"
-                :class="checked('maximum') ? 'checked' : ''">{{ checked('maximum') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span> {{ maximum }} Maximum Characters
+        <div v-if="maximum != null && maximum != 0" class="requirement" :class="checked('maximum') ? 'checked' : ''">
+            <span class="material-icons requirement-check">{{ checked('maximum') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span>
+            <span class="requirement-title">{{ maximum }} Maximum Characters</span>
         </div>
-        <div v-if="special != null && special != 0" class="requirement">
-            <span class="material-icons requirement-check"
-                :class="checked('special') ? 'checked' : ''">{{ checked('special') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span> {{ special }} Special Characters
+        <div v-if="special != null && special != 0" class="requirement" :class="checked('special') ? 'checked' : ''">
+            <span class="material-icons requirement-check">{{ checked('special') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span>
+            <span class="requirement-title">{{ special }} Special Characters</span>
         </div>
-        <div v-if="uppercase != null && uppercase != 0" class="requirement">
-            <span class="material-icons requirement-check"
-                :class="checked('uppercase') ? 'checked' : ''">{{ checked('uppercase') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span> {{ uppercase }} Uppercase Characters
+        <div v-if="uppercase != null && uppercase != 0" class="requirement" :class="checked('uppercase') ? 'checked' : ''">
+            <span class="material-icons requirement-check">{{ checked('uppercase') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span>
+            <span class="requirement-title">{{ uppercase }} Uppercase Characters</span>
         </div>
-        <div v-if="numbers != null && numbers != 0" class="requirement">
-            <span class="material-icons requirement-check"
-                :class="checked('numbers') ? 'checked' : ''">{{ checked('numbers') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span> {{ numbers }} Numbers
+        <div v-if="numbers != null && numbers != 0" class="requirement" :class="checked('numbers') ? 'checked' : ''">
+            <span class="material-icons requirement-check">{{ checked('numbers') ? 'check_circle_outline' : 'radio_button_unchecked' }}</span>
+            <span class="requirement-title">{{ numbers }} Numbers</span>
         </div>
     </div>
 </template>
@@ -28,6 +28,7 @@ export default {
     emits: ['completed'],
     data: function() {
         return {
+            completed: false,
             minimum: 8,
             maximum: null,
             uppercase: 1,
@@ -36,10 +37,10 @@ export default {
         }
     },
     created: function() {
-        if (typeof(this.$cuztomisableSettings['passwords']) == 'undefined') {
+        if (typeof(this.$cuztomisable['passwords']) == 'undefined') {
             return;
         }
-        var requirements = this.$cuztomisableSettings['passwords']['requirements'] ?? null;
+        var requirements = this.$cuztomisable['passwords']['requirements'] ?? null;
         if (requirements == null) {
             return;
         }
@@ -52,11 +53,13 @@ export default {
     },
     methods: {
         check: function() {
+            this.completed = false;
             // Checks to see if the requirements are met.
             if ((this.checked('minimum') || this.minimum == null) &&
                 (this.checked('maximum') || this.maximum == null) &&
                 this.checked('uppercase') && this.checked('numbers') &&
                 this.checked('special')) {
+                this.completed = true;
                 this.$emit('completed', true);
             } else {
                 this.$emit('completed', false);
@@ -91,5 +94,3 @@ export default {
     },
 }
 </script>
-<style>
-</style>

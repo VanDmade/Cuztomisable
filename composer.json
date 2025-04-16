@@ -5,9 +5,7 @@
     "license": "Apache License",
     "autoload": {
         "psr-4": {
-            "VanDmade\\Cuztomisable\\": "src/",
-            "VanDmade\\Tablelify\\": "./packages/vandmade/tablelify/src/",
-            "VanDmade\\Respondify\\": "./packages/vandmade/respondify/src/"
+            "VanDmade\\Cuztomisable\\": "src/"
         },
         "classmap": ["src/"]
     },
