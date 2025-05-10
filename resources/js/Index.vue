@@ -4,7 +4,8 @@
         <component v-else
             :is="layout"
             :settings="settings">
-            <router-view v-slot="{ component, route }"></router-view>
+            <fm-message :message="{ id: message.id, text: message.text, error: message.error }" :length="message.timeout_length"></fm-message>
+            <router-view v-slot="{ component, route }" v-on:message="setMessage"></router-view>
         </component>
     </div>
 </template>
@@ -16,12 +17,25 @@ export default {
         return {
             loading: false,
             layout: 'login-layout',
+            message: {
+                id: 0,
+                text: '',
+                error: false,
+                timeout_length: 5000,
+            },
             settings: [],
             value: [],
         }
     },
     created: function() {
         
+    },
+    methods: {
+        setMessage: function(message) {
+            this.message.id = this.message.id++;
+            this.message.text = message.text;
+            this.message.error = message.error ?? false;
+        }
     },
     watch: {
         '$store.state.authenticated': {

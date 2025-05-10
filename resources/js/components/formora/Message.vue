@@ -1,9 +1,9 @@
 <template>
-    <div class="vm-messages">
-        <div v-for="(item, index) in messages" class="vm-message-container">
+    <div class="fm-messages">
+        <div v-for="(item, index) in messages" class="fm-message-container">
             <div v-if="item.text != ''"
-                class="vm-message shadow"
-                :class="item.error ? 'vm-message-error' : 'vm-message-success'">{{ item.text }}</div>
+                class="fm-message shadow fade-in"
+                :class="item.error ? 'fm-message-error' : 'fm-message-success'">{{ item.text }}</div>
         </div>
     </div>
 </template>
@@ -38,13 +38,14 @@ export default {
                             this.messages[i].text = '';
                         }
                     }
-                }, 4000);
+                }, this.length);
             },
             deep: true,
         }
     },
     props: {
         message: { type: [Array, Object], default: [] },
+        length: { type: Number, default: 4000 },
         error: { type: Boolean, default: false },
     }
 }

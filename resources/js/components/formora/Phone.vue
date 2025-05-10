@@ -5,7 +5,12 @@
             <fm-select
                 v-if="$cuztomisable.locations.country_codes.length > 1"
                 v-model="value.country_code"
-                :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass, 'fm-form-country-code']"
+                :class="[{
+                    'is-invalid': errorList.length > 0,
+                    'empty': value.country_code == '' || value.country_code == null },
+                    inputClass,
+                    'fm-form-phone-country-code-input'
+                ]"
                 :items="$cuztomisable.locations.country_codes"
                 :disabled="disabled"
                 :readonly="readonly"
@@ -15,14 +20,30 @@
                 v-model="value.number"
                 :class="[{
                     'is-invalid': errorList.length > 0,
-                    'empty': value == '' || value == null,
-                    'fm-form-phone-normal-borders': $cuztomisable.locations.country_codes.length <= 1 },
+                    'empty': value.number == '' || value.number == null,
+                    'fm-form-phone-normal-borders-left': $cuztomisable.locations.country_codes.length <= 1,
+                    'fm-form-phone-normal-borders-right': !extension },
                     inputClass,
                     'fm-form-phone-input'
                 ]"
                 max="15"
                 type="number"
                 :format="format"
+                :disabled="disabled"
+                :readonly="readonly"
+                @change="errorList = []"
+                hideDetails />
+            <fm-input
+                v-if="extension"
+                label="Ext."
+                v-model="value.extension"
+                :class="[{
+                    'is-invalid': errorList.length > 0,
+                    'empty': value.extension == '' || value.extension == null },
+                    inputClass,
+                    'fm-form-phone-extension-input'
+                ]"
+                type="number"
                 :disabled="disabled"
                 :readonly="readonly"
                 hideDetails />
@@ -44,12 +65,11 @@ export default {
     created: function() {
         if (this.modelValue == '') {
             this.value = {
-                id: null,
                 country_code: this.$cuztomisable.locations.default_country_code ?? '',
                 number: '',
                 extension: '',
-                mobile: 0,
-                default: 0,
+                mobile: this.isMobile,
+                default: this.isDefault,
             };
         }
     },
@@ -59,6 +79,11 @@ export default {
                 return this.modelValue;
             },
             set: function (value) {
+                value.mobile = this.isMobile;
+                value.default = this.isDefault;
+                if (typeof(value.country_code) !== 'undefined' && value.country_code == '') {
+                    value.country_code = this.$cuztomisable.locations.default_country_code ?? '';
+                }
                 this.$emit('update:modelValue', value);
             }
         }
@@ -67,6 +92,9 @@ export default {
         'value.country_code': {
             immediate: true,
             handler: function(code) {
+                if (code == '') {
+                    this.value.country_code = this.$cuztomisable.locations.default_country_code ?? '';
+                }
                 this.format = null;
                 for (let i = 0; i < this.$cuztomisable.locations.country_codes.length; i++) {
                     if (code == this.$cuztomisable.locations.country_codes[i].value) {
@@ -83,7 +111,7 @@ export default {
         },
     },
     props: {
-        modelValue: { type: [String, Number], default: '' },
+        modelValue: { type: [Object, String, Number], default: '' },
         label: { type: String, default: null },
         placeholder: { type: String, default: '' },
         type: { type: String, default: 'input' },
@@ -92,29 +120,9 @@ export default {
         disabled: { type: Boolean, default: false },
         readonly: { type: Boolean, default: false },
         hideDetails: { type: Boolean, default: false },
+        extension: { type: Boolean, default: false },
+        isMobile: { type: Boolean, default: false },
+        isDefault: { type: Boolean, default: false },
     }
 }
 </script>
-<style type="text/css">
-    .fm-flex-container {
-        display: flex;
-        align-items: center;
-    }
-    .fm-form-country-code {
-        width: 120px;
-    }
-    .fm-form-country-code select {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-    .fm-form-phone-input {
-        flex: 1;
-    }
-    .fm-form-phone-input input {
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-    }
-    .fm-form-phone-input.fm-form-phone-normal-borders input {
-        border-radius: 0.375rem;
-    }
-</style>

@@ -5,6 +5,7 @@ use VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Controllers\RoleController;
 use VanDmade\Cuztomisable\Controllers\UserController;
+use VanDmade\Cuztomisable\Controllers\FormoraController;
 
 Route::controller(SettingsController::class)->group(function () {
     Route::get('/cuztomisable/settings', 'all');
@@ -22,7 +23,11 @@ Route::controller(Authentication\PasswordController::class)->group(function () {
     Route::get('/password/forgot/{token}/verify/{code?}', 'verify');
 });
 Route::controller(Authentication\RegistrationController::class)->group(function () {
-    Route::post('/register', 'save');
+    Route::post('/register/{code?}', 'save');
+});
+Route::controller(FormoraController::class)->group(function () {
+    Route::get('/formora/{page}', 'get');
+    Route::post('/formora/{page}', 'save');
 });
 Route::group(['middleware' => ['auth:sanctum', 'ability:user,admin']], function () {
     Route::controller(UserController::class)->group(function () {

@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use VanDmade\Cuztomisable\Helpers\Respondify;
+use Illuminate\Support\Facades\Mail;
 
 class Controller extends BaseController
 {
@@ -29,7 +30,7 @@ class Controller extends BaseController
 
     public function email($template, $email)
     {
-
+        return Mail::to($email)->send($template);
     }
 
     public function text()

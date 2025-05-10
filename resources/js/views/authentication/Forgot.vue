@@ -1,6 +1,6 @@
 <template>
     <div class="page">
-        <vm-message :message="message"></vm-message>
+        <fm-message :message="message"></fm-message>
         <h3>Forgot Password</h3>
         <h6 class="sub-title mb-6">Enter the email address associated with your account</h6>
         <form @submit.prevent="save">
@@ -64,7 +64,7 @@ export default {
     computed: {
         usernameLabel: function() {
             try {
-                var loginWith = this.$cuztomisables.login_with ?? [];
+                var loginWith = this.$cuztomisable.login_with ?? [];
                 return loginWith.phone ?
                     (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
                     (loginWith.email ? 'Email Address' : 'Username');

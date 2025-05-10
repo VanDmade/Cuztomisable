@@ -41,44 +41,29 @@ return [
         'expires_in' => 300,
     ],
     'registration' => [
+        // Determines if registration is disabled
+        'disabled' => false,
+        // Determines if registration can occur with a code
+        'code' => false,
         // Length of all codes sent to users
         'length' => 6,
         // Length of time the registration code will expire
         'expires_in' => 300,
-        // List of fields that are required when signing up
-        'fields' => [
-            /*  You can add to this list if you'd like, with any custom field names. To prevent any issues with SQL
-                injection, these fields will be used to check what comes in to prevent any updates of, for example,
-                admin or roles. The template for each of these fields within the users table are as followed, If you set
-                the field to true, i.e. 'name' => true, then it will be displayed and required. You can also reorganize
-                where the fields are within the dropdown other than the password which is the last entry no matter what.
-                KEEP IN MIND, this is just for the templates with this package
-
-                'database_field' => [
-                    // Whether the system will require that the field have a value
-                    'required' => boolean,
-                    // The list is used within the select to be selected when filling out the form, if required is set to
-                    // false, then there will be a blank option that the user can default to and choose.
-                    'list' => [],
-                ] */
-            'name' => true,
-            'first_name' => false,
-            'middle_name' => false,
-            'last_name' => false,
-            'suffix' => false,
-            'title' => false,
-            'address' => [
-                'required' => false,
-                'type' => 'address',
-            ],
-            'gender' => false,
-            'username' => false,
-            'email' => true,
-            'phone' => [
-                // This is the way to set the value to not required, if it is just set the entire array index to true
-                'required' => false,
-                'type' => 'phone',
-            ],
+        /* Determines whether an email should be sent to an administrator.
+         * If the account was created by another user, that user will receive the notification instead.
+         * Ensure that CUZTOMISABLE_ADMIN is set in the .env file for fallback notifications. */
+        'send_notification' => true,
+        /* Sets up the fields to be used within the registration form. Keep in mind that this is purely for the main
+         * Cuztomisable view and if you need more fields you should extend the Registration controller and create your
+         * own view. If set to false it will not show within the default registration form. You can ignore these fields
+         * if you are creating your own frontend. */
+        'address' => [
+            // If required is set to false, then the address field will not be required to submit but will be displayed
+            'required' => false,
+            // Determines whether or not the Address Two line should be displayed
+            'address_two' => true,
+            // Determines whether or not the Address Three line should be displayed
+            'address_three' => false,
         ],
     ],
     // Length of the token used within the URL, max length is 64
@@ -91,23 +76,27 @@ return [
          * view  Content for the email|text */
         'reset' => [
             'type' => 'email',
-            'view' => 'cuztomisable.emails.authentication.reset',
+            'view' => 'emails.authentication.reset',
         ],
         'forgot' => [
             'type' => 'email',
-            'view' => 'cuztomisable.emails.authentication.forgot',
+            'view' => 'emails.authentication.forgot',
         ],
         'email_verification' => [
             'type' => 'email',
-            'view' => 'cuztomisable.emails.authentication.verifications.email',
+            'view' => 'emails.authentication.verifications.email',
         ],
         'phone_verification' => [
             'type' => 'phone',
-            'view' => 'cuztomisable.emails.authentication.verifications.phone',
+            'view' => 'emails.authentication.verifications.phone',
         ],
         'registration' => [
             'type' => 'email|phone',
-            'view' => 'cuztomisable.emails.authentication.registration',
+            'view' => 'emails.authentication.registration',
+        ],
+        'registered' => [
+            'type' => 'email',
+            'view' => 'emails.authentication.registered',
         ],
     ],
 ];

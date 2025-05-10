@@ -22,9 +22,6 @@ class SettingsController extends Controller
                     'resend_after' => config('cuztomisable.login.multi_factor_authentication.resend_after', 300),
                     'send_via' => config('cuztomisable.login.multi_factor_authentication.send_via', ['email' => true]),
                 ],
-                'registration' => [
-                    'fields' => config('cuztomisable.account.registration.fields'),
-                ],
                 'session_length' => config('cuztomisable.login.session_length', 300),
                 'verification' => config('cuztomisable.login.verification', []),
                 'passwords' => [
@@ -35,11 +32,13 @@ class SettingsController extends Controller
                     'requirements' => config('cuztomisable.account.passwords.requirements', []),
                 ],
                 'locations' => [
-                    'addresses' => config('cuztomisable.locations.addresses'),
                     'default_country' => config('cuztomisable.locations.default_country', null),
                     'countries' => config('cuztomisable.locations.countries', []),
                     'default_country_code' => config('cuztomisable.locations.default_country_code', null),
                     'country_codes' => config('cuztomisable.locations.country_codes', []),
+                ],
+                'registration' => [
+                    'address' => config('cuztomisable.account.registration.address', false),
                 ],
             ]);
         } catch (Exception $error) {

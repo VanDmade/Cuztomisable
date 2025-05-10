@@ -8,6 +8,7 @@ return [
             'reset' => 'Reset Password',
             'new_ip_address' => 'New Login Detected',
             'email_verification' => 'Email Verification',
+            'registered' => 'New User',
         ],
     ],
     'login' => [
@@ -52,6 +53,7 @@ return [
     'registration' => [
         'verified' => 'The code has been verified.',
         'created' => 'Welcome to the application!',
+        'verification' => 'Welcome to the application! Please verify your :type before you login.',
         'errors' => [
             'not_found' => 'The code entered was not found.',
             'used' => 'The registration code was already used.',

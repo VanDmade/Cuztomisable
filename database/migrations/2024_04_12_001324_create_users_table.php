@@ -28,16 +28,10 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('set null');
             $table->string('name', 64);
-            $table->string('first_name', 64);
-            $table->string('middle_name', 64)->nullable();
-            $table->string('last_name', 64);
-            $table->string('suffix', 8)->nullable();
-            $table->string('title', 128)->nullable();
             $table->string('username', 128)->nullable();
             $table->string('email', 128)->unique();
             $table->datetime('email_verified_at')->nullable();
             $table->string('password', 64);
-            $table->string('gender', 32)->nullable();
             $table->string('timezone', 64)->default('UTC');
             $table->boolean('locked')->default(false);
             $table->boolean('change_password')->default(false);

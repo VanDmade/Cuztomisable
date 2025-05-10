@@ -2,7 +2,7 @@
     <div class="page">
         <loading v-if="loading"></loading>
         <div v-else>
-            <vm-message :message="message"></vm-message>
+            <fm-message :message="message"></fm-message>
             <h4>Multi-Factor Authentication</h4>
             <form v-if="!sent" class="send-mfa-form" @submit.prevent="send">
                 <h6 class="sub-title mb-6">Please select how you want the code sent</h6>
@@ -179,7 +179,7 @@ export default {
             });
         },
         setupResend: function() {
-            var resendAfter = this.$cuztomisables.multi_factor_authentication.resend_after * 1000;
+            var resendAfter = this.$cuztomisable.multi_factor_authentication.resend_after * 1000;
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);

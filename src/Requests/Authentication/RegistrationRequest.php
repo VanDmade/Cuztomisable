@@ -18,41 +18,57 @@ class RegistrationRequest extends FormRequest
             'required' => __('cuztomisable/global.form.required'),
             'email' => __('cuztomisable/global.form.email'),
             'in' => __('cuztomisable/global.form.in'),
+            'boolean' => __('cuztomisable/global.form.boolean'),
+            'size' => __('cuztomisable/global.form.phone.size'),
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'phone' => strval(cleanPhone($this->input('phone'))),
+        ]);
     }
 
     public function rules(): array
     {
-        return [
-            'first_name' => 'required',
-            'middle_name' => 'nullable',
-            'last_name' => 'required',
-            'suffix' => 'nullable',
-            'title' => 'nullable',
-            'username' => 'nullable',
+        $list = config('cuztomisable.locations.country_codes') ?? [];
+        // Gets the designated size of the specific phone number
+        foreach ($list as $i => $row) {
+            if ($row['value'] == $this->input('country_code', 1)) {
+                $size = $row['required_length'] ?? 10;
+            }
+        }
+        $requirePhone = !config('cuztomisable.login.login_with.email', false) ||
+            config('cuztomisable.login.login_with.phone', false) ||
+            $this->input('phone') != '' ? 'required' : 'nullable';
+        $params = [
+            'name' => 'required',
+            'username' => !config('cuztomisable.login.login_with.email', false) &&
+                !config('cuztomisable.login.login_with.phone', false) ? 'required' : 'nullable',
             'email' => 'required|email',
             'password' => 'required',
-            'gender' => 'nullable',
             'timezone' => 'nullable',
-            'phones' => 'nullable',
-            'phones.*' => 'nullable|array',
-            'phones.*.number' => 'required',
-            'phones.*.country_code' => 'required',
-            'phones.*.extension' => 'nullable',
-            'phones.*.mobile' => 'nullable|in:0,1',
-            'phones.*.default' => 'nullable|in:0,1',
-            'addresses' => 'nullable',
-            'addresses.*' => 'nullable|array',
-            'addresses.*.address' => 'required',
-            'addresses.*.address_two' => 'nullable',
-            'addresses.*.address_three' => 'nullable',
-            'addresses.*.state_or_province' => 'required',
-            'addresses.*.city' => 'required',
-            'addresses.*.country' => 'required',
-            'addresses.*.zip_or_postal_code' => 'required',
-            'addresses.*.shipping' => 'required|in:0,1',
-            'addresses.*.billing' => 'required|in:0,1',
+            'phone' => $requirePhone.'|size:'.($size ?? 10),
+            'country_code' => $requirePhone,
         ];
+        // Determines if the address should be required, allowed, or straight up rejected
+        if (($address = config('cuztomisable.account.registration.address', false)) != false) {
+            // If it's not required then it'll be dependant on whether any of it is filled out
+            $required = $address['required'] || $this->input('address') != '' ||
+                $this->input('city') != '' || $this->input('state_or_province') != '' ||
+                $this->input('zip_or_postal_code') != '' ? 'required' : 'nullable';
+            $params = array_merge($params, [
+                'address' => $required,
+                'address_two' => 'nullable',
+                'address_three' => 'nullable',
+                'city' => $required,
+                'state_or_province' => $required,
+                'zip_or_postal_code' => $required,
+                'country' => $required,
+            ]);
+        }
+        return $params;
     }
 
 }

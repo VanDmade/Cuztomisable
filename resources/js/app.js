@@ -16,8 +16,9 @@ import Select from './components/Formora/Select.vue';
 import Checkbox from './components/Formora/Checkbox.vue';
 import Textarea from './components/Formora/Textarea.vue';
 import Tags from './components/Formora/Tags.vue';
+import Form from './components/Formora/Form.vue';
 import Modal from './components/Formora/Modal.vue';
-import Message from './components/Message.vue';
+import Message from './components/Formora/Message.vue';
 // Creates the application to start mounting global components
 var app = createApp(Index).use(router);
 app.mixin({
@@ -64,6 +65,9 @@ app.mixin({
         onResize: function() {
             this.width = window.innerWidth;
         },
+        clone: function(value) {
+            return JSON.parse(JSON.stringify(value));
+        },
     },
 });
 // Adds the token to the axios requests IF SET
@@ -83,6 +87,7 @@ app.use(store);
 app.component('index', Index);
 app.component('tablelify', Tablelify);
 app.component('loading', Loading);
+app.component('fm-form', Form);
 app.component('fm-input', Input);
 app.component('fm-address', Address);
 app.component('fm-phone', Phone);
@@ -99,4 +104,5 @@ app.component('fm-modal', Modal);
 var response = await axios.get('/cuztomisable/settings');
 app.config.globalProperties.$cuztomisable = response.data ?? null;
 app.config.globalProperties.$url = 'http://localhost:8000/';
+app.config.globalProperties.$timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 app.mount('#app');

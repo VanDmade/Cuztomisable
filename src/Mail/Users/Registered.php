@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\User;
 
-class Verification extends Mailable
+class Registered extends Mailable
 {
 
     use Queueable, SerializesModels;
@@ -25,17 +25,16 @@ class Verification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('cuztomisable/authentication.emails.subjects.verification'),
+            subject: __('cuztomisable/authentication.emails.subjects.registered'),
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.email_verification.view'),
+            view: config('cuztomisable.account.notifications.registered.view'),
             with: [
                 'user' => $this->user,
-                'verificationUrl' => url('/verify/'.$this->user->id.'?email='.$this->user->email),
                 'logo' => asset('images/logo.png'),
                 'company' => env('APP_NAME'),
             ],

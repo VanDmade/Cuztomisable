@@ -7,20 +7,23 @@
                 v-model="modelValue.address"
                 type="text"
                 :errors="getError('address')"
+                @change="clearError('address')"
                 :disabled="disabled" />
             <fm-input
-                v-if="$cuztomisable.locations.addresses.address_two"
+                v-if="hasAddressTwo"
                 label="Address Two"
                 v-model="modelValue.address_two"
                 type="text"
                 :errors="getError('address_two')"
+                @change="clearError('address_two')"
                 :disabled="disabled" />
             <fm-input
-                v-if="$cuztomisable.locations.addresses.address_three"
+                v-if="hasAddressThree"
                 label="Address Three"
                 v-model="modelValue.address_three"
                 type="text"
                 :errors="getError('address_three')"
+                @change="clearError('address_three')"
                 :disabled="disabled" />
             <div class="row">
                 <div v-if="hasCity" class="col col-md-6 col-12">
@@ -29,22 +32,25 @@
                         v-model="modelValue.city"
                         type="text"
                         :errors="getError('city')"
+                        @change="clearError('city')"
                         :disabled="disabled" />
                 </div>
                 <div class="col col-md-6 col-12">
                     <fm-select
                         label="State or Province"
-                        v-model="modelValue.state"
+                        v-model="modelValue.state_or_province"
                         :items="statesOrProvinces"
-                        :errors="getError('state')"
+                        :errors="getError('state_or_province')"
+                        @change="clearError('state_or_province')"
                         :disabled="disabled"></fm-select>
                 </div>
                 <div class="col col-md-6 col-12">
                     <fm-input
                         label="ZIP/Postal Code"
-                        v-model="modelValue.code"
+                        v-model="modelValue.zip_or_postal_code"
                         type="text"
-                        :errors="getError('code')"
+                        :errors="getError('zip_or_postal_code')"
+                        @change="clearError('zip_or_postal_code')"
                         :disabled="disabled" />
                 </div>
                 <div v-if="$cuztomisable.locations.countries.length > 1" class="col col-md-6 col-12">
@@ -53,6 +59,7 @@
                         v-model="modelValue.country"
                         :items="$cuztomisable.locations.countries ?? []"
                         :errors="getError('country')"
+                        @change="clearError('country')"
                         :disabled="disabled"></fm-select>
                 </div>
             </div>
@@ -71,21 +78,29 @@ export default {
     },
     created: function() {
         if (this.modelValue == '') {
+            // Defaults the object to make sure it has the fields for the address
             this.value = {
                 address: '',
                 address_two: '',
                 address_three: '',
                 city: '',
-                state: '',
-                code: '',
-                country: this.$cuztomisable.locations.default_country ?? '',
+                state_or_province: '',
+                zip_or_postal_code: '',
+                country: '',
+                shipping: this.isShipping,
+                billing: this.isBilling,
             };
         }
     },
     methods: {
         getError: function(value) {
-            return typeof(this.errors[this.name]) !== 'undefined' &&
-                typeof(this.errors[this.name][value]) !== 'undefined' ? this.errors[this.name][value] : [];
+            return typeof(this.errorList) !== 'undefined' &&
+                typeof(this.errorList[value]) !== 'undefined' ? this.errorList[value] : [];
+        },
+        clearError: function(value) {
+            if (typeof(this.errorList[value]) !== 'undefined') {
+                this.errorList[value] = '';
+            }
         }
     },
     computed: {
@@ -94,6 +109,12 @@ export default {
                 return this.modelValue;
             },
             set: function (value) {
+                value.shipping = this.isShipping;
+                value.billing = this.isBilling;
+                if (typeof(value.country) !== 'undefined' && value.country == '') {
+                    // Defaults the country
+                    value.country = this.$cuztomisable.locations.default_country ?? '';
+                }
                 this.$emit('update:modelValue', value);
             }
         }
@@ -108,6 +129,9 @@ export default {
         'value.country': {
             immediate: true,
             handler: function(country) {
+                if (country == '') {
+                    this.value.country = this.$cuztomisable.locations.default_country;
+                }
                 for (let i = 0; i < this.$cuztomisable.locations.countries.length; i++) {
                     if (this.$cuztomisable.locations.countries[i].value == this.value.country) {
                         this.statesOrProvinces = this.$cuztomisable.locations.countries[i].states_or_provinces ?? [];
@@ -120,8 +144,7 @@ export default {
         }
     },
     props: {
-        modelValue: { type: [Object, Array, String, Number], default: '' },
-        name: { type: String, default: 'address' },
+        modelValue: { type: [Object, String, Number], default: '' },
         label: { type: String, default: null },
         placeholder: { type: String, default: '' },
         type: { type: String, default: 'input' },
@@ -130,6 +153,10 @@ export default {
         disabled: { type: Boolean, default: false },
         readonly: { type: Boolean, default: false },
         hideDetails: { type: Boolean, default: false },
+        hasAddressTwo: { type: Boolean, default: false },
+        hasAddressThree: { type: Boolean, default: false },
+        isShipping: { type: Boolean, default: false },
+        isBilling: { type: Boolean, default: false },
     }
 }
 </script>

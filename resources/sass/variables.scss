@@ -1,0 +1,24 @@
+@use "~bootstrap/scss/bootstrap";
+
+$xsmall:            576px;
+$small:             768px;
+$medium:            992px;
+$large:             1200px;
+$xlarge:            1400px;
+
+$color-primary:     #FF6F61;
+$color-secondary:   #30D5C8;
+$color-accent:      #FFEB99;
+$color-danger:      #FF4B4B;
+$color-success:     #6AB26A;
+$color-info:        #87CEFA;
+$color-warning:     #FFA500;
+
+$color-bg:          #FAF9F6;
+$color-text:        #1C1C1C;
+$color-white:       #FFFFFF;
+
+$border-radius:     0.5rem;
+$padding:           0.6rem 1.2rem;
+$transition:        all 0.2s ease-in-out;
+

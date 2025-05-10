@@ -6,7 +6,7 @@ return [
      * username is not in the database table then email address will be used instead. */
     'login_with' => [
         'email' => true,
-        'phone' => false,
+        'phone' => true,
     ],
     // Allows the user to remember the account, this will ignore the session_length if set to true
     'remember' => false,
@@ -27,11 +27,6 @@ return [
     /* The amount of time, in seconds, that the user's session is set to. If null,
      * then there is no session length, the user will remain logged in forever (Or until idle). */ 
     'session_length' => 300,
-    // Specifies whether email/phone verification is required before logging in
-    'verification' => [
-        'email' => false,
-        'phone' => false,
-    ],
     'attempts' => [
         // Amount of attempts before the account is put on hold
         'total' => 5,
@@ -40,6 +35,11 @@ return [
         /* Amount of time the account will be disabled until allowing of logins again. If "locked" is set to
          * true, this will be ignored. */
         'timer' => 300,
+    ],
+    // Determines if verification is required to login
+    'verification' => [
+        'email' => true,
+        'phone' => false,
     ],
     'notifications' => [
         /* Sets up the notifications within the system and how they are sent

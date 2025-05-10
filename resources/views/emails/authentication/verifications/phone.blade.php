@@ -1,0 +1,1 @@
+[{{ $company }}] Your verification code is {{ $code }}. Do not share this code. If you didn’t request it, ignore this message.

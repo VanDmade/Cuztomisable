@@ -24,7 +24,6 @@ function generateCode($length, $salt = 'cuztomisable', $prefix = null)
     ));
 }
 
-
 /******************************************************************************\
  *
  * Gets the current IPv4 address of the user
@@ -41,7 +40,6 @@ function getIpAddress()
     }
     return $_SERVER['REMOTE_ADDR'] ?? null;
 }
-
 
 /******************************************************************************\
  *
@@ -61,7 +59,6 @@ function convertToTimeOutput($seconds)
         ($seconds != 0 ? appendZero($seconds) : '');
 }
 
-
 /******************************************************************************\
  *
  * Takes the number and appends a zero to the front if less than ten
@@ -72,4 +69,19 @@ function convertToTimeOutput($seconds)
 function appendZero($number)
 {
     return (intval($number) < 10 ? '0' : '').intval($number);
+}
+
+/******************************************************************************\
+ *
+ * Cleans the phone number so that it has a static format for the database
+ * 
+ * @return string  The cleaned phone number
+ * 
+\******************************************************************************/
+function cleanPhone($number)
+{
+    foreach ([' ', '_', '(', ')', '-'] as $i => $key) {
+        $number = str_replace($key, '', $number);
+    }
+    return $number;
 }

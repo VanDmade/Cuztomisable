@@ -22,16 +22,11 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        'first_name',
-        'middle_name',
-        'last_name',
-        'suffix',
-        'title',
+        'name',
         'username',
         'email',
         'email_verified_at',
         'password',
-        'gender',
         'timezone',
         'locked',
         'change_password',
@@ -61,29 +56,12 @@ class User extends Authenticatable
         'deleted_by',
     ];
 
-    protected $appends = ['name']; 
-
     public static function boot()
     {
         parent::boot();
         self::creating(function($model) {
             $model->created_by = Auth::check() ? Auth::user()->id : null;
         });
-    }
-
-    public function name(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => ucwords(str_replace('  ', ' ',
-                implode(' ', [
-                    $this->first_name,
-                    // Outputs the middle name or the middle initial with the period
-                    !is_null($this->middle_name) ?
-                        ($this->middle_name.(strlen($this->middle_name) == 1 ? '.' : '')) : '',
-                    $this->last_name
-                ])
-            ))
-        );
     }
 
     public function obscuredEmail(): Attribute

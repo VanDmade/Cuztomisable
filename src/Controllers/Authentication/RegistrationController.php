@@ -2,10 +2,11 @@
 
 namespace VanDmade\Cuztomisable\Controllers\Authentication;
 
-use App\Http\Controllers\Controller;
+use VanDmade\Cuztomisable\Controllers\Controller;
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\Authentication\RegistrationRequest;
 use VanDmade\Cuztomisable\Mail\Users\Verification as VerificationMail;
+use VanDmade\Cuztomisable\Mail\Users\Registered as RegisteredMail;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Phone;
 use VanDmade\Cuztomisable\Models\Users;
@@ -42,18 +43,12 @@ class RegistrationController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->validated();
-            return response()->json([$data], 500);
             // Creates the user
             $user = Users\User::create([
-                'first_name' => $data['first_name'],
-                'middle_name' => $data['middle_name'] ?? null,
-                'last_name' => $data['last_name'],
-                'suffix' => $data['suffix'] ?? null,
-                'title' => $data['title'] ?? null,
-                'username' => $data['username'] ?? null,
+                'name' => $data['name'],
                 'email' => $data['email'],
+                'username' => $data['username'] ?? null,
                 'password' => $password = Hash::make($data['password']),
-                'gender' => $data['gender'] ?? null,
                 'timezone' => $data['timezone'] ?? 'EST',
             ]);
             // Creates the instance of a password so the user cannot use the password again
@@ -76,49 +71,62 @@ class RegistrationController extends Controller
                 $registration->user_id = $user->id;
                 $registration->used_at = date('Y-m-d H:i:s');
                 $registration->save();
-                // TODO :: Send a notification to the creator of the invitation
                 $user->created_by = $registration->created_by;
                 $user->save();
+                // The creator will receive an email of the registration
+                $sendRegisteredTo = $registration->createdBy->email ?? null;
+            } elseif (filter_var($email = env('CUZTOMISABLE_ADMIN', null), FILTER_VALIDATE_EMAIL)) {
+                // The main administrator of the site will receive an email of the registration
+                $sendRegisteredTo = $email;
             }
-            $hasMobile = false;
-            $mobilePhone = null;
-            // Iterates through the phones to allow for multiple phone numbers to be entered on use creation
-            foreach ($data['phones'] ?? [] as $i => $phone) {
-                Phone::create([
+            // Determines if the phone is set up and entered
+            if (isset($data['phone']) && $data['phone'] != '') {
+                $phone = Phone::create([
                     'user_id' => $user->id,
-                    'number' => $phone['number'],
-                    'country_code' => $phone['country_code'] ?? 1,
-                    'extension' => $phone['extension'] ?? null,
-                    'mobile' => $hasMobile = isset($phone['mobile']) && $phone['mobile'] == '1' ? true : false,
-                    'default' => !isset($phone['default']) || $phone['default'] == '1' ? true : false,
+                    'number' => $data['phone'],
+                    'country_code' => $data['country_code'] ?? 1,
+                    'default' => true,
                 ]);
             }
-            // Iterates through the addresses to add them to the address database
-            foreach ($data['addresses'] ?? [] as $i => $address) {
+            // Makes sure the address is entered or if it needs to be ignored
+            if (config('cuztomisable.account.registration.address') !== false &&
+                isset($data['address']) && $data['address'] != '') {
                 Address::create([
                     'user_id' => $user->id,
-                    'address' => $address['address'],
-                    'address_two' => $address['address_two'] ?? null,
-                    'address_three' => $address['address_three'] ?? null,
-                    'state_or_province' => $address['state_or_province'],
-                    'city' => $address['city'],
-                    'country' => $address['country'],
-                    'zip_or_postal_code' => $address['zip_or_postal_code'],
-                    'shipping' => isset($address['shipping']) && $address['shipping'] == '1' ? true : false,
-                    'billing' => isset($address['billing']) && $address['billing'] == '1' ? true : false,
+                    'address' => $data['address'],
+                    'address_two' => $data['address_two'] ?? null,
+                    'address_three' => $data['address_three'] ?? null,
+                    'state_or_province' => $data['state_or_province'],
+                    'city' => $data['city'],
+                    'country' => $data['country'],
+                    'zip_or_postal_code' => $data['zip_or_postal_code'],
                 ]);
             }
             // Creates the phone entry for the user
-            if (config('cuztomisable.authentication.notifications.email_verification', false) !== false) {
-                // TODO :: Sends the email verification message to the user
+            if (config('cuztomisable.account.notifications.email_verification', false) !== false) {
+                // Sends the email verification message to the user
                 $this->email(new VerificationMail($user), $user->email);
             }
-            if ($hasMobile && config('cuztomisable.authentication.notifications.phone_verification', false) !== false) {
+            if (isset($phone->id) &&
+                config('cuztomisable.authentication.notifications.phone_verification', false) !== false) {
                 // TODO :: Sends the phone verification text to the user
             }
+            // Determines if the admin or creator should be notified about the recent registration
+            if (!is_null($sendRegisteredTo) && config('cuztomisable.account.registration.send_notification', false)) {
+                // Send a notification to the creator of the invitation
+                $this->email(new RegisteredMail($user), $user->email);
+            }
             DB::commit();
+            $verifyEmail = config('cuztomisable.login.verification.email', false);
+            $verifyPhone = config('cuztomisable.login.verification.phone', false);
+            if ($verifyEmail || $verifyPhone) {
+                $message = __('cuztomisable/authentication.registration.verification', [
+                    'type' => $verifyEmail && $verifyPhone ? 'email address and phone number' :
+                        ($verifyEmail ? 'email address' : 'phone number'),
+                ]);
+            }
             return $this->success([
-                'message' => __('cuztomisable/authentication.registration.created'),
+                'message' => $message ?? __('cuztomisable/authentication.registration.created'),
             ]);
         } catch (Exception $error) {
             DB::rollback();

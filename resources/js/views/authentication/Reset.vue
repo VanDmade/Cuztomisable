@@ -2,7 +2,7 @@
     <div class="page">
         <loading v-if="loading"></loading>
         <div id="reset-password-page" v-else>
-            <vm-message :message="message"></vm-message>
+            <fm-message :message="message"></fm-message>
             <h3>Reset Password</h3>
             <form v-if="!verifiedCode" @submit.prevent="verify(true)">
                 <p>The code was sent to your email address</p>
@@ -143,7 +143,7 @@ export default {
             this.disableSubmit = !complete;
         },
         setupResend: function() {
-            var resendAfter = this.$cuztomisables.passwords.resend_after * 1000;
+            var resendAfter = this.$cuztomisable.passwords.resend_after * 1000;
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);

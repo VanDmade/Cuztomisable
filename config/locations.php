@@ -1,12 +1,6 @@
 <?php
 
 return [
-    'addresses' => [
-        // Determines whether or not the Address Two line should be displayed
-        'address_two' => true,
-        // Determines whether or not the Address Three line should be displayed
-        'address_three' => false,
-    ],
     // Default country that will be selected when filling out the form, set to null if you want them to choose.
     'default_country' => 'USA',
     /* List of all allowed countries and their states/provinces. If the states/provinces are left blank then that
@@ -78,7 +72,7 @@ return [
     'default_country_code' => 1,
     // List of allowed country codes and the country they belong to. The format will be used to replace X with digits
     'country_codes' => [
-        ['text' => '(+1) USA', 'value' => 1, 'format' => '(XXX) XXX-XXXX'],
-        ['text' => '(+2) GB', 'value' => 2, 'format' => '(XX) XXX-XXXX'],
+        ['text' => '(+1) USA', 'value' => 1, 'format' => '(XXX) XXX-XXXX', 'required_length' => 10],
+        ['text' => '(+44) UK', 'value' => 44, 'format' => '(XX) XXXX-XXXX', 'required_length' => 10],
     ],
 ];

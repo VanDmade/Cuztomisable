@@ -7,5 +7,9 @@ return [
         'email' => 'This field must be an email address.',
         'exists' => 'The value entered doesn\'t match our requirements.',
         'in' => 'Please refresh and try again!',
+        'boolean' => 'The value must be true or false.',
+        'phone' => [
+            'size' => 'Please enter a valid phone number.',
+        ],
     ],
 ];
