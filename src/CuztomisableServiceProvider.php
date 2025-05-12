@@ -26,6 +26,7 @@ class CuztomisableServiceProvider extends ServiceProvider
             __DIR__.'/../resources/sass' => resource_path('sass'),
             __DIR__.'/../resources/views/' => resource_path('views'),
             __DIR__.'/../resources/languages/en' => resource_path('lang/en/cuztomisable'),
+            __DIR__.'/../images' => public_path('cuztomisable'),
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ]);
     }

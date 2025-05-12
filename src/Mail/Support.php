@@ -1,6 +1,6 @@
 <?php
 
-namespace VanDmade\Cuztomisable\Mail\Authentication\Passwords;
+namespace VanDmade\Cuztomisable\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,36 +8,37 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use VanDmade\Cuztomisable\Models\Users\Passwords\Reset;
+use VanDmade\Cuztomisable\Models\Users\User;
 
-class Forgot extends Mailable
+class Support extends Mailable
 {
 
     use Queueable, SerializesModels;
 
-    private $reset;
+    private $user, $text;
 
-    public function __construct(Reset $reset)
+    public function __construct(User $user, $text)
     {
-        $this->reset = $reset;
+        $this->user = $user;
+        $this->text = $text;
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('cuztomisable/authentication.emails.subjects.forgot'),
+            subject: __('cuztomisable/user.emails.subjects.support'),
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.forgot.view'),
+            view: config('cuztomisable.account.notifications.support.view'),
             with: [
-                'user' => $this->reset->user,
-                'code' => $this->reset->code,
+                'user' => $this->user,
                 'logo' => asset('images/logo.png'),
                 'company' => env('APP_NAME'),
+                'text' => $this->text,
             ],
         );
     }

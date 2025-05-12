@@ -25,16 +25,17 @@ Route::controller(Authentication\PasswordController::class)->group(function () {
 Route::controller(Authentication\RegistrationController::class)->group(function () {
     Route::post('/register/{code?}', 'save');
 });
+Route::controller(Authentication\PasswordController::class)->group(function () {
+    Route::get('/lock/{user}/reset/{id}/{token}', 'lock');
+});
 Route::controller(FormoraController::class)->group(function () {
     Route::get('/formora/{page}', 'get');
     Route::post('/formora/{page}', 'save');
 });
-Route::group(['middleware' => ['auth:sanctum', 'ability:user,admin']], function () {
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('/me', 'get');
     });
-});
-Route::group(['middleware' => ['auth:sanctum', 'ability:admin']], function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('/list/users', 'list');
         Route::delete('/user/{id}', 'toggleDelete');

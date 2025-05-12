@@ -9,17 +9,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\User;
+use VanDmade\Cuztomisable\Models\Users\Passwords\Reset as ResetModel;
 
 class Reset extends Mailable
 {
 
     use Queueable, SerializesModels;
 
-    private $user;
+    private $user, $reset;
 
-    public function __construct(User $user)
+    public function __construct(User $user, ResetModel $reset)
     {
         $this->user = $user;
+        $this->reset = $reset;
     }
 
     public function envelope(): Envelope
@@ -34,7 +36,15 @@ class Reset extends Mailable
         return new Content(
             view: config('cuztomisable.account.notifications.reset.view'),
             with: [
-                'name' => $this->user->name ?? null,
+                'user' => $this->user,
+                'logo' => asset('images/logo.png'),
+                'company' => env('APP_NAME'),
+                'lockUrl' => url('/lock/'.implode('/', [
+                    $this->user->id,
+                    'reset',
+                    $this->reset->id,
+                    $this->reset->token,
+                ])),
             ],
         );
     }

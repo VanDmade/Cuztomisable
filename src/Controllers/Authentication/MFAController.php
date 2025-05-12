@@ -42,12 +42,16 @@ class MFAController extends Controller
             }
             $code->sent_at = date('Y-m-d H:i:s');
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
+            // Checks the code to see how it was resent and resends it
+            if ($data['type'] == 'resend') {
+                $data['type'] = $code->sent_via;
+            }
             if ($data['type'] == 'phone' && $sendVia['phone']) {
                 $code->sent_at = 'phone';
                 $this->text();
             } else {
                 $code->sent_via = 'email';
-                $this->email(new MFAMail($code), $code->user->email);
+                $this->email(new MFAMail($code->user, $code), $code->user->email);
             }
             $code->save();
             return $this->success([
@@ -133,9 +137,11 @@ class MFAController extends Controller
             // Creates the new token for the user to log in
             $token = $code->user->createToken(
                 $tokenName, 
-                [$code->user->admin ? 'admin' : 'user'],
-                $rememberFor
-            )->plainTextToken;
+                [$code->user->admin ? 'admin' : 'user']
+            );
+            $token->accessToken->expires_at = Carbon::now()->addSeconds($rememberFor->timestamp - time());
+            $token->accessToken->save();
+            $token = $token->plainTextToken;
             $code->used_at = date('Y-m-d H:i:s');
             $code->save();
             DB::commit();

@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use VanDmade\Cuztomisable\Models\Users\IpAddress;
 use VanDmade\Cuztomisable\Models\Users\User;
 
 class NewIpAddress extends Mailable
@@ -15,11 +16,12 @@ class NewIpAddress extends Mailable
 
     use Queueable, SerializesModels;
 
-    private $user;
+    private $user, $ip;
 
-    public function __construct(User $user)
+    public function __construct(User $user, IpAddress $ip)
     {
         $this->user = $user;
+        $this->ip = $ip;
     }
 
     public function envelope(): Envelope
@@ -34,7 +36,10 @@ class NewIpAddress extends Mailable
         return new Content(
             view: config('cuztomisable.login.notifications.new_ip_address.view'),
             with: [
-                'name' => $this->user->name ?? null,
+                'user' => $this->user,
+                'ip' => $this->ip,
+                'logo' => asset('images/logo.png'),
+                'company' => env('APP_NAME'),
             ],
         );
     }

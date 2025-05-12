@@ -1,18 +1,22 @@
 <template>
-    <div class="page">
-        <fm-message :message="message"></fm-message>
-        <h3>Forgot Password</h3>
-        <h6 class="sub-title mb-6">Enter the email address associated with your account</h6>
-        <form @submit.prevent="save">
-            <vm-input
-                :label="usernameLabel"
-                v-model="form.username"
-                type="input"
-                :errors="errors.username"
-                :disabled="submitting" />
-            <router-link class="login-link mb-5" :to="{ name: 'login' }">Remember password?</router-link>
-            <button type="submit" class="btn btn-primary btn-sm-full-width" :disabled="submitting">Send</button>
-        </form>
+    <div id="forgot-page">
+        <div class="card ma-2 pa-6">
+            <h3 class="card-title">Forgot Password</h3>
+            <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
+            <fm-form ref="forgotForm" class="mt-4" :form="form"
+                @save="save">
+                <fm-input
+                    :label="usernameLabel()"
+                    v-model="form.username"
+                    type="input"
+                    :errors="errors.username"
+                    :disabled="submitting" />
+                <router-link :to="{ name: 'login' }" class="links">Remember password?</router-link>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Send</button>
+                </div>
+            </fm-form>
+        </div>
     </div>
 </template>
 <script>
@@ -24,10 +28,6 @@ export default {
             form: {
                 username: 'michaelvanderwerkerllc@gmail.com',
             },
-            message: {
-                text: '',
-                error: false,
-            },
         }
     },
     methods: {
@@ -37,41 +37,22 @@ export default {
             var formData = new FormData();
             formData.append('username', this.form.username ?? '');
             axios.post('/password/forgot', formData).then(({ data }) => {
-                this.message = {
-                    text: data.message,
-                    error: false,
-                };
+                this.$emit('message', { text: data.message });
                 setTimeout(() => {
                     this.$router.push({ name: 'reset', params: { token: data.token }})
                 }, 1500);
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;
-                } else if (response.data.message) {
-                    // Output the message about the error
-                    this.message = {
-                        text: response.data.message,
-                        error: true,
-                    };
                 }
-            }).finally(() => {
+                if (response.data.message) {
+                    this.$emit('message', { text: response.data.message, error: true });
+                }
                 setTimeout(() => {
                     this.submitting = false;
                 }, 1500);
-            })
+            });
         },
-    },
-    computed: {
-        usernameLabel: function() {
-            try {
-                var loginWith = this.$cuztomisable.login_with ?? [];
-                return loginWith.phone ?
-                    (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
-                    (loginWith.email ? 'Email Address' : 'Username');
-            } catch (error) {
-                return 'Email Address';
-            }
-        }
     }
 }
 </script>

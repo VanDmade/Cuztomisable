@@ -1,32 +1,39 @@
 <template>
-    <div class="page">
-        <loading v-if="loading"></loading>
-        <div id="reset-password-page" v-else>
-            <fm-message :message="message"></fm-message>
-            <h3>Reset Password</h3>
-            <form v-if="!verifiedCode" @submit.prevent="verify(true)">
-                <p>The code was sent to your email address</p>
-                <vm-input
+    <div id="login-page">
+        <div class="card ma-2 pa-6">
+            <h3 class="card-title">Reset Password</h3>
+            <h6 class="card-subtitle mb-2 text-muted">
+                <span v-if="!verifiedCode">The code was sent to your email address</span>
+                <span v-else>Enter your new password</span>
+            </h6>
+            <fm-form v-if="!verifiedCode" ref="codeForm" class="mt-4" :form="form" @save="verify(true)">
+                <fm-input
                     label="Code"
                     v-model="form.code"
                     type="input"
                     :errors="errors.code"
                     :disabled="submitting" />
-                <router-link class="login-link mb-5" :to="{ name: 'login' }">Remember password?</router-link>
-                <button type="submit" class="btn btn-primary btn-sm-full-width" :disabled="submitting">Verify</button>
-                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" @click="send">Click here</a></p>
-            </form>
-            <form v-else @submit.prevent="save">
-                <p>Enter your new password</p>
-                <vm-input
+                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="links" @click="send">Click here</a></p>
+                <p v-else-if="resending" class="mt-3">Resending...</p>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
+                </div>
+            </fm-form>
+            <fm-form v-else ref="resetForm" class="mt-4" :form="form" @save="save">
+                <fm-input
                     label="Password"
                     v-model="form.password"
                     type="password"
                     :errors="errors.password"
                     :disabled="submitting" />
                 <requirements :password="form.password" class="mb-6" v-on:completed="passwordComplete" />
-                <button type="submit" :disabled="disableSubmit || submitting" class="btn btn-primary btn-sm-full-width">Change</button>
-            </form>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Change</button>
+                </div>
+            </fm-form>
+        </div>
+        <div v-if="!verifiedCode" class="text-center">
+            <router-link :to="{ name: 'login' }" class="links">Remember password?</router-link>
         </div>
     </div>
 </template>
@@ -42,6 +49,8 @@ export default {
             token: this.$route.params.token,
             verifiedCode: false,
             resend: false,
+            resending: false,
+            doubleTimer: false,
             form: {
                 code: '',
                 password: '',
@@ -65,15 +74,13 @@ export default {
                 }
                 this.submitting = true;
             }
-            var code = verifyCode ? ('/' + this.form.code) : '';
-            axios.get('/password/forgot/' + this.token + '/verify' + code).then(({ data }) => {
+            var code = verifyCode ? ('/'+this.form.code) : '';
+            axios.get('/password/forgot/'+this.token+'/verify'+code).then(({ data }) => {
                 if (verifyCode) {
-                    this.verifiedCode = true;
-                    this.message = {
-                        text: data.message,
-                        error: false,
-                    };
-                    this.submitting = false;
+                    this.$emit('message', { text: data.message });
+                    setTimeout(() => {
+                        this.verifiedCode = true;
+                    }, 1500);
                 } else {
                     this.setupResend();
                 }
@@ -82,19 +89,22 @@ export default {
                 if (verifyCode) {
                     this.errors.code = [];
                     this.errors.code.push(response.data.message);
-                    setTimeout(() => {
-                        this.submitting = false;
-                    }, 1500);
                 } else if (response.data.message) {
-                    this.$router.push({ name: 'login', query: {  message: response.data.message, type: 'error' } });
+                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$router.push({ name: 'login' });
                 }
+            }).finally(() => {
+                setTimeout(() => {
+                    this.submitting = false;
+                }, 1500);
             });
         },
         send: function() {
-            var resending = this.resend;
+            this.resending = true;
             this.resend = false;
             this.submitting = true;
-            axios.get('/password/forgot/' + this.token + '/send').then(({ data }) => {
+            axios.get('/password/forgot/'+this.token+'/send').then(({ data }) => {
+                this.doubleTimer();
                 this.setupResend();
                 // Sets a success message for the MFA sending
                 this.message = {
@@ -104,15 +114,13 @@ export default {
             }).catch(({ response }) => {
                 if (response.data.message) {
                     // Output the message about the error
-                    this.message = {
-                        text: response.data.message,
-                        error: true,
-                    };
+                    this.$emit('message', { text: response.data.message, error: true });
                 }
             }).finally(() => {
                 setTimeout(() => {
                     this.submitting = false;
-                }, 1500);
+                    this.resending = false;
+                }, 2000);
             });
         },
         save: function() {
@@ -121,17 +129,16 @@ export default {
             var formData = new FormData();
             formData.append('code', this.form.code);
             formData.append('password', this.form.password);
-            axios.post('/password/forgot/' + this.token, formData).then(({ data }) => {
-                this.$router.push({ name: 'login', query: {  message: data.message, type: 'success' } });
+            axios.post('/password/forgot/'+this.token, formData).then(({ data }) => {
+                this.$emit('message', { text: data.message });
+                this.$router.push({ name: 'login' });
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;
-                } else if (response.data.message) {
+                }
+                if (response.data.message) {
                     // Output the message about the error
-                    this.message = {
-                        text: response.data.message,
-                        error: true,
-                    };
+                    this.$emit('message', { text: response.data.message, error: true });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -144,6 +151,9 @@ export default {
         },
         setupResend: function() {
             var resendAfter = this.$cuztomisable.passwords.resend_after * 1000;
+            if (this.doubleTimer) {
+                resendAfter *= 2;
+            }
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);

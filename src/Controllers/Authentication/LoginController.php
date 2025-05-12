@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\Authentication\LoginRequest;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
+use Carbon\Carbon;
 use DB;
 use Exception;
 use Hash;
@@ -89,9 +90,11 @@ class LoginController extends Controller
                 // Creates the new token for the user to log in
                 $token = $user->createToken(
                     $tokenName,
-                    [$user->admin ? 'admin' : 'user'],
-                    $rememberFor
-                )->plainTextToken;
+                    [$user->admin ? 'admin' : 'user']
+                );
+                $token->accessToken->expires_at = Carbon::now()->addSeconds($rememberFor->timestamp - time());
+                $token->accessToken->save();
+                $token = $token->plainTextToken;
             }
             // Unsets the attempts / timer
             $user->attempts = 0;

@@ -66,7 +66,6 @@ export default {
     data: function() {
         return {
             submitting: false,
-            registered: false,
             errors: [],
             passwordRequirementsMet: false,
             form: {
@@ -114,7 +113,6 @@ export default {
             }
             let code = typeof(this.$route.params.code) != 'undefined' ? ('/'+this.$route.params.code) : '';
             axios.post('/register'+code, formData).then(({ data }) => {
-                this.registered = true;
                 if (data.message) {
                     this.$emit('message', { text: data.message });
                 }
@@ -154,14 +152,6 @@ export default {
         getErrors: function(value) {
             return typeof(this.errors[value]) !== 'undefined' ? this.errors[value] : [];
         },
-    },
-    beforeRouteLeave: function(to, from, next) {
-        // Once registered and saved the user can leave without issue
-        if (!this.registered) {
-            this.$refs.registrationForm.leaving(to, from, next);
-        } else {
-            next();
-        }
     },
     components: {
         'requirements': PasswordRequirements,

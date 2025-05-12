@@ -98,5 +98,9 @@ return [
             'type' => 'email',
             'view' => 'emails.authentication.registered',
         ],
+        'support' => [
+            'type' => 'email',
+            'view' => 'emails.support',
+        ],
     ],
 ];

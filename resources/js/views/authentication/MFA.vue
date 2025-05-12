@@ -1,50 +1,52 @@
 <template>
-    <div class="page">
-        <loading v-if="loading"></loading>
-        <div v-else>
-            <fm-message :message="message"></fm-message>
-            <h4>Multi-Factor Authentication</h4>
-            <form v-if="!sent" class="send-mfa-form" @submit.prevent="send">
-                <h6 class="sub-title mb-6">Please select how you want the code sent</h6>
+    <div id="forgot-page">
+        <div class="card ma-2 pa-6">
+            <h3 class="card-title">Multi-Factor Authentication</h3>
+            <h6 class="card-subtitle mb-2 text-muted">
+                <span v-if="!sent">Enter the email address associated with your account.</span>
+                <span v-else>The code was sent! Please enter it below once you receive it.</span>
+            </h6>
+            <fm-form v-if="!sent" ref="mfaSelectForm" class="mt-4" :form="form" @save="send">
                 <div class="mfa-email" :class="send_via.phone != null ? 'mb-3' : 'mb-6'" v-if="send_via.email != null">
-                    <input class="form-check-input"
-                        id="send-via-email"
+                    <fm-checkbox
+                        :label="send_via.email"
+                        v-model="form.email"
                         type="radio"
-                        value="email"
-                        v-model="form.type"
-                        :disabled="submitting">
-                    <label class="form-check-label ml-4" for="send-via-email">{{ send_via.email }}</label>
+                        :errors="errors.email"
+                        :disabled="submitting" />
                 </div>
                 <div class="mfa-phone mb-6" v-if="send_via.phone != null">
-                    <input class="form-check-input"
-                        id="send-via-phone"
+                    <fm-checkbox
+                        :label="send_via.phone"
+                        v-model="form.phone"
                         type="radio"
-                        value="phone"
-                        v-model="form.type"
-                        :disabled="submitting">
-                    <label class="form-check-label ml-4" for="send-via-phone">{{ send_via.phone }}</label>
+                        :errors="errors.phone"
+                        :disabled="submitting" />
                 </div>
-                <button type="submit" :disabled="submitting" class="btn btn-primary btn-sm-full-width">Send</button>
-            </form>
-            <form v-else class="mfa-code-form" @submit.prevent="save">
-                <h6 class="sub-title mb-6">The code was sent! Please enter it below once you receive it.</h6>
-                <vm-input
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Send</button>
+                </div>
+            </fm-form>
+            <fm-form v-else ref="mfaForm" class="mt-4" :form="form" @save="save">
+                <fm-input
                     label="Code"
                     v-model="form.code"
-                    type="text"
+                    type="input"
                     :errors="errors.code"
-                    :disabled="submitting"/>
-                <input class="form-check-input"
-                    id="remember"
-                    type="checkbox"
-                    value="1"
+                    :disabled="submitting" />
+                <fm-checkbox
+                    label="Remember device?"
                     v-model="form.remember"
-                    :disabled="submitting">
-                <label class="form-check-label ml-4" for="remember">Remember device?</label>
-                <p class="form-notes mb-5">Do not remember this device if it's a public device.</p>
-                <button type="submit" :disabled="submitting" class="btn btn-primary btn-sm-full-width">Verify</button>
-                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" @click="send">Click here</a></p>
-            </form>
+                    type="radio"
+                    :errors="errors.remember"
+                    hide-details
+                    :disabled="submitting" />
+                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="links" @click="send">Click here</a></p>
+                <p v-else-if="resending" class="mt-3">Resending...</p>
+                <div class="form-buttons">
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
+                </div>
+            </fm-form>
         </div>
     </div>
 </template>
@@ -63,13 +65,10 @@ export default {
                 email: null,
             },
             form: {
-                type: '',
+                email: '0',
+                phone: '0',
                 remember: '0',
                 code: '',
-            },
-            message: {
-                text: '',
-                error: false,
             },
         }
     },
@@ -82,24 +81,19 @@ export default {
             this.resend = false;
             this.submitting = true;
             var formData = new FormData();
-            formData.append('type', this.form.type);
-            axios.post('/login/mfa/' + this.token + '/send', formData).then(({ data }) => {
+            formData.append('type', this.form.email == '1' ? 'email' : (this.form.phone == '1' ? 'phone' : 'resend'));
+            axios.post('/login/mfa/'+this.token+'/send', formData).then(({ data }) => {
                 this.sent = true;
                 this.setupResend();
                 // Sets a success message for the MFA sending
-                this.message = {
-                    text: data.message,
-                    error: false,
-                };
+                this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;
-                } else if (response.data.message) {
+                }
+                if (response.data.message) {
                     // Output the message about the error
-                    this.message = {
-                        text: response.data.message,
-                        error: true,
-                    };
+                    this.$emit('message', { text: response.data.message, error: true });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -112,11 +106,8 @@ export default {
             var formData = new FormData();
             formData.append('code', this.form.code);
             formData.append('remember', this.form.remember == '1' ? '1' : '0');
-            axios.post('/login/mfa/' + this.token, formData).then(({ data }) => {
-                this.message = {
-                    text: data.message,
-                    error: false,
-                };
+            axios.post('/login/mfa/'+this.token, formData).then(({ data }) => {
+                this.$emit('message', { text: data.message });
                 this.$store.commit('login', data.token);
                 setTimeout(() => {
                     // Sets a success message for the MFA sending
@@ -125,12 +116,10 @@ export default {
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;
-                } else if (response.data.message) {
+                }
+                if (response.data.message) {
                     // Output the message about the error
-                    this.message = {
-                        text: response.data.message,
-                        error: true,
-                    };
+                    this.$emit('message', { text: response.data.message, error: true });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -139,7 +128,7 @@ export default {
             });
         },
         verify: function() {
-            axios.get('/login/mfa/' + this.token + '/verify').then(({ data }) => {
+            axios.get('/login/mfa/'+this.token+'/verify').then(({ data }) => {
                 // Determines if the user just refreshed and if the code was already sent
                 if (data.sent == true) {
                     this.sent = true;
@@ -154,25 +143,25 @@ export default {
                 };
                 // Determines if the type should be set because there isn't more than one option
                 if (this.send_via.phone == null) {
-                    this.form.type = 'email';
+                    this.form.email = '1';
                 } else if (this.send_via.email == null) {
-                    this.form.type == 'phone';
+                    this.form.phone == '1';
                 }
                 // Checks to see if there is only one possible locaiton to send the code to
-                if (this.form.type != '') {
+                if (this.form.email == '1' || this.form.phone == '1') {
                     this.sent = true;
                     this.send();
                 } else {
-                    this.message = {
-                        text: data.message,
-                        error: false,
-                    };
+                    this.$emit('message', { text: data.message });
                 }
             }).catch(({ response }) => {
                 if (response.data.errors) {
                     this.errors = response.data.errors;
                 } else if (response.data.message) {
-                    this.$router.push({ name: 'login', query: { message: response.data.message, type: 'error' } });
+                    this.$emit('message', { text: response.data.message, error: true });
+                    setTimeout(() => {
+                        this.$router.push({ name: 'login' });
+                    }, 1500);
                 }
             }).finally(() => {
                 this.loading = false;
@@ -183,6 +172,22 @@ export default {
             setTimeout(() => {
                 this.resend = true;
             }, resendAfter);
+        },
+    },
+    watch: {
+        'form.email': {
+            handler: function(value) {
+                if (value == '1') {
+                    this.form.phone = '0';
+                }
+            }
+        },
+        'form.phone': {
+            handler: function(value) {
+                if (value == '1') {
+                    this.form.email = '0';
+                }
+            }
         },
     }
 }

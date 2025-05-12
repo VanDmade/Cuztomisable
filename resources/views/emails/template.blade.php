@@ -48,6 +48,10 @@
             border-radius: 4px;
             margin: 20px 0;
         }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
         .button {
             display: inline-block;
             background-color: var(--color-secondary);
@@ -68,6 +72,12 @@
         .footer a {
             color: var(--color-primary);
             text-decoration: none;
+        }
+        .code {
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 4px;
+            margin: 30px 0;
         }
     </style>
 </head>

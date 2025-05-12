@@ -32,7 +32,12 @@ const routes = [
         path: '/portal',
         meta: { require_authentication: true },
         component: () => import("./views/Portal.vue"),
-    },
+    },{
+        name: 'message',
+        path: '/message',
+        meta: { require_authentication: false },
+        component: () => import("./views/Message.vue"),
+    }
 ];
 
 export default createRouter({

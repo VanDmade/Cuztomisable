@@ -9,16 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Code;
+use VanDmade\Cuztomisable\Models\Users\User;
 
 class MFA extends Mailable
 {
 
     use Queueable, SerializesModels;
 
-    private $code;
+    private $user, $code;
 
-    public function __construct(Code $code)
+    public function __construct(User $user, Code $code)
     {
+        $this->user = $user;
         $this->code = $code;
     }
 
@@ -38,9 +40,10 @@ class MFA extends Mailable
         return new Content(
             view: config('cuztomisable.login.notifications.mfa.view'),
             with: [
-                'name' => $this->code->user->name ?? null,
+                'user' => $this->user,
+                'logo' => asset('images/logo.png'),
+                'company' => env('APP_NAME'),
                 'code' => $this->code->code,
-                'expires_in' => $expiresIn ?? null,
             ],
         );
     }

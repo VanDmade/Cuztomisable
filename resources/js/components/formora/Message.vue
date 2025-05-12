@@ -27,18 +27,23 @@ export default {
         message: {
             immediate: true,
             handler: function(value) {
-                var template = JSON.parse(JSON.stringify(this.template));
+                let template = JSON.parse(JSON.stringify(this.template));
                 template.id = this.counter++;
                 template.text = value.text;
                 template.error = value.error;
                 this.messages.push(template);
+                // Counts the words to add to or remove a few seconds to make sure the user can read the message.
+                let totalWords = value.text.split(' ').length;
+                // The average reader can read 3-4 words per second, so 5 should be more than enough.
+                let averageReadSpeed = Math.ceil(totalWords / 5) * 1000;
+                console.log(averageReadSpeed);
                 setTimeout(() => {
                     for (var i = 0; i < this.messages.length; i++) {
                         if (this.messages[i].id == template.id) {
                             this.messages[i].text = '';
                         }
                     }
-                }, this.length);
+                }, this.length > averageReadSpeed ? this.length : averageReadSpeed);
             },
             deep: true,
         }

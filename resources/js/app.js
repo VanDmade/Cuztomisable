@@ -68,6 +68,16 @@ app.mixin({
         clone: function(value) {
             return JSON.parse(JSON.stringify(value));
         },
+        usernameLabel: function() {
+            try {
+                var loginWith = this.$cuztomisable.login_with ?? [];
+                return loginWith.phone ?
+                    (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
+                    (loginWith.email ? 'Email Address' : 'Username');
+            } catch (error) {
+                return 'Email Address';
+            }
+        }
     },
 });
 // Adds the token to the axios requests IF SET

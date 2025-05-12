@@ -16,6 +16,7 @@ return [
         'mfa_logged_in' => 'Please verify this login attempt.',
         'logged_out' => 'You have logged out.',
         'errors' => [
+            'locked' => 'This account is currently locked.',
             'invalid_credentials' => 'The credentials are invalid.',
             'attempts' => 'Your account is currently disabled due to too many attempts. Please come back later.',
             'verification' => [
@@ -40,7 +41,10 @@ return [
         'sent' => 'The password reset code was sent.',
         'resent' => 'The password reset code was resent.',
         'reset' => 'The password was reset.',
+        'locked' => 'The account is currently locked, so please reach out to an administrator in order to login. You '.
+            'are still able to reset your password, but will not be able to login.',
         'verified' => 'The reset token has been verified.',
+        'code_verified' => 'The reset code has been verified.',
         'errors' => [
             'not_found' => 'The code was not found.',
             'expired' => 'The reset code has expired. Please try again!',

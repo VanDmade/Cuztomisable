@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\Authentication\Passwords as PasswordRequests;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Forgot as ForgotMail;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Reset as ResetMail;
+use VanDmade\Cuztomisable\Mail\Support as SupportMail;
 use VanDmade\Cuztomisable\Models\Users;
 use DB;
 use Exception;
@@ -72,8 +73,15 @@ class PasswordController extends Controller
             if (!is_null($code) && $reset->code != $code) {
                 throw new Exception(__('cuztomisable/authentication.passwords.errors.invalid_code'), 404);
             }
+            // The account is currently locked but will allow the user to reset their password still
+            if ($reset->user->locked) {
+                return $this->success([
+                    'message' => __('cuztomisable/authentication.passwords.locked'),
+                ]);
+            }
             return $this->success([
-                'message' => __('cuztomisable/authentication.passwords.verified'),
+                'message' => __('cuztomisable/authentication.passwords.'.
+                    (is_null($code) ? 'verified' : 'code_verified')),
             ]);
         } catch (Exception $error) {
             return $this->error($error);
@@ -161,11 +169,44 @@ class PasswordController extends Controller
             DB::commit();
             if (config('cuztomisable.account.notifications.reset', false) !== false) {
                 // Sends a notification to the user about the password reset occurring
-                $this->email(new ResetMail($user), $user->email);
+                $this->email(new ResetMail($user, $reset), $user->email);
             }
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.reset'),
             ]);
+        } catch (Exception $error) {
+            DB::rollback();
+            return $this->error($error);
+        }
+    }
+
+    public function lock($user, $id, $token)
+    {
+        try {
+            DB::beginTransaction();
+            $reset = Users\Passwords\Reset::where('user_id', '=', $user)
+                ->where('id', '=', $id)
+                ->where('token', '=', $token)
+                ->first();
+            // Only allows a locked account to occur within the past week
+            if (!isset($reset->id) || strtotime($reset->created_at) <= strtotime('-1 week')) {
+                $message = __('cuztomisable/user.account.could_not_lock');
+            } else {
+                $user = $reset->user;
+                if (!$user->locked) {
+                    // Locks the account
+                    $user->locked = true;
+                    $user->save();
+                    $message = __('cuztomisable/user.account.self_locked');
+                    // Send admin an email that a user locked their account
+                    $this->email(new SupportMail($user, $message), env('CUZTOMISABLE_ADMIN'));
+                } else {
+                    // The account was already locked
+                    $message = __('cuztomisable/user.account.already_locked');
+                }
+            }
+            DB::commit();
+            return redirect(url('message?m='.$message));
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);

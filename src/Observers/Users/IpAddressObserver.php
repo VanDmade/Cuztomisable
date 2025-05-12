@@ -14,7 +14,7 @@ class IpAddressObserver
     {
         // Sends a notification to the user about the device
         Mail::to($ipAddress->user->email)
-            ->send(new NewIpAddressMail($ipAddress->user));
+            ->send(new NewIpAddressMail($ipAddress->user, $ipAddress));
     }
 
     public function saved(IpAddress $ipAddress): void

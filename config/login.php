@@ -20,13 +20,13 @@ return [
         /* Specifies that the MFA can be sent via phone and/or email.
          * If both set to false, the user's email will be used. */
         'send_via' => [
-            'phone' => false,
+            'phone' => true,
             'email' => true,
         ],
     ],
     /* The amount of time, in seconds, that the user's session is set to. If null,
      * then there is no session length, the user will remain logged in forever (Or until idle). */ 
-    'session_length' => 300,
+    'session_length' => 900,
     'attempts' => [
         // Amount of attempts before the account is put on hold
         'total' => 5,
@@ -49,12 +49,12 @@ return [
          * view  Content for the email|text */
         'new_ip_address' => [
             'type' => 'email',
-            'view' => 'cuztomisable.emails.authentication.new_ip_address',
+            'view' => 'emails.authentication.new_ip_address',
         ],
         // login.mfa has to be set to true in order for this to be used
         'mfa' => [
             'type' => 'email|phone',
-            'view' => 'cuztomisable.emails.authentication.mfa',
+            'view' => 'emails.authentication.mfa',
         ],
     ],
 ];

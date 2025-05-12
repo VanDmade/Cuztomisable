@@ -6,7 +6,7 @@
             <fm-form ref="loginForm" class="mt-4" :form="form"
                 @save="login">
                 <fm-input
-                    :label="usernameLabel"
+                    :label="usernameLabel()"
                     v-model="form.username"
                     type="input"
                     :errors="errors.username"
@@ -35,8 +35,8 @@ export default {
             submitting: false,
             errors: [],
             form: {
-                username: '',
-                password: '',
+                username: 'michaelvanderwerkerllc@gmail.com',
+                password: 'Password1!',
             },
         }
     },
@@ -70,18 +70,6 @@ export default {
                 }, 1500);
             });
         },
-    },
-    computed: {
-        usernameLabel: function() {
-            try {
-                var loginWith = this.$cuztomisable.login_with ?? [];
-                return loginWith.phone ?
-                    (loginWith.email ? 'Email Address or Phone Number' : 'Phone Number') :
-                    (loginWith.email ? 'Email Address' : 'Username');
-            } catch (error) {
-                return 'Email Address';
-            }
-        }
     }
 }
 </script>

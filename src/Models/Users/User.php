@@ -80,7 +80,7 @@ class User extends Authenticatable
     public function canLogIn(): Bool
     {
         if ($this->locked) {
-            throw new Exception(__('cuztomisable/authentication.error.locked'), 401);
+            throw new Exception(__('cuztomisable/authentication.login.errors.locked'), 401);
         }
         // Checks to see if the attempt timer is waiting for expiration
         if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
