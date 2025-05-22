@@ -3,14 +3,17 @@
 namespace VanDmade\Cuztomisable;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class CuztomisableServiceProvider extends ServiceProvider
 {
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../routes.php');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        Route::prefix('api')
+            ->middleware(['api', Middleware\TokenFromCookie::class])
+            ->group(__DIR__.'/../routes.php');
     }
 
     public function register(): void

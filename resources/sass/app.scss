@@ -106,6 +106,9 @@ html, body {
 .form-buttons {
     margin-top: 1.5rem;
 }
+.nav-link {
+    cursor: pointer;
+}
 .button {
     border: none;
     border-radius: $border-radius;
@@ -131,6 +134,16 @@ html, body {
         opacity: 0.6;
         cursor: not-allowed;
     }
+}
+.bg {
+    &--primary    { background-color: $color-primary; }
+    &--secondary  { background-color: $color-secondary; }
+    &--accent     { background-color: $color-accent; color: $color-text; }
+    &--danger     { background-color: $color-danger; }
+    &--success    { background-color: $color-success; color: $color-text; }
+    &--info       { background-color: $color-info; color: $color-text; }
+    &--warning    { background-color: $color-warning; color: $color-text; }
+    &--block      { width: 100%; margin-bottom: 0.5rem; }
 }
 .links {
     color: $color-secondary;

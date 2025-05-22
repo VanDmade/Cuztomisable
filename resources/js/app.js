@@ -26,22 +26,6 @@ app.mixin({
         return {
             width: window.innerWidth,
             yesOrNo: [{ value: '1', text: 'Yes'}, { value: '0', text: 'No'}],
-            measurements: [
-                { value: 'none', text: 'None' },
-                { value: 'tsp', text: 'tsp' },
-                { value: 'tbsp', text: 'tbsp' },
-                { value: 'cup', text: 'cup(s)' },
-                { value: 'pint', text: 'pint(s)' },
-                { value: 'quart', text: 'quart(s)' },
-                { value: 'gallon', text: 'gallon(s)' },
-                { value: 'floz', text: 'fl oz' },
-                { value: 'liter', text: 'liter(s)' },
-                { value: 'ml', text: 'ml' },
-                { value: 'oz', text: 'oz' },
-                { value: 'lb', text: 'lb' },
-                { value: 'g', text: 'g' },
-                { value: 'kg', text: 'kg' },
-            ],
         }
     },
     created: function() {
@@ -51,9 +35,6 @@ app.mixin({
         window.removeEventListener('resize', this.onResize);
     },
     methods: {
-        getAuthenticationToken: function() {
-            return localStorage.getItem('token') ?? null;
-        },
         breakpoint: function(type) {
             if (type == 'md' && this.width >= 768) {
                 return true;
@@ -80,7 +61,7 @@ app.mixin({
         }
     },
 });
-// Adds the token to the axios requests IF SET
+/*// Adds the token to the axios requests IF SET
 axios.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token') ?? null;
@@ -91,7 +72,13 @@ axios.interceptors.request.use(
     }, (error) => {
         return Promise.reject(error);
     }
-);
+);*/
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = app.config.globalProperties.$url = import.meta.env.VITE_API_URL;
+// Gets the settings from the configuration file for cuztomisable
+var response = await axios.get('/cuztomisable/settings');
+app.config.globalProperties.$cuztomisable = response.data ?? null;
+app.config.globalProperties.$timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 app.use(store);
 // Global component attachments
 app.component('index', Index);
@@ -110,9 +97,4 @@ app.component('fm-tags', Tags);
 app.component('fm-textarea', Textarea);
 app.component('fm-message', Message);
 app.component('fm-modal', Modal);
-// Gets the settings from the configuration file for cuztomisable
-var response = await axios.get('/cuztomisable/settings');
-app.config.globalProperties.$cuztomisable = response.data ?? null;
-app.config.globalProperties.$url = 'http://localhost:8000/';
-app.config.globalProperties.$timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 app.mount('#app');

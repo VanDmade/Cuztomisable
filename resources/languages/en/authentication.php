@@ -52,6 +52,7 @@ return [
             'already_sent' => 'The code was already sent. Please try again later or click the link in the email.',
             'sent_recently' => 'The code was recently resent. Try again later and check your spam/junk folder.',
             'used_recently' => 'The password was used recently. Please use a new password.',
+            'attempt_counter' => 'You\'ve entered too many codes. Please restart the reset process.',
         ],
     ],
     'registration' => [

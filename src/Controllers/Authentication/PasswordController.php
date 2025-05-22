@@ -71,6 +71,11 @@ class PasswordController extends Controller
             }
             // If the code is sent in it will verify that the code is correct
             if (!is_null($code) && $reset->code != $code) {
+                if ($reset->code != $code) {
+                    // The code is not correct
+                    $reset->attempt_counter = $reset->attempt_counter + 1;
+                    $reset->save();
+                }
                 throw new Exception(__('cuztomisable/authentication.passwords.errors.invalid_code'), 404);
             }
             // The account is currently locked but will allow the user to reset their password still
@@ -78,6 +83,10 @@ class PasswordController extends Controller
                 return $this->success([
                     'message' => __('cuztomisable/authentication.passwords.locked'),
                 ]);
+            }
+            // Makes sure the attempt counter isn't met
+            if ($reset->attempt_counter >= 5) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.attempt_counter'), 404);
             }
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.'.

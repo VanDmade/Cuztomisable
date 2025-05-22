@@ -36,7 +36,6 @@ export default {
                 let totalWords = value.text.split(' ').length;
                 // The average reader can read 3-4 words per second, so 5 should be more than enough.
                 let averageReadSpeed = Math.ceil(totalWords / 5) * 1000;
-                console.log(averageReadSpeed);
                 setTimeout(() => {
                     for (var i = 0; i < this.messages.length; i++) {
                         if (this.messages[i].id == template.id) {

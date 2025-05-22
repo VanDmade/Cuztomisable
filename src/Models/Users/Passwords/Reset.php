@@ -22,6 +22,7 @@ class Reset extends Model
         'sent_at',
         'sent_via',
         'used_at',
+        'attempt_counter',
         'user_id',
         'created_by',
         'deleted_at',

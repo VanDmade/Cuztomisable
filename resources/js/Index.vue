@@ -15,7 +15,7 @@ import PortalLayout from './views/layouts/PortalLayout.vue';
 export default {
     data: function() {
         return {
-            loading: false,
+            loading: true,
             layout: 'login-layout',
             message: {
                 id: 0,
@@ -27,8 +27,9 @@ export default {
             value: [],
         }
     },
-    created: function() {
-        
+    async created() {
+        // Checks the authentication of the user
+        const response = await this.$store.dispatch('checkAuth');
     },
     methods: {
         setMessage: function(message) {
@@ -41,26 +42,14 @@ export default {
         '$store.state.authenticated': {
             immediate: true,
             handler: function(value) {
+                this.loading = true;
                 this.layout = value ? 'portal-layout' : 'login-layout';
-                if (!value && this.$route.meta.require_authentication) {
-                    this.$router.push({ name: 'login' });
-                }
+                setTimeout(() => {
+                    this.loading = false;
+                }, 500);
             },
             deep: true,
         },
-        '$route.name': {
-            immediate: true,
-            handler: function(name) {
-                if (this.$store.state.authenticated) {
-                    if (!this.$route.meta.require_authentication) {
-                        this.$router.push({ name: 'portal' });
-                    }
-                } else if (this.$route.meta.require_authentication) {
-                    this.$router.push({ name: 'login' });
-                }
-            },
-            deep: true,
-        }
     },
     components: {
         'login-layout': LoginLayout,

@@ -2,7 +2,7 @@
     <div id="portal-layout" class="layout">
         <loading v-if="loading"></loading>
         <div v-else>
-            <nav class="navbar navbar-expand-lg bg-primary mb-6 shadow" data-bs-theme="dark">
+            <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow" data-bs-theme="dark">
                 <div class="container-fluid">
                     <router-link class="navbar-brand" :to="{ name: 'portal' }">Cuztomisable</router-link>
                     <button class="navbar-toggler"
@@ -62,21 +62,14 @@ export default {
     },
     methods: {
         me: function() {
-            axios.get('/me').then(({ data }) => {
-                this.user = data.user;
-                this.$store.commit('setUser', data.user);
-            }).catch(({ response }) => {
-                this.logout(response.data.message);
-            }).finally(() => {
-                this.loading = false;
-            });
+            this.loading = false;
         },
         onResize: function() {
             this.screenSize = window.innerWidth <= 992 ? 'medium' : 'large';
         },
-        logout: function(message) {
-            this.$store.commit('logout');
-            this.$router.push({ name: 'login', query: { message: message != null ? message : '', type: 'error' } });
+        async logout() {
+            await this.$store.dispatch('logout');
+            this.$router.push({ name: 'login' });
         }
     },
 }

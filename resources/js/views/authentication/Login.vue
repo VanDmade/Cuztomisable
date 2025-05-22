@@ -41,34 +41,31 @@ export default {
         }
     },
     methods: {
-        login: function() {
+        async login() {
             this.submitting = true;
             this.errors = [];
             var formData = new FormData();
             formData.append('username', this.form.username ?? '');
             formData.append('password', this.form.password ?? '');
-            axios.post('/login', formData).then(({ data }) => {
-                if (data.multi_factor_authentication !== true) {
-                    this.$store.commit('login', data.token);
-                    this.$emit('message', { text: data.message });
-                }
-                if (data.multi_factor_authentication === true) {
-                    setTimeout(() => {
-                        // Redirect to the MFA page
-                        this.$router.push({ name: 'mfa', params: { token: data.token }});
-                    }, 1500);
-                }
-            }).catch(({ response }) => {
-                if (response.data.errors) {
-                    this.errors = response.data.errors;
-                } else if (response.data.message) {
+            try {
+                await this.$store.dispatch('login', formData);
+            } catch (error) {
+                if (typeof(error.response) != 'undefined') {
+                    let response = error.response;
+                    if (response.data.errors) {
+                        this.errors = response.data.errors;
+                    } else if (response.data.message) {
+                        this.errors.username = [];
+                        this.errors.username.push(response.data.message);
+                    }
+                } else {
                     this.errors.username = [];
-                    this.errors.username.push(response.data.message);
+                    this.errors.username.push('The server has experienced an error. Please try again later.');
                 }
                 setTimeout(() => {
                     this.submitting = false;
                 }, 1500);
-            });
+            }
         },
     }
 }

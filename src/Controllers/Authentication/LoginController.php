@@ -79,20 +79,18 @@ class LoginController extends Controller
                 }
                 $token = $userCode->token;
             } else {
+                if (false) {
+                    // Removes all older tokens for this specific user and IP Address
+                    $user->tokens()
+                        ->where('name', '=', $tokenName = $user->id.'-'.$ipAddress->id.'-token')
+                        ->delete();
+                }
                 // Determines the length of time the token will remain active
                 $rememberFor = (isset($data['remember']) && $data['remember'] == '1') ||
                     is_null(config('cuztomisable.login.session_length', null)) ?
                         now()->addDays(60) : now()->addSeconds(config('cuztomisable.login.session_length', null));
-                // Removes all older tokens for this specific user and IP Address
-                $user->tokens()
-                    ->where('name', '=', $tokenName = $user->id.'-'.$ipAddress->id.'-token')
-                    ->delete();
-                // Creates the new token for the user to log in
-                $token = $user->createToken(
-                    $tokenName,
-                    [$user->admin ? 'admin' : 'user']
-                );
-                $token->accessToken->expires_at = Carbon::now()->addSeconds($rememberFor->timestamp - time());
+                $token = $user->createToken($tokenName ?? 'access-token');
+                $token->accessToken->expires_at = $rememberFor;
                 $token->accessToken->save();
                 $token = $token->plainTextToken;
             }
@@ -101,7 +99,7 @@ class LoginController extends Controller
             $user->attempt_timer = null;
             $user->save();
             DB::commit();
-            return $this->success([
+            $response = $this->success([
                 'message' => __('cuztomisable/authentication.login.'.($ipAddress->requireMfa() ? 'mfa_' : '').'logged_in'),
                 'token' => $token ?? null,
                 'multi_factor_authentication' => $ipAddress->requireMfa(),
@@ -113,19 +111,39 @@ class LoginController extends Controller
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);
+            // Determines if the use actually logged in and wasn't sent to MFA
+            if (!$ipAddress->requireMfa()) {
+                $response->withCookie(
+                    cookie(
+                        'api_token',
+                        $token,
+                        60,           // minutes
+                        '/',
+                        null,
+                        true,         // Secure
+                        true,         // HttpOnly
+                        false,        // raw
+                        'Strict'      // SameSite
+                    )
+                );
+            }
+            return $response;
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         try {
-            Auth::logout();
+            $user = $request->user();
+            // Revoke current access token (from cookie-injected Authorization header)
+            $user?->currentAccessToken()?->delete();
+            // Return response and delete the cookie
             return $this->success([
                 'message' => __('cuztomisable/authentication.login.logged_out'),
-            ]);
+            ])->withoutCookie('api_token');
         } catch (Exception $error) {
             return $this->error($error);
         }

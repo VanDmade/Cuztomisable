@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('token', 64);
             $table->datetime('expires_at');
             $table->datetime('sent_at')->nullable();
+            $table->integer('attempt_counter')->default(0);
             $table->string('sent_via', 5)->nullable();
             $table->datetime('used_at')->nullable();
         });

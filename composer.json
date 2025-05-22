@@ -18,5 +18,12 @@
     "require": {
         "guzzlehttp/guzzle": "^7.0.1",
         "illuminate/support": "^11.3"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VanDmade\\Cuztomisable\\Providers\\RouteServiceProvider"
+            ]
+        }
     }
 }

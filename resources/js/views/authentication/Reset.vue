@@ -91,7 +91,7 @@ export default {
                     this.errors.code.push(response.data.message);
                 } else if (response.data.message) {
                     this.$emit('message', { text: response.data.message, error: true });
-                    this.$router.push({ name: 'login' });
+                    this.$router.push({ name: 'forgot' });
                 }
             }).finally(() => {
                 setTimeout(() => {

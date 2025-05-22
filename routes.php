@@ -10,7 +10,10 @@ use VanDmade\Cuztomisable\Controllers\FormoraController;
 Route::controller(SettingsController::class)->group(function () {
     Route::get('/cuztomisable/settings', 'all');
 });
-Route::post('/login', [Authentication\LoginController::class, 'login']);
+Route::controller(Authentication\LoginController::class)->group(function () {
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout');
+});
 Route::controller(Authentication\MFAController::class)->group(function () {
     Route::post('/login/mfa/{token}/send', 'send');
     Route::get('/login/mfa/{token}/verify', 'verify');
