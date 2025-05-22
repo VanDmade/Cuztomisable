@@ -89,6 +89,9 @@ export default {
             }
         }
     },
+    created: function() {
+        this.$emit('layout', 'login-layout');
+    },
     methods: {
         save: function() {
             this.submitting = true;
@@ -112,7 +115,7 @@ export default {
                 formData.append('country', this.form.address.country);
             }
             let code = typeof(this.$route.params.code) != 'undefined' ? ('/'+this.$route.params.code) : '';
-            axios.post('/register'+code, formData).then(({ data }) => {
+            axios.post(`/register${code}`, formData).then(({ data }) => {
                 if (data.message) {
                     this.$emit('message', { text: data.message });
                 }
@@ -120,7 +123,7 @@ export default {
                     this.$router.push({ name: 'login' });
                 }, 3500);
             }).catch(({ response }) => {
-                if (response.data.errors) {
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
                     this.errors['address'] = {
                         address: this.errors['address'] ?? '',
@@ -132,7 +135,7 @@ export default {
                         country: this.errors['country'] ?? '',
                     };
                 }
-                if (response.data.message) {
+                if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                 }
                 setTimeout(() => {

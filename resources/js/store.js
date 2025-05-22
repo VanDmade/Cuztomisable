@@ -50,14 +50,10 @@ export default createStore({
         async login({ dispatch }, credentials) {
             await axios.get('/sanctum/csrf-cookie');
             let response = await axios.post('/login', credentials);
-            if (response.data.multi_factor_authentication === true) {
-                setTimeout(() => { 
-                    // Redirect to the MFA page
-                    this.$router.push({ name: 'mfa', params: { token: response.data.token }});
-                }, 1500);
-            } else {
+            if (response.data.multi_factor_authentication !== true) {
                 await dispatch('checkAuth');
             }
+            return response;
         },
         async logout({ commit }) {
             try {

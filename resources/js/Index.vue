@@ -1,11 +1,13 @@
 <template>
     <div id="cuztomisable-app">
-        <loading v-if="loading"></loading>
-        <component v-else
+        <fm-loading :loading="loading || !initialized"></fm-loading>
+        <component
+            v-show="!loading && initialized"
             :is="layout"
-            :settings="settings">
+            :settings="settings"
+            v-on:loading="setLoading">
             <fm-message :message="{ id: message.id, text: message.text, error: message.error }" :length="message.timeout_length"></fm-message>
-            <router-view v-slot="{ component, route }" v-on:message="setMessage"></router-view>
+            <router-view v-slot="{ component, route }" v-on:message="setMessage" v-on:loading="setLoading" v-on:layout="setLayout"></router-view>
         </component>
     </div>
 </template>
@@ -15,6 +17,7 @@ import PortalLayout from './views/layouts/PortalLayout.vue';
 export default {
     data: function() {
         return {
+            initialized: false,
             loading: true,
             layout: 'login-layout',
             message: {
@@ -30,8 +33,32 @@ export default {
     async created() {
         // Checks the authentication of the user
         const response = await this.$store.dispatch('checkAuth');
+        setTimeout(() => {
+            this.initialized = true;
+        }, 150);
+        if (this.$store.state.authenticated && this.layout == 'login-layout') {
+            this.$router.push({ name: 'portal' });
+        }
     },
     methods: {
+        setLoading: function(loading) {
+            this.loading = loading;
+        },
+        setLayout: function(layout) {
+            if (this.layout == layout) {
+                setTimeout(() => {
+                    this.loading = false;
+                }, 250);
+                return false;
+            }
+            this.loading = true;
+            setTimeout(() => {
+                this.layout = layout;
+            }, 250);
+            setTimeout(() => {
+                this.loading = false;
+            }, 1150);
+        },
         setMessage: function(message) {
             this.message.id = this.message.id++;
             this.message.text = message.text;
@@ -39,17 +66,7 @@ export default {
         }
     },
     watch: {
-        '$store.state.authenticated': {
-            immediate: true,
-            handler: function(value) {
-                this.loading = true;
-                this.layout = value ? 'portal-layout' : 'login-layout';
-                setTimeout(() => {
-                    this.loading = false;
-                }, 500);
-            },
-            deep: true,
-        },
+
     },
     components: {
         'login-layout': LoginLayout,

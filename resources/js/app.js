@@ -5,7 +5,7 @@ import store from './store';
 import Index from './Index.vue';
 // Global components
 import Tablelify from './components/Tablelify.vue';
-import Loading from './components/Loading.vue';
+import Loading from './components/Formora/Loading.vue';
 import Upload from './components/Formora/Upload.vue';
 import Address from './components/Formora/Address.vue';
 import Phone from './components/Formora/Phone.vue';
@@ -83,7 +83,7 @@ app.use(store);
 // Global component attachments
 app.component('index', Index);
 app.component('tablelify', Tablelify);
-app.component('loading', Loading);
+app.component('fm-loading', Loading);
 app.component('fm-form', Form);
 app.component('fm-input', Input);
 app.component('fm-address', Address);

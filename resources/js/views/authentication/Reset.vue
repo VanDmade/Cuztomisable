@@ -62,6 +62,7 @@ export default {
         }
     },
     created: function() {
+        this.$emit('layout', 'login-layout');
         this.verify(false);
     },
     methods: {
@@ -75,7 +76,7 @@ export default {
                 this.submitting = true;
             }
             var code = verifyCode ? ('/'+this.form.code) : '';
-            axios.get('/password/forgot/'+this.token+'/verify'+code).then(({ data }) => {
+            axios.get(`/password/forgot/${this.token}/verify${code}`).then(({ data }) => {
                 if (verifyCode) {
                     this.$emit('message', { text: data.message });
                     setTimeout(() => {
@@ -88,8 +89,8 @@ export default {
             }).catch(({ response }) => {
                 if (verifyCode) {
                     this.errors.code = [];
-                    this.errors.code.push(response.data.message);
-                } else if (response.data.message) {
+                    this.errors.code.push(response?.data?.message);
+                } else if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                     this.$router.push({ name: 'forgot' });
                 }
@@ -103,7 +104,7 @@ export default {
             this.resending = true;
             this.resend = false;
             this.submitting = true;
-            axios.get('/password/forgot/'+this.token+'/send').then(({ data }) => {
+            axios.get(`/password/forgot/${this.token}/send`).then(({ data }) => {
                 this.doubleTimer();
                 this.setupResend();
                 // Sets a success message for the MFA sending
@@ -112,7 +113,7 @@ export default {
                     error: false,
                 };
             }).catch(({ response }) => {
-                if (response.data.message) {
+                if (response?.data?.message) {
                     // Output the message about the error
                     this.$emit('message', { text: response.data.message, error: true });
                 }
@@ -129,14 +130,14 @@ export default {
             var formData = new FormData();
             formData.append('code', this.form.code);
             formData.append('password', this.form.password);
-            axios.post('/password/forgot/'+this.token, formData).then(({ data }) => {
+            axios.post(`/password/forgot/${this.token}`, formData).then(({ data }) => {
                 this.$emit('message', { text: data.message });
                 this.$router.push({ name: 'login' });
             }).catch(({ response }) => {
-                if (response.data.errors) {
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
-                if (response.data.message) {
+                if (response?.data?.message) {
                     // Output the message about the error
                     this.$emit('message', { text: response.data.message, error: true });
                 }

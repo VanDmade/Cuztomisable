@@ -8,11 +8,10 @@
 export default {
     data: function() {
         return {
-            loading: false,
         }
     },
     created: function() {
-        
+        this.$emit('layout', 'portal-layout');
     },
     methods: {
 

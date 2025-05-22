@@ -1,5 +1,5 @@
 <template>
-    <div id="forgot-page">
+    <div id="mfa-page">
         <div class="card ma-2 pa-6">
             <h3 class="card-title">Multi-Factor Authentication</h3>
             <h6 class="card-subtitle mb-2 text-muted">
@@ -37,7 +37,7 @@
                 <fm-checkbox
                     label="Remember device?"
                     v-model="form.remember"
-                    type="radio"
+                    type="checkbox"
                     :errors="errors.remember"
                     hide-details
                     :disabled="submitting" />
@@ -54,12 +54,12 @@
 export default {
     data: function() {
         return {
-            loading: true,
             submitting: false,
             resend: false,
             errors: [],
             token: this.$route.params.token,
             sent: false,
+            resending: false,
             send_via: {
                 phone: null,
                 email: null,
@@ -67,12 +67,13 @@ export default {
             form: {
                 email: '0',
                 phone: '0',
-                remember: '0',
+                remember: false,
                 code: '',
             },
         }
     },
     created: function() {
+        this.$emit('layout', 'login-layout');
         this.verify();
     },
     methods: {
@@ -82,16 +83,16 @@ export default {
             this.submitting = true;
             var formData = new FormData();
             formData.append('type', this.form.email == '1' ? 'email' : (this.form.phone == '1' ? 'phone' : 'resend'));
-            axios.post('/login/mfa/'+this.token+'/send', formData).then(({ data }) => {
+            axios.post(`/login/mfa/${this.token}/send`, formData).then(({ data }) => {
                 this.sent = true;
                 this.setupResend();
                 // Sets a success message for the MFA sending
                 this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
-                if (response.data.errors) {
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
-                if (response.data.message) {
+                if (response?.data?.message) {
                     // Output the message about the error
                     this.$emit('message', { text: response.data.message, error: true });
                 }
@@ -101,34 +102,36 @@ export default {
                 }, 1500);
             });
         },
-        save: function() {
+        async save() {
             this.submitting = true;
-            var formData = new FormData();
-            formData.append('code', this.form.code);
-            formData.append('remember', this.form.remember == '1' ? '1' : '0');
-            axios.post('/login/mfa/'+this.token, formData).then(({ data }) => {
+            try {
+                const formData = new FormData();
+                formData.append('code', this.form.code);
+                console.log(this.form.remember);
+                formData.append('remember', this.form.remember ? '1' : '0');
+                const { data } = await axios.post(`/login/mfa/${this.token}`, formData);
                 this.$emit('message', { text: data.message });
-                this.$store.commit('login', data.token);
+                await this.$store.dispatch('checkAuth');
+                this.$emit('loading', true);
                 setTimeout(() => {
-                    // Sets a success message for the MFA sending
                     this.$router.push({ name: 'portal' });
-                }, 1500);
-            }).catch(({ response }) => {
-                if (response.data.errors) {
+                }, 150);
+            } catch (error) {
+                const response = error.response;
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
-                if (response.data.message) {
-                    // Output the message about the error
+                if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                 }
-            }).finally(() => {
+            } finally {
                 setTimeout(() => {
                     this.submitting = false;
                 }, 1500);
-            });
+            }
         },
         verify: function() {
-            axios.get('/login/mfa/'+this.token+'/verify').then(({ data }) => {
+            axios.get(`/login/mfa/${this.token}/verify`).then(({ data }) => {
                 // Determines if the user just refreshed and if the code was already sent
                 if (data.sent == true) {
                     this.sent = true;
@@ -155,16 +158,16 @@ export default {
                     this.$emit('message', { text: data.message });
                 }
             }).catch(({ response }) => {
-                if (response.data.errors) {
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
-                } else if (response.data.message) {
+                } else if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                     setTimeout(() => {
                         this.$router.push({ name: 'login' });
                     }, 1500);
                 }
             }).finally(() => {
-                this.loading = false;
+                this.$emit('loading', false);
             });
         },
         setupResend: function() {

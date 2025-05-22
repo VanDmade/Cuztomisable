@@ -30,6 +30,9 @@ export default {
             },
         }
     },
+    created: function() {
+        this.$emit('layout', 'login-layout');
+    },
     methods: {
         save: function() {
             this.submitting = true;
@@ -42,10 +45,10 @@ export default {
                     this.$router.push({ name: 'reset', params: { token: data.token }})
                 }, 1500);
             }).catch(({ response }) => {
-                if (response.data.errors) {
+                if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
-                if (response.data.message) {
+                if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                 }
                 setTimeout(() => {

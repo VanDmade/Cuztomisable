@@ -40,6 +40,9 @@ export default {
             },
         }
     },
+    created: function() {
+        this.$emit('layout', 'login-layout');
+    },
     methods: {
         async login() {
             this.submitting = true;
@@ -48,13 +51,24 @@ export default {
             formData.append('username', this.form.username ?? '');
             formData.append('password', this.form.password ?? '');
             try {
-                await this.$store.dispatch('login', formData);
+                let response = await this.$store.dispatch('login', formData);
+                setTimeout(() => {
+                    this.$emit('loading', true);
+                }, 150);
+                setTimeout(() => {
+                    if (response.data.multi_factor_authentication === true) {
+                        // Redirect to the MFA page
+                        this.$router.push({ name: 'mfa', params: { token: response.data.token }});
+                    } else {
+                        this.$router.push({ name: 'portal' });
+                    }
+                }, 500);
             } catch (error) {
-                if (typeof(error.response) != 'undefined') {
-                    let response = error.response;
-                    if (response.data.errors) {
+                if (error?.response) {
+                    let response = error?.response;
+                    if (response?.data?.errors) {
                         this.errors = response.data.errors;
-                    } else if (response.data.message) {
+                    } else if (response?.data?.message) {
                         this.errors.username = [];
                         this.errors.username.push(response.data.message);
                     }
