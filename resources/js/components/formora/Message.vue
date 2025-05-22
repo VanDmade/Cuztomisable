@@ -25,10 +25,12 @@ export default {
     },
     watch: {
         message: {
-            immediate: true,
             handler: function(value) {
+                if (value.text == '') {
+                    return;
+                }
                 let template = JSON.parse(JSON.stringify(this.template));
-                template.id = this.counter++;
+                template.id = value.id;
                 template.text = value.text;
                 template.error = value.error;
                 this.messages.push(template);

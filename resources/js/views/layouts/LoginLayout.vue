@@ -1,7 +1,7 @@
 <template>
     <div id="login-layout" class="layout">
         <div class="center-container">
-            <slot @loading="$emit('loading')" @layout="$emit('layout')"></slot>
+            <slot></slot>
         </div>
     </div>
 </template>
@@ -17,4 +17,4 @@ export default {
     },
     
 }
-</script>
+</script>S

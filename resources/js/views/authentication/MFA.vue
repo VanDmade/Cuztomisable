@@ -24,7 +24,7 @@
                         :disabled="submitting" />
                 </div>
                 <div class="form-buttons">
-                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Send</button>
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting || (!form.email && !form.phone && !resending)">Send</button>
                 </div>
             </fm-form>
             <fm-form v-else ref="mfaForm" class="mt-4" :form="form" @save="save">
@@ -65,8 +65,8 @@ export default {
                 email: null,
             },
             form: {
-                email: '0',
-                phone: '0',
+                email: false,
+                phone: false,
                 remember: false,
                 code: '',
             },
@@ -82,7 +82,11 @@ export default {
             this.resend = false;
             this.submitting = true;
             var formData = new FormData();
-            formData.append('type', this.form.email == '1' ? 'email' : (this.form.phone == '1' ? 'phone' : 'resend'));
+            if (!this.form.email && !this.form.phone && !resending) {
+                this.submitting = false;
+                return;
+            }
+            formData.append('type', this.form.email ? 'email' : (this.form.phone ? 'phone' : 'resend'));
             axios.post(`/login/mfa/${this.token}/send`, formData).then(({ data }) => {
                 this.sent = true;
                 this.setupResend();
@@ -110,8 +114,8 @@ export default {
                 console.log(this.form.remember);
                 formData.append('remember', this.form.remember ? '1' : '0');
                 const { data } = await axios.post(`/login/mfa/${this.token}`, formData);
-                this.$emit('message', { text: data.message });
                 await this.$store.dispatch('checkAuth');
+                this.$emit('message', { text: data.message });
                 this.$emit('loading', true);
                 setTimeout(() => {
                     this.$router.push({ name: 'portal' });
@@ -146,12 +150,12 @@ export default {
                 };
                 // Determines if the type should be set because there isn't more than one option
                 if (this.send_via.phone == null) {
-                    this.form.email = '1';
+                    this.form.email = true;
                 } else if (this.send_via.email == null) {
-                    this.form.phone == '1';
+                    this.form.phone == true;
                 }
                 // Checks to see if there is only one possible locaiton to send the code to
-                if (this.form.email == '1' || this.form.phone == '1') {
+                if (this.form.email || this.form.phone) {
                     this.sent = true;
                     this.send();
                 } else {
@@ -180,15 +184,15 @@ export default {
     watch: {
         'form.email': {
             handler: function(value) {
-                if (value == '1') {
-                    this.form.phone = '0';
+                if (value == true) {
+                    this.form.phone = false;
                 }
             }
         },
         'form.phone': {
             handler: function(value) {
-                if (value == '1') {
-                    this.form.email = '0';
+                if (value == true) {
+                    this.form.email = false;
                 }
             }
         },

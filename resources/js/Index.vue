@@ -1,12 +1,14 @@
 <template>
     <div id="cuztomisable-app">
         <fm-loading :loading="loading || !initialized"></fm-loading>
+        <fm-message :message="message" :length="message.timeout_length"></fm-message>
         <component
             v-show="!loading && initialized"
             :is="layout"
             :settings="settings"
-            v-on:loading="setLoading">
-            <fm-message :message="{ id: message.id, text: message.text, error: message.error }" :length="message.timeout_length"></fm-message>
+            v-on:message="setMessage"
+            v-on:loading="setLoading"
+            v-on:layout="setLayout">
             <router-view v-slot="{ component, route }" v-on:message="setMessage" v-on:loading="setLoading" v-on:layout="setLayout"></router-view>
         </component>
     </div>
@@ -60,7 +62,7 @@ export default {
             }, 1150);
         },
         setMessage: function(message) {
-            this.message.id = this.message.id++;
+            this.message.id = this.message.id + 1;
             this.message.text = message.text;
             this.message.error = message.error ?? false;
         }

@@ -28,7 +28,7 @@
                 </div>
             </div>
         </nav>
-        <slot @loading="$emit('loading')" @layout="$emit('layout')"></slot>
+        <slot></slot>
     </div>
 </template>
 <script>

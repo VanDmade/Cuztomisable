@@ -102,7 +102,8 @@
     }
 }
 .fm-form-input {
-    .form-control:focus {
+    .form-control:focus,
+    .form-check-input:focus {
         border: 1px solid $color-secondary !important;
         box-shadow: 0 0 0 0.25rem rgba($color-secondary, 0.25);
     }
@@ -115,6 +116,10 @@
     .form-label.fm-form-label.empty {
         transform: none !important;
         color: #777;
+    }
+    .form-check-input:checked {
+        background-color: $color-secondary;
+        border-color: $color-secondary;
     }
     .fm-upload-description {
         font-size: 0.6em;
