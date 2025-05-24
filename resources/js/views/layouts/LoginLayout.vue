@@ -12,9 +12,12 @@ export default {
 
         }
     },
+    created: function() {
+        
+    },
     methods: {
 
     },
     
 }
-</script>S
+</script>

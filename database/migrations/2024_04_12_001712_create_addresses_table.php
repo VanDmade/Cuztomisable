@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('city', 64);
             $table->string('country', 64);
             $table->string('zip_or_postal_code', 16);
+            $table->boolean('default')->default(false);
             $table->boolean('shipping')->default(false);
             $table->boolean('billing')->default(false);
         });

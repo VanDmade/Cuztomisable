@@ -130,26 +130,11 @@ class MFAController extends Controller
                 $ipAddress->remember_until = date('Y-m-d H:i:s', strtotime($rememberFor));
                 $ipAddress->save();
             }
-            if (false) {
-                // Removes all older tokens for this specific user and IP Address
-                $code->user->tokens()
-                    ->where('name', '=', $tokenName = $user->id.'-'.$ipAddress->id.'-token')
-                    ->delete();
-            }
-            // Determines the length of time the token will remain active
-            $rememberFor = (isset($data['remember']) && $data['remember'] == '1') ||
-                is_null(config('cuztomisable.login.session_length', null)) ?
-                    now()->addDays(60) : now()->addSeconds(config('cuztomisable.login.session_length', null));
-            $token = $code->user->createToken($tokenName ?? 'access-token');
-            $token->accessToken->expires_at = $rememberFor;
-            $token->accessToken->save();
-            $token = $token->plainTextToken;
             $code->used_at = date('Y-m-d H:i:s');
             $code->save();
             DB::commit();
             return $this->success([
                 'message' => __('cuztomisable/authentication.login.logged_in'),
-                'token' => $token,
                 'multi_factor_authentication' => false,
                 'remember' => isset($data['remember']) && $data['remember'] == '1',
                 'user' => [
@@ -158,19 +143,7 @@ class MFAController extends Controller
                     'phone' => $code->user->mobilePhone->full_phone_number ?? null,
                     'image' => !is_null($code->user->profile) ? $code->user->profile->output() : null,
                 ],
-            ])->withCookie(
-                cookie(
-                    'api_token',
-                    $token,
-                    60,           // minutes
-                    '/',
-                    null,
-                    true,         // Secure
-                    true,         // HttpOnly
-                    false,        // raw
-                    'Strict'      // SameSite
-                )
-            );
+            ])->withCookie($code->user->generateAuthCookie());
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);

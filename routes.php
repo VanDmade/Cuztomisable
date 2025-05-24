@@ -41,8 +41,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
     Route::controller(UserController::class)->group(function () {
         Route::get('/list/users', 'list');
+        Route::post('/user/{id?}', 'save');
         Route::delete('/user/{id}', 'toggleDelete');
         Route::patch('/user/{id}/locked', 'toggleLocked');
+        Route::get('/refresh', 'refresh');
     });
     Route::controller(RoleController::class)->group(function () {
         Route::get('/role/{id}', 'get');

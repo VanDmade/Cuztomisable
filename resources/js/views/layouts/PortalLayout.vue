@@ -1,7 +1,7 @@
 <template>
     <div id="portal-layout" class="layout">
-        <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow" data-bs-theme="dark">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg bg--secondary mb-6 shadow" data-bs-theme="dark">
+            <div class="container">
                 <router-link class="navbar-brand" :to="{ name: 'portal' }">Cuztomisable</router-link>
                 <button class="navbar-toggler"
                     type="button"
@@ -14,13 +14,18 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navigation">
                     <div class="navbar-nav me-auto">
-                        <span v-if="screenSize == 'medium'" class="navbar-text text-white h4 mb-0 mt-3">{{ user.name }}</span>
+                        <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
+                            <img class="collapsed-profile-image" :src="$url+'test.png'">
+                            <span class="collapsed-profile-name">{{ user.name }}</span>
+                        </div>
                         <hr v-if="screenSize == 'medium'">
-                        <router-link class="nav-link" :class="$route.name == 'portal' ? 'active' : ''" :to="{ name: 'portal' }">Portal</router-link>
+                        <router-link class="nav-link" :class="$route.name == 'portal' ? 'active' : ''" :to="{ name: 'portal' }">Users</router-link>
                     </div>
                     <div class="navbar-nav ms-auto" >
-                        <span v-if="screenSize == 'large'" class="navbar-text text-white pr-6 mr-4" style="border-right: 1px solid #fff">{{ user.name }}</span>
-                        <span class="nav-link d-inline-flex align-items-center text-white" href="#" @click="logout">
+                        <span v-if="screenSize == 'large'" class="navbar-text text-white pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
+                            <img class="profile-image" :src="$url+'test.png'" @click="$router.push({ name: 'profile' })">
+                        </span>
+                        <span class="nav-link d-inline-flex align-items-center text-white" @click="logout">
                             <span v-if="screenSize == 'large'" class="material-icons">logout</span>
                             <span v-else>Logout</span>
                         </span>
@@ -35,15 +40,9 @@
 export default {
     data: function() {
         return {
-            user: [],
+            user: this.$store.state.user,
             navbarToggle: false,
             screenSize: 'large',
-        }
-    },
-    created: function() {
-        if (this.$route.meta.require_authentication && !this.$store.state.authenticated) {
-            this.$emit('layout', 'login-layout');
-            this.$router.push({ name: 'login' });
         }
     },
     mounted: function() {
@@ -60,7 +59,7 @@ export default {
             this.screenSize = window.innerWidth <= 992 ? 'medium' : 'large';
         },
         async logout() {
-            this.$emit('loading', true);
+            this.$emit('loadingMessage', 'See you next time!');
             setTimeout(async () => {
                 await this.$store.dispatch('logout');
                 this.$router.push({ name: 'login' });

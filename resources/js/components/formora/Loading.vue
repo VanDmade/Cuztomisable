@@ -1,5 +1,5 @@
 <template>
-    <transition name="fade">
+    <transition name="fade" class="fm-loading-transition">
         <div v-if="loading" :class="['fm-loading', { large }]">
             <div class="fm-spinner"></div>
             <p class="fm-loading-text">{{ message }}</p>

@@ -43,11 +43,13 @@ export default {
         get: function() {
             axios.get('/formora/'+this.$route.name).then(({ data }) => {
                 let form = this.clone(this.form);
-                let keys = Object.keys(data.form);
-                for (let i = 0; i < keys.length; i++) {
-                    form[keys[i]] = data.form[keys[i]];
+                if (data.form != null) {
+                    let keys = Object.keys(data.form);
+                    for (let i = 0; i < keys.length; i++) {
+                        form[keys[i]] = data.form[keys[i]];
+                    }
+                    this.$emit('initialize', form);
                 }
-                this.$emit('initialize', form);
             });
         },
         // Saves the progress the user has made on the form

@@ -100,6 +100,7 @@ class RegistrationController extends Controller
                     'city' => $data['city'],
                     'country' => $data['country'],
                     'zip_or_postal_code' => $data['zip_or_postal_code'],
+                    'default' => true,
                 ]);
             }
             // Creates the phone entry for the user

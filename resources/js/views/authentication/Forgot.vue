@@ -1,5 +1,5 @@
 <template>
-    <div id="forgot-page">
+    <div id="forgot-page" class="page">
         <div class="card ma-2 pa-6">
             <h3 class="card-title">Forgot Password</h3>
             <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
@@ -29,9 +29,6 @@ export default {
                 username: 'michaelvanderwerkerllc@gmail.com',
             },
         }
-    },
-    created: function() {
-        this.$emit('layout', 'login-layout');
     },
     methods: {
         save: function() {

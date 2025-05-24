@@ -127,7 +127,6 @@ export default {
             },
         },
         'value.country': {
-            immediate: true,
             handler: function(country) {
                 if (country == '') {
                     this.value.country = this.$cuztomisable.locations.default_country;
@@ -140,7 +139,8 @@ export default {
                     }
                 }
                 return false;
-            }
+            },
+            deep: true,
         }
     },
     props: {

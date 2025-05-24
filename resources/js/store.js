@@ -2,6 +2,7 @@ import { createStore } from 'vuex';
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
+let refreshInterval = null;
 
 export default createStore({
     state: function() {
@@ -36,15 +37,18 @@ export default createStore({
         },
     },
     actions: {
-        async checkAuth({ commit }) {
+        async checkAuth({ commit, dispatch }) {
             commit('SET_LOADING', true);
             try {
                 const response = await axios.get('/me');
-                commit('SET_USER', response.data);
+                commit('SET_USER', response.data.user);
+                dispatch('startTokenRefresh');
             } catch (error) {
                 commit('CLEAR_USER');
             } finally {
-                commit('SET_LOADING', false);
+                setTimeout(() => {
+                    commit('SET_LOADING', false);
+                }, 500);
             }
         },
         async login({ dispatch }, credentials) {
@@ -55,13 +59,42 @@ export default createStore({
             }
             return response;
         },
-        async logout({ commit }) {
+        async logout({ commit, dispatch }) {
             try {
+                commit('SET_LOADING', true);
                 await axios.post('/logout');
             } catch (e) {
                 // silently fail if already logged out
+            } finally {
+                commit('CLEAR_USER');
+                setTimeout(() => {
+                    commit('SET_LOADING', false);
+                }, 1500);
             }
-            commit('CLEAR_USER');
         },
+        startTokenRefresh: function({ dispatch }) {
+            if (refreshInterval) {
+                dispatch('clearTokenRefresh');
+            }
+            let sessionLength = this.$cuztomisable?.session_length ?? 600;
+            // Sets up the refresh interval to refresh the authentication token
+            refreshInterval = setInterval(async () => {
+                try {
+                    await axios.get('/refresh', { withCredentials: true });
+                } catch (error) {
+                    if (error?.response?.status === 401) {
+                        dispatch('logout');
+                    } else {
+                        console.error('Token refresh failed:', error);
+                    }
+                }
+            }, (sessionLength - 15) * 1000);
+        },
+        clearTokenRefresh: function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
     },
 });

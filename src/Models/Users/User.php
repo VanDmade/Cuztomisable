@@ -64,6 +64,30 @@ class User extends Authenticatable
         });
     }
 
+    public function generateAuthCookie()
+    {
+        // Determines the length of time the token will remain active
+        $sessionLength = config('cuztomisable.login.session_length');
+        $expiresAt = is_null($sessionLength)
+            ? now()->addDays(60)
+            : now()->addSeconds($sessionLength);
+        $token = $this->createToken('access-token');
+        $token->accessToken->expires_at = $expiresAt;
+        $token->accessToken->save();
+        $token = $token->plainTextToken;
+        return cookie(
+            'api_token',
+            $token,
+            now()->diffInMinutes($expiresAt),
+            '/',       // path
+            null,      // domain
+            true,      // secure
+            true,      // httpOnly
+            false,     // raw
+            'Strict'   // sameSite
+        );
+    }
+
     public function obscuredEmail(): Attribute
     {
         return Attribute::make(
@@ -109,6 +133,11 @@ class User extends Authenticatable
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
 
+    public function phones()
+    {
+        return $this->hasMany(Phone::class, 'user_id');
+    }
+
     public function mobilePhone()
     {
         return $this->hasOne(Phone::class, 'user_id')
@@ -116,14 +145,21 @@ class User extends Authenticatable
             ->where('default', '=', true);
     }
 
-    public function phones()
+    public function defaultPhone()
     {
-        return $this->hasMany(Phone::class, 'user_id');
+        return $this->hasOne(Phone::class, 'user_id')
+            ->where('default', '=', true);
     }
 
     public function addresses()
     {
-        return $this->hasMany(Phone::class, 'user_id');
+        return $this->hasMany(Address::class, 'user_id');
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(Address::class, 'user_id')
+            ->where('default', '=', true);
     }
 
     public function ipAddresses()

@@ -1,5 +1,5 @@
 <template>
-    <div id="login-page">
+    <div id="login-page" class="page">
         <div class="card ma-2 pa-6">
             <h3 class="card-title">Reset Password</h3>
             <h6 class="card-subtitle mb-2 text-muted">
@@ -62,7 +62,6 @@ export default {
         }
     },
     created: function() {
-        this.$emit('layout', 'login-layout');
         this.verify(false);
     },
     methods: {

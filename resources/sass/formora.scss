@@ -60,9 +60,12 @@
     }
 }
 .fade-enter-active {
-    transition: opacity 0.1s ease;
+    transition: opacity 0.25s ease;
 }
 .fade-leave-active {
+    transition: opacity 0.25s ease;
+}
+.fm-loading-transition.fade-leave-active {
     transition: opacity 0.75s ease;
 }
 .fade-enter-from, .fade-leave-to {
@@ -99,6 +102,25 @@
         .fm-message.fm-message-success {
             background: $color-success;
         }
+    }
+}
+.fm-image-input {
+    &:hover .fm-image,
+    &:active .fm-image,
+    &:focus .fm-image {
+        box-shadow: 0 0 0 0.25rem rgba($color-accent, 0.25);
+    }
+    .fm-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 3px solid $color-accent;
+    }
+    .fm-image-toggle {
+        font-size: 1rem;
+        right: -6px;
+        bottom: -6px;
+        cursor: pointer;
     }
 }
 .fm-form-input {

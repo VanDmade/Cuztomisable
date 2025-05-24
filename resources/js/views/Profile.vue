@@ -1,11 +1,28 @@
 <template>
-    <div id="registration-page" class="page">
-        <div class="card ma-2 pa-6">
-            <h3 class="card-title">Sign Up!</h3>
-            <h6 class="card-subtitle mb-2 text-muted">We are always welcoming to new users!</h6>
-            <fm-form ref="registrationForm" class="mt-4" :form="form"
+    <div id="profile-page">
+        <div class="card pa-6" style="max-width: 600px; margin: auto;">
+            <div class="d-flex align-items-center position-relative">
+                <div class="position-relative me-3 fm-image-input" style="height: 100px; width: 100px;">
+                    <label for="fm-image-upload" class="position-relative me-3 fm-image-input" style="cursor: pointer; height: inherit; width: inherit;">
+                        <fm-image :src="preview || user?.image"
+                            alt="User Photo"
+                            img-class="rounded-circle fm-image" />
+                        <span class="position-absolute fm-image-toggle translate-middle">✎</span>
+                        <input
+                            type="file"
+                            id="fm-image-upload"
+                            class="d-none"
+                            accept="image/*"
+                            @change="handleChange" />
+                    </label>
+                </div>
+                <div>
+                    <h4 class="mb-0">{{ user?.name }}</h4>
+                    <small class="text-muted">{{ user?.email }}</small>
+                </div>
+            </div>
+            <fm-form ref="profileForm" :form="form"
                 @save="save"
-                @initialize="initialize"
                 ask-before-leaving
                 save-progress-before-leaving
                 load-progress-on-entry>
@@ -43,58 +60,29 @@
                     :disabled="submitting"
                     :hasAddressTwo="$cuztomisable.registration.address.address_two"
                     :hasAddressThree="$cuztomisable.registration.address.address_three" />
-                <fm-input
-                    label="Password"
-                    v-model="form.password"
-                    type="password"
-                    :errors="errors.password"
-                    :disabled="submitting" />
-                <requirements :password="form.password" v-on:completed="completed"></requirements>
                 <div class="form-buttons">
-                    <button type="submit" class="button button--primary button--block" :disabled="submitting || !passwordRequirementsMet">Sign Up</button>
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Save Changes</button>
                 </div>
             </fm-form>
-        </div>
-        <div class="text-center">
-            <router-link :to="{ name: 'login' }" class="links">Already have an account?</router-link>
         </div>
     </div>
 </template>
 <script>
-import PasswordRequirements from '../../components/PasswordRequirements.vue';
 export default {
     data: function() {
         return {
             submitting: false,
             errors: [],
-            passwordRequirementsMet: false,
-            form: {
-                name: '',
-                username: '',
-                email: '',
-                phone: {
-                    country_code: '',
-                    number: '',
-                },
-                address: {
-                    address: '',
-                    address_two: '',
-                    address_three: '',
-                    city: '',
-                    state_or_province: '',
-                    zip_or_postal_code: '',
-                    country: '',
-                },
-                password: '',
-            }
+            preview: this.$url+'cuztomisable/profile.png',
+            user: this.$store.state.user,
+            form: {},
         }
     },
     methods: {
         save: function() {
-            this.submitting = true;
-            this.errors = [];
-            var formData = new FormData();
+            let formData = new FormData();
             formData.append('name', this.form.name ?? '');
+            formData.append('image', this.form.image ?? '');
             if (!this.$cuztomisable.login_with.email && !this.$cuztomisable.login_with.phone) {
                 formData.append('username', this.form.username ?? '');
             }
@@ -111,14 +99,9 @@ export default {
                 formData.append('zip_or_postal_code', this.form.address.zip_or_postal_code);
                 formData.append('country', this.form.address.country);
             }
-            let code = typeof(this.$route.params.code) != 'undefined' ? ('/'+this.$route.params.code) : '';
-            axios.post(`/register${code}`, formData).then(({ data }) => {
-                if (data.message) {
-                    this.$emit('message', { text: data.message });
-                }
-                setTimeout(() => {
-                    this.$router.push({ name: 'login' });
-                }, 3500);
+            this.submitting = true;
+            axios.post('/user', formData).then(({ data }) => {
+                this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -135,26 +118,54 @@ export default {
                 if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
                 }
+            }).finally(() => {
                 setTimeout(() => {
                     this.submitting = false;
                 }, 1500);
             });
         },
-        initialize: function(form) {
-            this.form = form;
-        },
-        completed: function(value) {
-            this.passwordRequirementsMet = value;
-        },
-        getLabel: function(value) {
-            return value.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
-        },
-        getErrors: function(value) {
-            return typeof(this.errors[value]) !== 'undefined' ? this.errors[value] : [];
-        },
+        handleChange: function(event) {
+            const file = event.target.files[0]
+            if (file) {
+                this.form.image = file;
+                this.preview = URL.createObjectURL(file);
+            }
+        }
     },
-    components: {
-        'requirements': PasswordRequirements,
+    watch: {
+        '$store.state.user': {
+            immediate: true,
+            handler: function(user) {
+                this.user = user;
+                if (user == null) {
+                    return;
+                }
+                if (user.address == null) {
+                    user.address = this.form.address;
+                }
+                this.form = this.clone(user);
+            },
+            deep: true,
+        }
     }
 }
 </script>
+<style lang="scss">
+    #profile-page {
+        .card {
+            border-radius: 8px;
+        }
+        .form-control:focus {
+            border-color: #30D5C8;
+            box-shadow: 0 0 0 0.2rem rgba(48, 213, 200, 0.25);
+        }
+        .btn-primary {
+            background-color: #30D5C8;
+            border-color: #30D5C8;
+            &:hover {
+                background-color: darken(#30D5C8, 5%);
+                border-color: darken(#30D5C8, 5%);
+            }
+        }
+    }
+</style>

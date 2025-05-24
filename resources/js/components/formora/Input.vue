@@ -45,7 +45,7 @@ export default {
     computed: {
         value: {
             get: function () {
-                return this.modelValue;
+                return this.formatValue(this.modelValue);
             },
             set: function (value) {
                 value = this.formatValue(value);

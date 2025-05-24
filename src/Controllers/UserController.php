@@ -24,7 +24,8 @@ class UserController extends Controller
                 'user' => [
                     'name' => $user->name,
                     'email' => $user->email,
-                    'phone' => $user->mobilePhone->full_phone_number ?? null,
+                    'phone' => $user->defaultPhone,
+                    'address' => $user->defaultAddress,
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);
@@ -49,6 +50,7 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
+            return $this->debug($data);
             if (is_null($id)) {
                 $user = new Users\User();
             } else {
@@ -130,6 +132,20 @@ class UserController extends Controller
             return $this->success([
                 'list' => $list,
             ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function refresh()
+    {
+        try {
+            if (!Auth::check()) {
+                throw new Exception('Unauthenticated', 401);
+            }
+            return $this->success([
+                'message' => 'Token refreshed',
+            ])->withCookie(Auth::user()->generateAuthCookie());
         } catch (Exception $error) {
             return $this->error($error);
         }

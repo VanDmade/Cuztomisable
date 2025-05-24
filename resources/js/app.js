@@ -12,6 +12,7 @@ import Phone from './components/Formora/Phone.vue';
 import Input from './components/Formora/Input.vue';
 import Radio from './components/Formora/Radio.vue';
 import Multi from './components/Formora/Multi.vue';
+import Image from './components/Formora/Image.vue';
 import Select from './components/Formora/Select.vue';
 import Checkbox from './components/Formora/Checkbox.vue';
 import Textarea from './components/Formora/Textarea.vue';
@@ -61,23 +62,12 @@ app.mixin({
         }
     },
 });
-/*// Adds the token to the axios requests IF SET
-axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token') ?? null;
-        if (token) {
-            config.headers['Authorization'] = 'Bearer ' + token;
-        }
-        return config;
-    }, (error) => {
-        return Promise.reject(error);
-    }
-);*/
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = app.config.globalProperties.$url = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+app.config.globalProperties.$url = import.meta.env.VITE_URL;
 // Gets the settings from the configuration file for cuztomisable
 var response = await axios.get('/cuztomisable/settings');
-app.config.globalProperties.$cuztomisable = response.data ?? null;
+store.$cuztomisable = app.config.globalProperties.$cuztomisable = response.data ?? null;
 app.config.globalProperties.$timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 app.use(store);
 // Global component attachments
@@ -97,4 +87,5 @@ app.component('fm-tags', Tags);
 app.component('fm-textarea', Textarea);
 app.component('fm-message', Message);
 app.component('fm-modal', Modal);
+app.component('fm-image', Image);
 app.mount('#app');

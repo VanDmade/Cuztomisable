@@ -109,6 +109,33 @@ html, body {
 .nav-link {
     cursor: pointer;
 }
+#navigation {
+    hr {
+        border: 2px solid #fff;
+    }
+}
+.collapsed-profile-image {
+    max-width: 32px;
+    max-height: 32px;
+    border-radius: 50px;
+}
+.profile-image {
+    vertical-align: middle;
+    max-width: 36px;
+    max-height: 36px;
+    margin: 2px 0;
+    border-radius: 50px;
+}
+.profile-image:hover,
+.profile-image:focus {
+    cursor: pointer;
+    border: 2px solid $color-accent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.collapsed-profile-name {
+    vertical-align: middle;
+    padding-left: 8px;
+}
 .button {
     border: none;
     border-radius: $border-radius;
@@ -159,8 +186,28 @@ html, body {
 }
 #login-layout {
     .card {
-        max-width: 750px;
         min-width: 500px;
+        max-width: 750px;
+        margin: 0 auto;
+        @media (max-width: $xsmall) {
+            min-width: unset;
+            max-width: 100%;
+        }
+    }
+    .page {
+        padding-bottom: 16px;
+        @media (max-width: $xsmall) {
+            width: 100%;
+        }
+    }
+}
+#portal-layout {
+    .page {
+        padding: 0 32px;
+        @media (max-width: $xsmall) {
+            padding: 24px;
+            width: 100%;
+        }
     }
 }
 #password-requirements {

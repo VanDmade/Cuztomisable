@@ -26,6 +26,7 @@ class Address extends Model
         'zip_or_postal_code',
         'shipping',
         'billing',
+        'default',
         'user_id',
         'created_by',
         'deleted_at',
@@ -35,10 +36,14 @@ class Address extends Model
     protected $casts = [
         'shipping' => 'boolean',
         'billing' => 'boolean',
+        'default' => 'boolean',
         'deleted_at' => 'datetime',
     ];
 
     protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
         'user_id',
         'created_by',
         'deleted_by',

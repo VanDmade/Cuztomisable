@@ -76,6 +76,7 @@ export default {
     computed: {
         value: {
             get: function () {
+
                 return this.modelValue;
             },
             set: function (value) {
@@ -90,9 +91,11 @@ export default {
     },
     watch: {
         'value.country_code': {
-            immediate: true,
             handler: function(code) {
                 if (code == '') {
+                    if (this.value == '' || this.value == null) {
+                        this.value = { country_code: '', number: '' };
+                    }
                     this.value.country_code = this.$cuztomisable.locations.default_country_code ?? '';
                 }
                 this.format = null;
@@ -101,7 +104,8 @@ export default {
                         this.format = this.$cuztomisable.locations.country_codes[i].format ?? null;
                     }
                 }
-            }
+            },
+            deep: true,
         },
         errors: {
             immediate: true,

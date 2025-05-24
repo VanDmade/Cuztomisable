@@ -1,5 +1,5 @@
 <template>
-    <div id="login-page">
+    <div id="login-page" class="page">
         <div class="card ma-2 pa-6">
             <h3 class="card-title">Login</h3>
             <h6 class="card-subtitle mb-2 text-muted">Welcome to Cuztomisable!</h6>
@@ -40,9 +40,6 @@ export default {
             },
         }
     },
-    created: function() {
-        this.$emit('layout', 'login-layout');
-    },
     methods: {
         async login() {
             this.submitting = true;
@@ -53,12 +50,11 @@ export default {
             try {
                 let response = await this.$store.dispatch('login', formData);
                 setTimeout(() => {
-                    this.$emit('loading', true);
-                }, 150);
-                setTimeout(() => {
                     if (response.data.multi_factor_authentication === true) {
-                        // Redirect to the MFA page
-                        this.$router.push({ name: 'mfa', params: { token: response.data.token }});
+                        setTimeout(() => {
+                            // Redirect to the MFA page
+                            this.$router.push({ name: 'mfa', params: { token: response.data.token }});
+                        }, 150);
                     } else {
                         this.$router.push({ name: 'portal' });
                     }
