@@ -4,7 +4,8 @@ use VanDmade\Cuztomisable\Controllers\SettingsController;
 use VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Controllers\RoleController;
-use VanDmade\Cuztomisable\Controllers\UserController;
+use VanDmade\Cuztomisable\Controllers\Users\UserController;
+use VanDmade\Cuztomisable\Controllers\Users\IpAddressController;
 use VanDmade\Cuztomisable\Controllers\FormoraController;
 
 Route::controller(SettingsController::class)->group(function () {
@@ -38,13 +39,22 @@ Route::controller(FormoraController::class)->group(function () {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::controller(UserController::class)->group(function () {
         Route::get('/me', 'get');
-    });
-    Route::controller(UserController::class)->group(function () {
         Route::get('/list/users', 'list');
+        Route::get('/users', 'table');
+        Route::get('/user/{id}', 'get');
         Route::post('/user/{id?}', 'save');
         Route::delete('/user/{id}', 'toggleDelete');
         Route::patch('/user/{id}/locked', 'toggleLocked');
+        Route::patch('/user/{id}/mfa', 'toggleMfa');
         Route::get('/refresh', 'refresh');
+        Route::post('/user/change/password', 'changePassword');
+        Route::post('/user/{id}/send/password', 'sendPassword');
+    });
+    Route::controller(IpAddressController::class)->group(function () {
+        Route::get('/ip/{id}', 'get');
+        Route::get('/user/{id}/ips', 'table');
+        Route::delete('/ip/{id}/forget', 'forget');
+        Route::delete('/ip/{id}', 'toggleDelete');
     });
     Route::controller(RoleController::class)->group(function () {
         Route::get('/role/{id}', 'get');

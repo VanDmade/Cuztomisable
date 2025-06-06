@@ -11,6 +11,7 @@
             :readonly="readonly"
             :placeholder="placeholder"
             :maxlength="max != null ? max : 1000000"
+            :autocomplete="autocomplete"
             @input="errorList = []">
         <label v-if="label != null && label != ''" :for="id" class="fm-form-label">{{ label }}</label>
         <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
@@ -73,6 +74,7 @@ export default {
         placeholder: { type: String, default: '' },
         type: { type: String, default: 'input' },
         inputClass: { type: String, default: '' },
+        autocomplete: { type: String, default: '' },
         errors: { type: [Array, Object], default: [] },
         disabled: { type: Boolean, default: false },
         readonly: { type: Boolean, default: false },

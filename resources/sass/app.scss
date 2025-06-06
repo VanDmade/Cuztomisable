@@ -9,6 +9,7 @@
 }
 html {
     overflow-y: scroll;
+    color: #2B2B2B;
 }
 body {
     background: $color-bg;
@@ -18,6 +19,11 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: auto;
+}
+input:-webkit-autofill {
+  box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
 }
 .text-center { text-align: center; }
 .text-left { text-align: left; }
@@ -63,6 +69,7 @@ html, body {
 .mt-6 { margin-top: 1.5rem !important; }
 .mt-7 { margin-top: 1.75rem !important; }
 .mt-8 { margin-top: 2rem !important; }
+.pa-0 { padding: 0rem !important; }
 .pa-1 { padding: 0.25rem !important; }
 .pa-2 { padding: 0.5rem !important; }
 .pa-3 { padding: 0.75rem !important; }
@@ -110,6 +117,11 @@ html, body {
     cursor: pointer;
 }
 #navigation {
+    .nav-link {
+        .material-icons {
+            color: #fff;
+        }
+    }
     hr {
         border: 2px solid #fff;
     }
@@ -136,6 +148,9 @@ html, body {
     vertical-align: middle;
     padding-left: 8px;
 }
+.cursor {
+    &--pointer { cursor: pointer; }
+}
 .button {
     border: none;
     border-radius: $border-radius;
@@ -148,12 +163,14 @@ html, body {
     text-align: center;
     &--primary    { background-color: $color-primary; }
     &--secondary  { background-color: $color-secondary; }
-    &--accent     { background-color: $color-accent; color: $color-text; }
+    &--accent     { background-color: $color-accent; color: #454545; }
+    &--light      { background-color: $color-light; color: $color-text; }
     &--danger     { background-color: $color-danger; }
     &--success    { background-color: $color-success; color: $color-text; }
     &--info       { background-color: $color-info; color: $color-text; }
     &--warning    { background-color: $color-warning; color: $color-text; }
     &--block      { width: 100%; margin-bottom: 0.5rem; }
+    &-small       { padding: 4px 12px; font-size: 12px; }
     &:hover {
         filter: brightness(0.95);
     }
@@ -166,11 +183,31 @@ html, body {
     &--primary    { background-color: $color-primary; }
     &--secondary  { background-color: $color-secondary; }
     &--accent     { background-color: $color-accent; color: $color-text; }
+    &--light      { background-color: $color-light; color: $color-text; }
     &--danger     { background-color: $color-danger; }
     &--success    { background-color: $color-success; color: $color-text; }
     &--info       { background-color: $color-info; color: $color-text; }
     &--warning    { background-color: $color-warning; color: $color-text; }
     &--block      { width: 100%; margin-bottom: 0.5rem; }
+}
+.color {
+    &--primary    { color: $color-primary; }
+    &--secondary  { color: $color-secondary; }
+    &--accent     { color: $color-accent; }
+    &--light      { color: $color-light; }
+    &--danger     { color: $color-danger; }
+    &--success    { color: $color-success; }
+    &--info       { color: $color-info; }
+    &--warning    { color: $color-warning; }
+}
+.note {
+    display: block;
+    font-size: 12px;
+    vertical-align: top;
+    .material-icons {
+        font-size: inherit;
+        vertical-align: middle;
+    }
 }
 .links {
     color: $color-secondary;
@@ -226,4 +263,37 @@ html, body {
 }
 #password-requirements.completed {
     color: $color-success;
+}
+.display-inline {
+    display: inline;
+}
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.tooltip-wrapper .material-icons {
+    font-size: 20px;
+    vertical-align: middle;
+}
+.tooltip-text {
+visibility: hidden;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 6px 8px;
+    position: absolute;
+    z-index: 999;
+    bottom: 125%; /* above the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 12px;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+}
+.tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }

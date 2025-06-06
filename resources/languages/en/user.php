@@ -16,9 +16,23 @@ return [
         'self_locked' => 'You have locked your account and an email was sent to our administrators. We will reach out shortly to help you resolve this issue.',
         'already_locked' => 'Your account is already locked.',
     ],
+    'ip_address' => [
+        'deleted' => 'The IP address was deleted.',
+        'undo' => 'The IP address was added backed into the system.',
+        'errors' => [
+            'not_found' => 'The IP Address was not found.',
+            'not_remembered' => 'There\'s no need to forget this IP address, as it was never marked to be remembered.',
+        ],
+    ],
+    'mfa' => [
+        'enabled' => 'You have enabled multi-factor authentication.',
+        'disabled' => 'You have disabled multi-factor authentication.',
+    ],
     'errors' => [
         'not_found' => 'The user was not found.',
         'locked' => 'Your account is currently locked.',
+        'delete_my_account' => 'You cannot delete your own account.',
+        'incorrect_password' => 'Hmm... You are unable to change your password.',
     ],
     'image' => [
         'errors' => [

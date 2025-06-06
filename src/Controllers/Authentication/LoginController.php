@@ -92,11 +92,12 @@ class LoginController extends Controller
                 'user' => [
                     'name' => $user->name,
                     'email' => $user->email,
-                    'phone' => !is_null($user->mobilePhone) ? $user->mobilePhone->full_phone_number : null,
+                    'phone' => $user->defaultPhone,
+                    'address' => $user->defaultAddress,
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);
-            return $response->withCookie($user->generateAuthCookie());
+            return !$ipAddress->requireMfa() ? $response->withCookie($user->generateAuthCookie()) : $response;
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);

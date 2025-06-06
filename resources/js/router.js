@@ -34,9 +34,15 @@ const routes = [
         component: () => import("./views/Portal.vue"),
     },{
         name: 'profile',
-        path: '/profile',
+        path: '/user/:id?',
+        alias: '/profile',
         meta: { require_authentication: true },
-        component: () => import("./views/Profile.vue"),
+        component: () => import("./views/users/Form.vue"),
+    },{
+        name: 'users',
+        path: '/users',
+        meta: { require_authentication: true },
+        component: () => import("./views/users/Table.vue"),
     },{
         name: 'message',
         path: '/message',

@@ -58,7 +58,6 @@ export default {
     data: function() {
         return {
             id: 'fm-phone_'+Math.random().toString(16).slice(2),
-            format: null,
             errorList: [],
         }
     },
@@ -87,6 +86,19 @@ export default {
                 }
                 this.$emit('update:modelValue', value);
             }
+        },
+        format: {
+            get: function() {
+                let code = this.value.country_code;
+                let format = null;
+                // Iterates through the codes to find the correct phone format
+                for (const item of this.$cuztomisable.locations.country_codes) {
+                    if (item.value == code) {
+                        format = item.format ?? null;
+                    }
+                }
+                return format;
+            }
         }
     },
     watch: {
@@ -97,12 +109,6 @@ export default {
                         this.value = { country_code: '', number: '' };
                     }
                     this.value.country_code = this.$cuztomisable.locations.default_country_code ?? '';
-                }
-                this.format = null;
-                for (let i = 0; i < this.$cuztomisable.locations.country_codes.length; i++) {
-                    if (code == this.$cuztomisable.locations.country_codes[i].value) {
-                        this.format = this.$cuztomisable.locations.country_codes[i].format ?? null;
-                    }
                 }
             },
             deep: true,

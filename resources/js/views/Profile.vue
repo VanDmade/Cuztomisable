@@ -21,11 +21,11 @@
                     <small class="text-muted">{{ user?.email }}</small>
                 </div>
             </div>
-            <fm-form ref="profileForm" :form="form"
+            <fm-form ref="profileForm"
+                :form="form"
+                class="mt-4"
                 @save="save"
-                ask-before-leaving
-                save-progress-before-leaving
-                load-progress-on-entry>
+                ask-before-leaving>
                 <fm-input
                     label="Name"
                     v-model="form.name"
@@ -60,6 +60,14 @@
                     :disabled="submitting"
                     :hasAddressTwo="$cuztomisable.registration.address.address_two"
                     :hasAddressThree="$cuztomisable.registration.address.address_three" />
+                <fm-checkbox
+                    label="Multi-Factor Authentication"
+                    v-model="form.mfa"
+                    type="checkbox"
+                    class="mt-3"
+                    :errors="errors.mfa"
+                    hide-details
+                    :disabled="submitting" />
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Save Changes</button>
                 </div>
@@ -83,6 +91,7 @@ export default {
             let formData = new FormData();
             formData.append('name', this.form.name ?? '');
             formData.append('image', this.form.image ?? '');
+            formData.append('mfa', this.form.mfa ? '1' : '0');
             if (!this.$cuztomisable.login_with.email && !this.$cuztomisable.login_with.phone) {
                 formData.append('username', this.form.username ?? '');
             }

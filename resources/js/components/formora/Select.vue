@@ -1,6 +1,6 @@
 <template>
-    <div class="form-floating fm-form-input"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+    <div class="fm-form-input"
+        :class="{ 'fm-no-label': label == null || label == '', 'form-floating': !notFloating }">
         <select
             v-model="value"
             :id="id"
@@ -69,6 +69,7 @@ export default {
         readonly: { type: Boolean, default: false },
         hideDetails: { type: Boolean, default: false },
         yesNo: { type: Boolean, default: false },
+        notFloating: { type: Boolean, default: false },
         newEntry: { type: Boolean, default: false },
         newEntryText: { type: String, default: 'New Entry' },
         newEntryValue: { type: [String, Number], default: '0' },

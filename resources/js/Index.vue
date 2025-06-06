@@ -98,6 +98,7 @@ export default {
             this.inactivityTimer = setTimeout(() => {
                 this.loadingMessage = 'See you next time!';
                 setTimeout(async () => {
+                    this.removeActivityListeners();
                     await this.$store.dispatch('logout');
                     this.$router.push({ name: 'login' });
                 }, 250);

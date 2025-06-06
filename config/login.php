@@ -26,7 +26,7 @@ return [
     ],
     /* The amount of time, in seconds, that the user's session is set to. If null,
      * then there is no session length, the user will remain logged in forever (Or until idle). */ 
-    'session_length' => 900,
+    'session_length' => 120,
     'attempts' => [
         // Amount of attempts before the account is put on hold
         'total' => 5,

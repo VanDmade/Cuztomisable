@@ -2,7 +2,7 @@ import { createStore } from 'vuex';
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
-let refreshInterval = null;
+let refreshTimeout = null;
 
 export default createStore({
     state: function() {
@@ -42,7 +42,7 @@ export default createStore({
             try {
                 const response = await axios.get('/me');
                 commit('SET_USER', response.data.user);
-                dispatch('startTokenRefresh');
+                dispatch('performTokenRefresh');
             } catch (error) {
                 commit('CLEAR_USER');
             } finally {
@@ -51,11 +51,12 @@ export default createStore({
                 }, 500);
             }
         },
-        async login({ dispatch }, credentials) {
+        async login({ commit, dispatch }, credentials) {
             await axios.get('/sanctum/csrf-cookie');
             let response = await axios.post('/login', credentials);
             if (response.data.multi_factor_authentication !== true) {
-                await dispatch('checkAuth');
+                commit('SET_USER', response.data.user);
+                dispatch('startTokenRefresh');
             }
             return response;
         },
@@ -66,6 +67,7 @@ export default createStore({
             } catch (e) {
                 // silently fail if already logged out
             } finally {
+                dispatch('clearTokenRefresh');
                 commit('CLEAR_USER');
                 setTimeout(() => {
                     commit('SET_LOADING', false);
@@ -73,27 +75,35 @@ export default createStore({
             }
         },
         startTokenRefresh: function({ dispatch }) {
-            if (refreshInterval) {
-                dispatch('clearTokenRefresh');
-            }
             let sessionLength = this.$cuztomisable?.session_length ?? 600;
-            // Sets up the refresh interval to refresh the authentication token
-            refreshInterval = setInterval(async () => {
-                try {
-                    await axios.get('/refresh', { withCredentials: true });
-                } catch (error) {
-                    if (error?.response?.status === 401) {
-                        dispatch('logout');
-                    } else {
-                        console.error('Token refresh failed:', error);
-                    }
+            if (refreshTimeout) {
+                dispatch('clearTokenRefresh');
+                clearTimeout(refreshTimeout);
+            }
+            const refreshDelay = Math.max((sessionLength - 30) * 1000, 60000);
+            refreshTimeout = setTimeout(() => {
+                dispatch('performTokenRefresh');
+            }, refreshDelay);
+        },
+        async performTokenRefresh({ dispatch }) {
+            try {
+                const res = await axios.get('/refresh', { withCredentials: true });
+                const expiresAt = new Date(res.data.token_expires_at);
+                const now = new Date();
+                const nextDelay = Math.max(expiresAt - now - 60000, 60000);
+                refreshTimeout = setTimeout(() => {
+                    dispatch('performTokenRefresh');
+                }, nextDelay);
+            } catch (error) {
+                if (error?.response?.status === 401) {
+                    dispatch('logout');
                 }
-            }, (sessionLength - 15) * 1000);
+            }
         },
         clearTokenRefresh: function() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-                refreshInterval = null;
+            if (refreshTimeout) {
+                clearTimeout(refreshTimeout);
+                refreshTimeout = null;
             }
         }
     },

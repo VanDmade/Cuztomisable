@@ -1,7 +1,7 @@
 <template>
     <div id="portal-layout" class="layout">
         <nav class="navbar navbar-expand-lg bg--secondary mb-6 shadow" data-bs-theme="dark">
-            <div class="container">
+            <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
                 <router-link class="navbar-brand" :to="{ name: 'portal' }">Cuztomisable</router-link>
                 <button class="navbar-toggler"
                     type="button"
@@ -16,10 +16,10 @@
                     <div class="navbar-nav me-auto">
                         <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
                             <img class="collapsed-profile-image" :src="$url+'test.png'">
-                            <span class="collapsed-profile-name">{{ user.name }}</span>
+                            <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
                         <hr v-if="screenSize == 'medium'">
-                        <router-link class="nav-link" :class="$route.name == 'portal' ? 'active' : ''" :to="{ name: 'portal' }">Users</router-link>
+                        <router-link class="nav-link" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }">Users</router-link>
                     </div>
                     <div class="navbar-nav ms-auto" >
                         <span v-if="screenSize == 'large'" class="navbar-text text-white pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
@@ -40,7 +40,6 @@
 export default {
     data: function() {
         return {
-            user: this.$store.state.user,
             navbarToggle: false,
             screenSize: 'large',
         }

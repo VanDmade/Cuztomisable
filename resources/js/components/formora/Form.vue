@@ -1,5 +1,5 @@
 <template>
-    <form :id="id" @submit.prevent="$emit('save')" class="mt-4">
+    <form :id="id" @submit.prevent="$emit('save')">
         <slot></slot>
         <fm-modal ref="fmFormModal">
             <h3 class="mb-8 mt-4 text-center">{{ leaveMessage }}</h3>

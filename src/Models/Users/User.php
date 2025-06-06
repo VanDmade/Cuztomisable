@@ -48,8 +48,6 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'phone_id',
-        'admin',
         'attempts',
         'attempt_timer',
         'created_by',
@@ -165,6 +163,12 @@ class User extends Authenticatable
     public function ipAddresses()
     {
         return $this->hasMany(IpAddress::class, 'user_id');
+    }
+
+    public function lastIpAddress()
+    {
+        return $this->hasOne(IpAddress::class, 'user_id')
+            ->orderBy('last_used_at', 'desc');
     }
 
     public function registration()

@@ -127,15 +127,18 @@ export default {
             },
         },
         'value.country': {
+            immediate: true,
             handler: function(country) {
-                if (country == '') {
-                    this.value.country = this.$cuztomisable.locations.default_country;
-                }
-                for (let i = 0; i < this.$cuztomisable.locations.countries.length; i++) {
-                    if (this.$cuztomisable.locations.countries[i].value == this.value.country) {
-                        this.statesOrProvinces = this.$cuztomisable.locations.countries[i].states_or_provinces ?? [];
-                        this.hasCity = this.$cuztomisable.locations.countries[i].city ?? true;
-                        return true;
+                if (this.value != '') {
+                    if (country == '') {
+                        this.value.country = this.$cuztomisable.locations.default_country;
+                    }
+                    for (let i = 0; i < this.$cuztomisable.locations.countries.length; i++) {
+                        if (this.$cuztomisable.locations.countries[i].value == this.value.country) {
+                            this.statesOrProvinces = this.$cuztomisable.locations.countries[i].states_or_provinces ?? [];
+                            this.hasCity = this.$cuztomisable.locations.countries[i].city ?? true;
+                            return true;
+                        }
                     }
                 }
                 return false;

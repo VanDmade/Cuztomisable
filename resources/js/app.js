@@ -37,7 +37,9 @@ app.mixin({
     },
     methods: {
         breakpoint: function(type) {
-            if (type == 'md' && this.width >= 768) {
+            if (type == 'lg' && this.width >= 992) {
+                return true;
+            } else if (type == 'md' && this.width >= 768) {
                 return true;
             } else if (type == 'sm' && this.width < 768) {
                 return true;
@@ -59,7 +61,40 @@ app.mixin({
             } catch (error) {
                 return 'Email Address';
             }
-        }
+        },
+        formatPhone: function(value, code = '') {
+            let format = '(XXX) XXX-XXXX';
+            if (!value) {
+                return value;
+            }
+            const digits = ('' + value).replace(/\D/g, '');
+            let formatted = '';
+            let digitIndex = 0;
+            for (let char of format) {
+                if (char === 'X') {
+                    if (digitIndex < digits.length) {
+                        formatted += digits[digitIndex++];
+                    } else {
+                        break;
+                    }
+                } else {
+                    formatted += char;
+                }
+            }
+            return (code == '' ? '' : ('+'+code+' '))+formatted;
+        },
+        formatDate: function(input, type='en-US', options = {}) {
+            if (!input) return '';
+            const normalized = input.replace(' ', 'T').replace('Z', '') + 'Z';
+            const date = new Date(normalized);
+            if (isNaN(date.getTime())) return input;
+            const hasTime = /\d{2}:\d{2}/.test(input);
+            const defaultOptions = hasTime
+                ? { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }
+                : { year: 'numeric', month: 'short', day: 'numeric' };
+            const formatter = new Intl.DateTimeFormat(type, { ...defaultOptions, ...options });
+            return formatter.format(date);
+        },
     },
 });
 axios.defaults.withCredentials = true;

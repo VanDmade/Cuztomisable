@@ -21,10 +21,12 @@ export default {
     methods: {
         open: function() {
             var modal = document.getElementById('open-'+this.id);
+            this.$emit('open');
             modal.click();
         },
         close: function() {
             var modal = document.getElementById('close-'+this.id);
+            this.$emit('close');
             modal.click();
         }
     },

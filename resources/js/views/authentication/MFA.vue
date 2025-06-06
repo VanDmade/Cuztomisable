@@ -110,12 +110,10 @@ export default {
             try {
                 const formData = new FormData();
                 formData.append('code', this.form.code);
-                console.log(this.form.remember);
                 formData.append('remember', this.form.remember ? '1' : '0');
                 const { data } = await axios.post(`/login/mfa/${this.token}`, formData);
                 await this.$store.dispatch('checkAuth');
                 this.$emit('message', { text: data.message });
-                this.$emit('loading', true);
                 setTimeout(() => {
                     this.$router.push({ name: 'portal' });
                 }, 150);

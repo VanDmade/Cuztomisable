@@ -1,27 +1,31 @@
 <template>
     <div class="tablelify-page">
         <div class="row mb-4">
-            <div class="col col-md-8 col-12">
+            <div class="col col-12" :class="{ 'col-md-8': !disableSearch }">
                 <slot name="header"></slot>
             </div>
-            <div class="col col-md-4 col-12">
+            <div v-if="!disableSearch" class="col col-md-4 col-12">
                 <div class="input-group">
-                    <ee-input label="Search" v-model="search" type="input" id="search" :disabled="disabled" hide-details/>
-                    <button type="button" class="btn btn-secondary" @click="query">Refresh</button>
+                    <fm-input label="Search" v-model="search" type="input" id="search" :disabled="disabled" hide-details/>
+                    <button type="button" class="button button--primary" @click="query">Refresh</button>
                 </div>
             </div>
         </div>
-        <table class="table table-striped table-bordered tablelify" cellpadding="0" cellspacing="0">
+        <table class="table table-striped table-bordered tablelify mb-4" cellpadding="0" cellspacing="0">
             <thead v-if="headersList.length != 0">
                 <tr>
                     <th v-for="(header, headerIndex) in headersList" :key="'header-'+headerIndex"
                         class="tablelify-header"
-                        :class="{ 'tablelify-sortable': header.sortable }"
+                        :class="{
+                            'tablelify-sortable': typeof(header.sortable) == 'undefined' || header.sortable,
+                            'd-none': typeof(header.hide) != 'undefined' ? header.hide : false
+                        }"
                         :width="typeof(header.width) != 'undefined' ? header.width : 'auto'"
                         @click="sort(headerIndex)">
-                        <span class="tablelify-sorter">
-                            <i class="fa-solid tablelift-sort" :class="{ 'fa-sort-up': header.sort == 'asc', 'fa-sort-down': header.sort == 'desc' }"></i>
-                            <i v-if="header.sort == ''" class="fa-solid fa-sort tablelify-sort-hover"></i>
+                        <span class="tablelify-sorter" v-if="typeof(header.sortable) == 'undefined' || header.sortable">
+                            <i class="material-icons sort-icon" v-if="header.sort === 'asc'">expand_less</i>
+                            <i class="material-icons sort-icon" v-else-if="header.sort === 'desc'">expand_more</i>
+                            <i class="material-icons sort-icon tablelify-sort-hover" v-else>unfold_more</i>
                         </span>
                         <span class="tablelify-header-text">{{ header.name }}</span>
                     </th>
@@ -29,10 +33,17 @@
             </thead>
             <tbody v-if="loading"><tr><td :colspan="headersList.length" class="text-center"><b>Loading...</b></td></tr></tbody>
             <tbody v-else-if="error != null"><tr><td :colspan="headersList.length" class="text-center text-danger"><b>{{ error }}</b></td></tr></tbody>
-            <tbody v-else-if="data.length == 0"><tr><td :colspan="headersList.length" class="text-center"><b>No Results Found...</b></td></tr></tbody>
+            <tbody v-else-if="data?.length == 0 || data?.length == null"><tr><td :colspan="headersList.length" class="text-center"><b>No Results Found...</b></td></tr></tbody>
             <tbody v-else>
                 <tr v-for="(row, rowIndex) in data" :key="'row-'+rowIndex" class="tablelify-row">
-                    <td v-for="(item, index) in headersList" :key="'item-'+index" class="tablelify-column" :class="{ 'pa-0': item.value == 'image' }">
+                    <td
+                        v-for="(item, index) in headersList"
+                        :key="'item-'+index"
+                        class="tablelify-column"
+                        :class="{
+                            'pa-0': item.value == 'image',
+                            'd-none': typeof(item.hide) != 'undefined' ? item.hide : false
+                        }">
                         <label class="tablelify-header-text">{{ item.name }}</label>
                         <slot v-bind="row" :name="item.value"><div class="tablelify-data">{{ typeof(row[item.value]) !== 'undefined' && row[item.value] != null ? (row[item.value] + '') : '' }}</div></slot>
                     </td>
@@ -41,26 +52,27 @@
         </table>
         <div class="row tablelify-pagination">
             <div class="col col-md-2 col-12">
-                <ee-select v-model="size" :disabled="disabled" :items="countOptions" @change="query" />
+                <fm-select v-model="size" :disabled="disabled" :items="countOptions" @change="query" class="tablelify-count" not-floating />
             </div>
-            <div v-if="totalPages > 0" class="col col-md-9 offset-md-1 col-12" :class="{ 'text-right': !breakpoint('sm'), 'text-center': breakpoint('sm') }">
+            <div v-if="totalPages > 0" class="col col-md-9 offset-md-1 col-12" :class="{ 'text-right': !breakpoint('sm'), 'text-center mt-4': breakpoint('sm') }">
                 <button type="button"
                     :disabled="page <= 1 || disabled"
                     @click="page--; query();"
-                    class="btn btn-secondary mr-1 tablelify-button tablelify-pagination-button"><i class="fa-solid fa-arrow-left"></i></button>
+                    class="button button--secondary mr-1 tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_back</i></button>
                 <span v-for="number in totalPages">
                     <button type="button"
                         v-if="showButton(number)"
                         :disabled="disabled"
-                        class="btn mr-1 tablelify-button"
-                        :class="{ 'btn-primary': page == number, 'btn-light': page != number }"
-                        @click="changePage(number);">{{ number }}</button>
+                        class="mr-1 tablelify-button button"
+                        :class="{ 'button--primary': page == number, 'button--light': page != number }"
+                        @click="changePage(number);"
+                        style="vertical-align: top;">{{ number }}</button>
                     <span v-else-if="!showButton(number) && showButton(number+1)" :class="{'mx-3': !breakpoint('sm'), 'mx-2': breakpoint('sm') }">...</span>
                 </span>
                 <button type="button"
                     :disabled="page == totalPages || totalPages == 0 || disabled"
                     @click="page++; query();"
-                    class="btn btn-secondary tablelify-button tablelify-pagination-button"><i class="fa-solid fa-arrow-right"></i></button>
+                    class="button button--secondary tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_forward</i></button>
             </div>
         </div>
     </div>
@@ -119,7 +131,7 @@ export default {
             });
         },
         sort: function(index) {
-            if (!this.headersList[index].sortable) {
+            if (typeof(this.headersList[index].sortable) != 'undefined' && !this.headersList[index].sortable) {
                 return false;
             }
             // Iterates through the list of headers to allow for ease of sorting and prevention of multiple sorts at the same time.
@@ -177,6 +189,7 @@ export default {
         headers: { type: Array, default: [] },
         initialSortColumn: { type: String, default: 'id' },
         initialSortDirection: { type: String, default: 'desc' },
+        disableSearch: { type: Boolean, default: false },
         url: { type: String, required: true },
     }
 }

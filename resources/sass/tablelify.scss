@@ -1,19 +1,26 @@
 @import "variables";
 
 .tablelify {
+    table-layout: fixed;
     width: 100%;
     .tablelify-header {
         padding: 8px 12px;
         .tablelify-sorter {
-            display: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
         }
         .tablelify-header-text {
             display: inline-block;
         }
+        .sort-icon {
+            font-size: 16px;
+            vertical-align: middle;
+            margin-top: 1px; /* tweak this if needed */
+        }
     }
     .tablelify-header.tablelify-sortable {
         .tablelify-sorter {
-            display: inline-block;
             padding-right: 8px;
             .tablelify-sort {
 
@@ -48,13 +55,32 @@
     }
     .tablelify-data {
         padding: 8px 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tablelify-data.enabled-overflow {
+        overflow: unset;
     }
     .tablelify-header-text {
         display: none;
     }
 }
+.tablelify-count {
+    height: 44px;
+    padding-top: 0rem !important;
+    .fm-form-input {
+        height: inherit;
+    }
+}
+.tablelify-count.fm-form-input
+{
+    .fm-form-select {
+        height: inherit;
+        padding-top: 0.35rem !important;
+    }
+}
 .tablelify-pagination {
-    margin-bottom: 16px;
     .tablelify-button {
         min-width: 44px;
         @media (max-width: 768px) {
@@ -62,6 +88,20 @@
         }
     }
     .tablelify-pagination-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px; /* space between icon and text */
+        padding: 8px 12px;
+        font-size: 18px;
+        line-height: 24px;
+        vertical-align: top;
+        height: 44px;
+        min-width: 44px;
+        i {
+            font-size: inherit;
+            line-height: inherit;
+            margin: auto;
+        }
         @media (max-width: 768px) {
             min-width: 38px;
             width: 38px;
@@ -76,9 +116,6 @@
         .tablelify-row {
             .tablelify-column {
                 display: block;
-                img {
-                    margin: 12px;
-                }
             }
         }
         .tablelify-header-text {
