@@ -33,7 +33,7 @@ const routes = [
         meta: { require_authentication: true },
         component: () => import("./views/Portal.vue"),
     },{
-        name: 'profile',
+        name: 'user.form',
         path: '/user/:id?',
         alias: '/profile',
         meta: { require_authentication: true },

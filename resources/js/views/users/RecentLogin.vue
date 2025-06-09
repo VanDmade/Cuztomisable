@@ -1,6 +1,6 @@
 <template>
     <div id="recent-login-form">
-        <tablelify :headers="headers" :url="url" ref="userTable" disable-search>
+        <tablelify :headers="headers" :url="url" ref="userTable" disable-search wait>
             <template #header>
                 <h3 class="card-title">Recent Login History</h3>
                 <h6 class="card-subtitle mb-0 text-muted">See when and where this account was last accessed.</h6>
@@ -48,11 +48,9 @@
 export default {
     data: function() {
         return {
-            initialized: false,
             submitting: [],
             forgetting: [],
             deleting: [],
-            url: `/user/${this.user}/ips`,
             headers: [
                 { name: 'IP Address', value: 'last_used_at', width: '225px' },
                 { name: 'Remembered', value: 'remember_until' },
@@ -61,10 +59,7 @@ export default {
     },
     methods: {
         reset: function() {
-            if (this.initialized) {
-                this.$refs.userTable.query();
-            }
-            this.initialized = true;
+            this.$refs.userTable.query();
         },
         setup: function(type, id) {
             const isDelete = type == 'delete';
@@ -95,6 +90,11 @@ export default {
                     this[key][id] = false;
                 }, 1000);
             });
+        }
+    },
+    computed: {
+        url: function() {
+            return `/user/${this.user}/ips`;
         }
     },
     props: {

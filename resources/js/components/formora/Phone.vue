@@ -1,7 +1,7 @@
 <template>
     <div class="form-floating fm-form-phone"
         :class="{ 'fm-no-label': label == null || label == '' }">
-        <div class="fm-flex-container" v-if="value != ''">
+        <div class="fm-flex-container" v-if="value && typeof value === 'object'">
             <fm-select
                 v-if="$cuztomisable.locations.country_codes.length > 1"
                 v-model="value.country_code"
@@ -61,24 +61,13 @@ export default {
             errorList: [],
         }
     },
-    created: function() {
-        if (this.modelValue == '') {
-            this.value = {
-                country_code: this.$cuztomisable.locations.default_country_code ?? '',
-                number: '',
-                extension: '',
-                mobile: this.isMobile,
-                default: this.isDefault,
-            };
-        }
-    },
     computed: {
         value: {
             get: function () {
-
                 return this.modelValue;
             },
             set: function (value) {
+                if (!value) return;
                 value.mobile = this.isMobile;
                 value.default = this.isDefault;
                 if (typeof(value.country_code) !== 'undefined' && value.country_code == '') {
@@ -102,6 +91,27 @@ export default {
         }
     },
     watch: {
+        errors: {
+            immediate: true,
+            handler: function(errors) {
+                this.errorList = errors;
+            },
+        },
+        value: {
+            immediate: true,
+            handler: function(value) {
+                if (!value || typeof value !== 'object') {
+                    this.$emit('update:modelValue', {
+                        country_code: this.$cuztomisable.locations.default_country_code ?? '',
+                        number: '',
+                        extension: '',
+                        mobile: this.isMobile,
+                        default: this.isDefault,
+                    });
+                }
+            },
+            deep: true,
+        },
         'value.country_code': {
             handler: function(code) {
                 if (code == '') {
@@ -113,15 +123,9 @@ export default {
             },
             deep: true,
         },
-        errors: {
-            immediate: true,
-            handler: function(errors) {
-                this.errorList = errors;
-            },
-        },
     },
     props: {
-        modelValue: { type: [Object, String, Number], default: '' },
+        modelValue: { type: [Object, String, Number], default: () => ({}) },
         label: { type: String, default: null },
         placeholder: { type: String, default: '' },
         type: { type: String, default: 'input' },

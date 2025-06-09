@@ -30,6 +30,7 @@ class User extends Authenticatable
         'timezone',
         'locked',
         'change_password',
+        'change_password_sent_at',
         'multi_factor_authentication',
         'admin',
         'attempts',
@@ -42,6 +43,7 @@ class User extends Authenticatable
     protected $casts = [
         'locked' => 'boolean',
         'change_password' => 'boolean',
+        'change_password_sent_at' => 'datetime',
         'multi_factor_authentication' => 'boolean',
         'admin' => 'boolean',
         'attempt_timer' => 'datetime',
@@ -99,15 +101,34 @@ class User extends Authenticatable
         );
     }
 
+    public function addAttempt(): void
+    {
+        $this->attempts++;
+        if ($this->attempts >= config('cuztomisable.login.attempts.total', 5)) {
+            $this->attempts = 0;
+            if (config('cuztomisable.login.attempts.locked', false)) {
+                $this->locked = true;
+            } else {
+                $this->attempt_timer = date(
+                    'Y-m-d H:i:s',
+                    strtotime('+'.config('cuztomisable.login.attempts.timer', 300).' seconds')
+                );
+            }
+        }
+        if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
+            $this->attempts = 0;
+            $this->save();
+            throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
+        }
+        $this->save();
+    }
+
     public function canLogIn(): Bool
     {
         if ($this->locked) {
             throw new Exception(__('cuztomisable/authentication.login.errors.locked'), 401);
         }
-        // Checks to see if the attempt timer is waiting for expiration
-        if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
-            throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
-        }
+        $this->canChangePassword();
         // Checks to see if the user has verified their email and whether it's required
         if (config('cuztomisable.login.verification.email', false) &&
             is_null($this->email_verified_at)) {
@@ -119,6 +140,30 @@ class User extends Authenticatable
             throw new Exception(__('cuztomisable/authentication.login.errors.verification.phone_required'), 401);
         }
         return true;
+    }
+
+    public function canChangePassword(): void
+    {
+        // Checks to see if the attempt timer is waiting for expiration
+        if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
+            throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
+        }
+    }
+
+    public function canUsePassword($new): void
+    {
+        // Prevents the user from user previously used passwords
+        if (!is_null(config('cuztomisable.account.passwords.reuse_after', 3))) {
+            $passwords = $this->passwords()
+                ->orderBy('id', 'desc')
+                ->limit(config('cuztomisable.account.passwords.reuse_after', 3))
+                ->get();
+            foreach ($passwords as $i => $password) {
+                if (Hash::check($new, $password->password)) {
+                    throw new Exception(__('cuztomisable/authentication.passwords.errors.used_recently'), 404);
+                }
+            }
+        }
     }
 
     public function permissions()

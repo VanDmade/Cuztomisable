@@ -4,14 +4,10 @@ namespace VanDmade\Cuztomisable\Controllers\Users;
 
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\TablelifyRequest;
-use VanDmade\Cuztomisable\Requests\Users\Passwords\ChangeRequest;
-use VanDmade\Cuztomisable\Requests\Users\Passwords\SendRequest;
 use VanDmade\Cuztomisable\Requests\Users\UserRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
 use VanDmade\Cuztomisable\Models\Users;
-use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Forgot as ForgotMail;
-use VanDmade\Cuztomisable\Mail\Users\Passwords\Changed as ChangedMail
 use Auth;
 use DB;
 use Exception;
@@ -57,7 +53,9 @@ class UserController extends Controller
                         ->where('p.default', '=', true);
                 })
                 ->leftJoin('user_ip_addresses as ip', function($join) {
-                    $join->on('ip.user_id', '=', 'users.id');
+                    $join->on('ip.user_id', '=', 'users.id')
+                        // Grabs the latest login attempt for this user
+                        ->whereRaw('ip.id=(SELECT temp.id FROM user_ip_addresses as temp WHERE temp.user_id=ip.user_id ORDER BY temp.last_used_at DESC LIMIT 1)');
                 })
                 ->where(function ($query) use ($data) {
                     $query->where('users.name', 'LIKE', $data['search'])
@@ -197,67 +195,6 @@ class UserController extends Controller
                 'message' => 'Token refreshed',
                 'token_expires_at' => Auth::user()->currentAccessToken()->expires_at->toIso8601String(),
             ])->withCookie($cookie);
-        } catch (Exception $error) {
-            return $this->error($error);
-        }
-    }
-
-    public function changePassword(ChangeRequest $request)
-    {
-        try {
-            $data = $request->validated();
-            $user = Auth::user();
-            // Validate the current password
-            if (!Hash::check($data['current'], $user->password)) {
-                throw new Exception(__('cuztomisable.user.errors.incorrect_password'), 404);
-            }
-            // Prevents the user from user previously used passwords
-            if (!is_null($reuseAfter = config('cuztomisable.account.passwords.reuse_after', 3))) {
-                $passwords = $user->passwords()
-                    ->orderBy('id', 'desc')
-                    ->limit(config('cuztomisable.account.passwords.reuse_after', 3))
-                    ->get();
-                foreach ($passwords as $i => $password) {
-                    if (Hash::check($data['new'], $password->password)) {
-                        throw new Exception(__('cuztomisable/authentication.passwords.errors.used_recently'), 404);
-                    }
-                }
-            }
-            // Logs the password change
-            Users\Passwords\Password::create([
-                'user_id' => $user->id,
-                'password' => $password = Hash::make($data['new']),
-            ]);
-            // Updates the user's password
-            $user->password = $password;
-            $user->save();
-            // Sends the notification email about the password change
-            $this->email(new ChangedMail($user), $user->email);
-            return $this->success([
-                'message' => $message ?? '',
-            ]);
-        } catch (Exception $error) {
-            return $this->error($error);
-        }
-    }
-
-    public function sendPassword($id)
-    {
-        try {
-            $data = $request->validated();
-            $user = Users\User::where('id', '=', $id)->first();
-            if (!isset($user->id)) {
-                throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
-            }
-            $reset = Users\Passwords\Reset::create([
-                'user_id' => $user->id,
-                'sent_via' => 'email',
-            ]);
-            // Sends the email
-            $this->email(new ForgotMail($reset), $reset->user->email);
-            return $this->success([
-                'message' => $message ?? '',
-            ]);
         } catch (Exception $error) {
             return $this->error($error);
         }

@@ -3,7 +3,7 @@
         <fm-loading :loading="loading || $store.state.loading" :message="loadingMessage"></fm-loading>
         <fm-message :message="message" :length="message.timeout_length"></fm-message>
         <component
-            v-show="!loading && !$store.state.loading"
+            v-if="!loading && !$store.state.loading"
             :is="typeof($route.meta.layout) != 'undefined' ? $route.meta.layout : 'portal-layout'"
             v-on:message="setMessage"
             v-on:loading="setLoading"
@@ -91,6 +91,11 @@ export default {
             this.events.forEach(event => window.addEventListener(event, this.resetInactivityTimer));
         },
         removeActivityListeners() {
+            const backdrop = document.querySelector('.modal-backdrop.fade.show');
+            if (backdrop) {
+                backdrop.remove(); // cleanly removes the backdrop
+                document.body.classList.remove('modal-open'); // prevents scroll lock
+            }
             this.events.forEach(event => window.removeEventListener(event, this.resetInactivityTimer));
         },
         resetInactivityTimer() {

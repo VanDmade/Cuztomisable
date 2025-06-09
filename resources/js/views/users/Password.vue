@@ -1,46 +1,57 @@
 <template>
     <div id="change-password-form">
-        <h3 class="card-title">Change Password</h3>
-        <h6 class="card-subtitle mb-2 text-muted">Set a new password for this account.</h6>
-        <fm-form ref="changePasswordForm" class="mt-4" :form="form"
+        <fm-form ref="changePasswordForm" :form="form"
             @save="submit">
-            <fm-input
-                label="Current Password"
-                v-model="form.current"
-                type="password"
-                autocomplete="current-password"
-                :errors="errors.current"
-                :disabled="submitting" />
-            <fm-input
-                label="New Password"
-                v-model="form.new"
-                type="password"
-                autocomplete="new-password"
-                :errors="errors.new"
-                :disabled="submitting" />
-            <requirements :password="form.new" v-on:completed="completed" class="mb-4"></requirements>
-            <div class="row">
-                <div class="col col-md-6 col-12">
-                    <button type="submit"
-                        @click="submitAction = 'change'"
-                        class="button button--primary button--block mb-0"
-                        :disabled="submitting || !passwordRequirementsMet">Change</button>
-                </div>
-                <div class="col col-md-6 col-12">
-                    <button type="button"
-                        class="button button--secondary button--block mb-0"
-                        :disabled="submitting"
-                        @click="close">Nevermind</button>
+            <div v-if="admin && user != $store.state.user.id" id="password-admin-controls">
+                <h3 class="card-title">Admin Controls</h3>
+                <h6 class="card-subtitle mb-4 text-muted">This will send the user an email with a temporary password, which they’ll be required to change upon their next login.</h6>
+                <div class="row">
+                    <div class="col col-md-6 col-12">
+                        <button type="submit"
+                            @click="submitAction = 'send'"
+                            class="button button--primary button--block mb-0"
+                            :disabled="submitting">Send</button>
+                    </div>
+                    <div class="col col-md-6 col-12">
+                        <button type="button"
+                            class="button button--secondary button--block mb-0"
+                            :disabled="submitting"
+                            @click="close">Nevermind</button>
+                    </div>
                 </div>
             </div>
-            <div v-if="admin" id="password-admin-controls">
-                <hr class="mb-4 mt-4">
-                <h3 class="card-title">Admin Controls</h3>
-                <h6 class="card-subtitle mb-4 text-muted">Manage user password options and settings.</h6>
-                <button type="submit"
-                    @click="submitAction = 'send'"
-                    class="button button--accent button--block"
-                    :disabled="submitting">Send Password Reset to User</button>
+            <div v-else id="password-controls">
+                <h3 class="card-title">Change Password</h3>
+                <h6 class="card-subtitle mb-2 text-muted">Set a new password for this account.</h6>
+                <fm-input
+                    label="Current Password"
+                    v-model="form.current"
+                    type="password"
+                    autocomplete="current-password"
+                    :errors="errors.current"
+                    :disabled="submitting" />
+                <fm-input
+                    label="New Password"
+                    v-model="form.new"
+                    type="password"
+                    autocomplete="new-password"
+                    :errors="errors.new"
+                    :disabled="submitting" />
+                <requirements :password="form.new" v-on:completed="completed" class="mb-4"></requirements>
+                <div class="row">
+                    <div class="col col-md-6 col-12">
+                        <button type="submit"
+                            @click="submitAction = 'change'"
+                            class="button button--primary button--block mb-0"
+                            :disabled="submitting || !passwordRequirementsMet">Change</button>
+                    </div>
+                    <div class="col col-md-6 col-12">
+                        <button type="button"
+                            class="button button--secondary button--block mb-0"
+                            :disabled="submitting"
+                            @click="close">Nevermind</button>
+                    </div>
+                </div>
             </div>
         </fm-form>
     </div>

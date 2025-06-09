@@ -66,6 +66,14 @@ return [
             'address_three' => false,
         ],
     ],
+    'administrator' => [
+        'temporary_password' => [
+            // Length of time the temporary password will last before it expires
+            'expires_in' => 300,
+            // How often an administrator can send a new temporary password
+            'resend_after' => 300,
+        ],
+    ],
     // Length of the token used within the URL, max length is 64
     'token_length' => 16,
     'notifications' => [
@@ -101,6 +109,14 @@ return [
         'support' => [
             'type' => 'email',
             'view' => 'emails.support',
+        ],
+        'changed' => [
+            'type' => 'email',
+            'view' => 'emails.passwords.changed',
+        ],
+        'temporary' => [
+            'type' => 'email',
+            'view' => 'emails.passwords.temporary',
         ],
     ],
 ];

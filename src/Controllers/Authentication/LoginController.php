@@ -33,24 +33,7 @@ class LoginController extends Controller
                 // Checks to see if the user can log into their account
                 return $user->canLogIn();
             })) {
-                $user->attempts++;
-                if ($user->attempts >= config('cuztomisable.login.attempts.total', 5)) {
-                    $user->attempts = 0;
-                    if (config('cuztomisable.login.attempts.locked', false)) {
-                        $user->locked = true;
-                    } else {
-                        $user->attempt_timer = date(
-                            'Y-m-d H:i:s',
-                            strtotime('+'.config('cuztomisable.login.attempts.timer', 300).' seconds')
-                        );
-                    }
-                }
-                if (!is_null($user->attempt_timer) && strtotime($user->attempt_timer) > time()) {
-                    $user->attempts = 0;
-                    $user->save();
-                    throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
-                }
-                $user->save();
+                $user->addAttempt();
                 // The credentials do not match
                 throw new Exception(__('cuztomisable/authentication.login.errors.invalid_credentials'), 401);
             }
@@ -90,10 +73,13 @@ class LoginController extends Controller
                 'multi_factor_authentication' => $ipAddress->requireMfa(),
                 'remember' => isset($data['remember']) && $data['remember'] == '1',
                 'user' => [
+                    'id' => $user->id,
+                    'admin' => $user->admin,
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->defaultPhone,
                     'address' => $user->defaultAddress,
+                    'mfa' => $user->multi_factor_authentication ?? false,
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
             ]);

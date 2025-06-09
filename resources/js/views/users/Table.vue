@@ -51,7 +51,7 @@
                     <div :class="{ 'row': breakpoint('sm') }">
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
-                                @click="id = item.id; $refs.editUserModal.open();"
+                                @click="edit(item.id)"
                                 class="button button--primary"
                                 :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Edit</button>
                         </div>
@@ -65,8 +65,9 @@
                 </div>
             </template>
         </tablelify>
-        <fm-modal ref="deleteUserModal" modal-width="350px">
-            <h3 class="mb-8 mt-4 text-center">Remove this user?</h3>
+        <fm-modal ref="deleteUserModal" modal-width="380px">
+            <h3 class="card-title">Delete User?</h3>
+            <h6 class="card-subtitle mb-6 text-muted">Send this user on a one-way trip to Deletionville.</h6>
             <div class="row">
                 <div class="col col-md-6 col-12">
                     <button type="button"
@@ -130,7 +131,10 @@ export default {
                     this.submitting = false;
                 }, 500);
             });
-        }
+        },
+        edit: function(id) {
+            this.$router.push({ name: 'user.form', params: { id: id }});
+        },
     },
     components: {
         'user-form': UserForm,

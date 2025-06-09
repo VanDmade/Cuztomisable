@@ -156,17 +156,8 @@ class PasswordController extends Controller
             $reset->used_at = date('Y-m-d H:i:s');
             $reset->save();
             $user = $reset->user;
-            if (!is_null($reuseAfter = config('cuztomisable.account.passwords.reuse_after', 3))) {
-                $passwords = $user->passwords()
-                    ->orderBy('id', 'desc')
-                    ->limit(config('cuztomisable.account.passwords.reuse_after', 3))
-                    ->get();
-                foreach ($passwords as $i => $password) {
-                    if (Hash::check($data['password'], $password->password)) {
-                        throw new Exception(__('cuztomisable/authentication.passwords.errors.used_recently'), 404);
-                    }
-                }
-            }
+            // Prevents the user from user previously used passwords
+            $user->canUsePassword($data['password']);
             // Logs the password change
             Users\Passwords\Password::create([
                 'user_id' => $user->id,

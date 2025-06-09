@@ -5,6 +5,7 @@ use VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Controllers\RoleController;
 use VanDmade\Cuztomisable\Controllers\Users\UserController;
+use VanDmade\Cuztomisable\Controllers\Users\PasswordController;
 use VanDmade\Cuztomisable\Controllers\Users\IpAddressController;
 use VanDmade\Cuztomisable\Controllers\FormoraController;
 
@@ -47,8 +48,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/user/{id}/locked', 'toggleLocked');
         Route::patch('/user/{id}/mfa', 'toggleMfa');
         Route::get('/refresh', 'refresh');
-        Route::post('/user/change/password', 'changePassword');
-        Route::post('/user/{id}/send/password', 'sendPassword');
+    });
+    Route::controller(PasswordController::class)->group(function () {
+        Route::post('/user/change/password', 'change');
+        Route::post('/user/{id}/send/password', 'send');
     });
     Route::controller(IpAddressController::class)->group(function () {
         Route::get('/ip/{id}', 'get');

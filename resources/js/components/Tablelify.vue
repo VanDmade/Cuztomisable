@@ -102,7 +102,9 @@ export default {
         }
     },
     created: function() {
-        this.query();
+        if (!this.wait) {
+            this.query();
+        }
     },
     methods: {
         query: function() {
@@ -184,6 +186,11 @@ export default {
             },
             deep: true,
         },
+        url: {
+            handler: function(url) {
+                this.query();
+            }
+        },
     },
     props: {
         headers: { type: Array, default: [] },
@@ -191,6 +198,7 @@ export default {
         initialSortDirection: { type: String, default: 'desc' },
         disableSearch: { type: Boolean, default: false },
         url: { type: String, required: true },
+        wait: { type: Boolean, default: false },
     }
 }
 </script>

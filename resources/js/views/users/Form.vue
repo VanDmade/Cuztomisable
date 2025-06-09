@@ -1,6 +1,7 @@
 <template>
     <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
-        <fm-form ref="userForm" :form="form" @save="save">
+        <fm-loading :loading="loading || $store.state.loading" :message="loadingMessage"></fm-loading>
+        <fm-form v-if="!loading" ref="userForm" :form="form" @save="save">
             <div class="row mb-4">
                 <div class="col-lg-9 col-md-8 col-sm-12" :class="{ 'mb-6': breakpoint('sm') }">
                     <div class="card pa-6">
@@ -71,7 +72,7 @@
             <hr v-if="breakpoint('sm')" class="mb-6">
             <div class="form-buttons" :class="{ 'mb-6': !breakpoint('sm'), 'mb-2': breakpoint('sm') }">
                 <button type="submit" class="button button--primary" :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }" :disabled="submitting">Save Changes</button>
-                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" :disabled="submitting">Go Back</button>
+                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
         </fm-form>
         <fm-modal ref="mfaModal" v-on:open="$refs['user-mfa-form'].reset()" modal-width="340px">
@@ -122,13 +123,14 @@ export default {
     methods: {
         get: function() {
             let id = this.$route.params.id;
-            this.loading = true;
             axios.get(`/user/${id}`).then(({ data }) => {
                 this.form = this.clone(data.user);
             }).catch((error) => {
 
             }).finally(() => {
-                this.loading = false;
+                setTimeout(() => {
+                    this.loading = false;
+                }, 1000);
             });
         },
         save: function() {
@@ -179,19 +181,40 @@ export default {
         message: function(message) {
             this.$emit('message', message);
         },
+        handleUserChange: function(user) {
+            if (typeof(this.form.id) == 'undefined') {
+                let id = this.$route.params.id;
+                if (id == '' || typeof(id) == 'undefined') {
+                    this.form = user ?? {};
+                    setTimeout(() => {
+                        this.loading = false;
+                    }, 1000);
+                } else {
+                    this.get();
+                }
+            }
+        }
     },
     watch: {
         '$store.state.user': {
-            immediate: true,
             handler: function(user) {
-                if (typeof(this.form.id) == 'undefined' && !this.loading) {
-                    let id = this.$route.params.id;
-                    if (id == '' || typeof(id) == 'undefined') {
-                        this.form = user ?? {};
-                    } else {
-                        this.get();
-                    }
+                this.handleUserChange(user);
+            }
+        },
+        '$route.params.id': {
+            immediate: true,
+            handler: function(id) {
+                this.loading = true;
+                let user = {};
+                if (this.form.id != id) {
+                    this.form = {};
                 }
+                if (typeof(id) == 'undefined') {
+                    user = this.$store.state.user;
+                } else {
+                    this.form = {};
+                }
+                this.handleUserChange(user);
             }
         }
     },

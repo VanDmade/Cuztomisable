@@ -95,6 +95,9 @@ app.mixin({
             const formatter = new Intl.DateTimeFormat(type, { ...defaultOptions, ...options });
             return formatter.format(date);
         },
+        goBack: function() {
+            window.history.length > 1 ? window.history.back() : this.$router.push('/');
+        },
     },
 });
 axios.defaults.withCredentials = true;

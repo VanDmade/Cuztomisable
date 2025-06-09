@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('timezone', 64)->default('UTC');
             $table->boolean('locked')->default(false);
             $table->boolean('change_password')->default(false);
+            $table->datetime('change_password_sent_at')->nullable();
             $table->boolean('multi_factor_authentication')->default(false);
             $table->boolean('admin')->default(false);
             $table->integer('attempts')->default(0);

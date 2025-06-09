@@ -1,10 +1,10 @@
 <template>
     <div class="form-floating fm-form-address"
         :class="{ 'fm-no-label': label == null || label == '' }">
-        <div class="fm-address-container" v-if="value != ''">
+        <div class="fm-address-container" v-if="value && typeof value === 'object'">
             <fm-input
                 label="Address"
-                v-model="modelValue.address"
+                v-model="value.address"
                 type="text"
                 :errors="getError('address')"
                 @change="clearError('address')"
@@ -12,7 +12,7 @@
             <fm-input
                 v-if="hasAddressTwo"
                 label="Address Two"
-                v-model="modelValue.address_two"
+                v-model="value.address_two"
                 type="text"
                 :errors="getError('address_two')"
                 @change="clearError('address_two')"
@@ -20,7 +20,7 @@
             <fm-input
                 v-if="hasAddressThree"
                 label="Address Three"
-                v-model="modelValue.address_three"
+                v-model="value.address_three"
                 type="text"
                 :errors="getError('address_three')"
                 @change="clearError('address_three')"
@@ -29,7 +29,7 @@
                 <div v-if="hasCity" class="col col-md-6 col-12">
                     <fm-input
                         label="City"
-                        v-model="modelValue.city"
+                        v-model="value.city"
                         type="text"
                         :errors="getError('city')"
                         @change="clearError('city')"
@@ -38,7 +38,7 @@
                 <div class="col col-md-6 col-12">
                     <fm-select
                         label="State or Province"
-                        v-model="modelValue.state_or_province"
+                        v-model="value.state_or_province"
                         :items="statesOrProvinces"
                         :errors="getError('state_or_province')"
                         @change="clearError('state_or_province')"
@@ -47,7 +47,7 @@
                 <div class="col col-md-6 col-12">
                     <fm-input
                         label="ZIP/Postal Code"
-                        v-model="modelValue.zip_or_postal_code"
+                        v-model="value.zip_or_postal_code"
                         type="text"
                         :errors="getError('zip_or_postal_code')"
                         @change="clearError('zip_or_postal_code')"
@@ -56,7 +56,7 @@
                 <div v-if="$cuztomisable.locations.countries.length > 1" class="col col-md-6 col-12">
                     <fm-select
                         label="Country"
-                        v-model="modelValue.country"
+                        v-model="value.country"
                         :items="$cuztomisable.locations.countries ?? []"
                         :errors="getError('country')"
                         @change="clearError('country')"
@@ -76,22 +76,6 @@ export default {
             statesOrProvinces: [],
         }
     },
-    created: function() {
-        if (this.modelValue == '') {
-            // Defaults the object to make sure it has the fields for the address
-            this.value = {
-                address: '',
-                address_two: '',
-                address_three: '',
-                city: '',
-                state_or_province: '',
-                zip_or_postal_code: '',
-                country: '',
-                shipping: this.isShipping,
-                billing: this.isBilling,
-            };
-        }
-    },
     methods: {
         getError: function(value) {
             return typeof(this.errorList) !== 'undefined' &&
@@ -109,6 +93,7 @@ export default {
                 return this.modelValue;
             },
             set: function (value) {
+                if (!value) return;
                 value.shipping = this.isShipping;
                 value.billing = this.isBilling;
                 if (typeof(value.country) !== 'undefined' && value.country == '') {
@@ -126,6 +111,25 @@ export default {
                 this.errorList = errors;
             },
         },
+        value: {
+            immediate: true,
+            handler: function(value) {
+                if (!value || typeof value !== 'object') {
+                    this.$emit('update:modelValue', {
+                        address: '',
+                        address_two: '',
+                        address_three: '',
+                        city: '',
+                        state_or_province: '',
+                        zip_or_postal_code: '',
+                        country: this.$cuztomisable.locations.default_country ?? '',
+                        shipping: this.isShipping,
+                        billing: this.isBilling,
+                    });
+                }
+            },
+            deep: true,
+        },
         'value.country': {
             immediate: true,
             handler: function(country) {
@@ -134,7 +138,7 @@ export default {
                         this.value.country = this.$cuztomisable.locations.default_country;
                     }
                     for (let i = 0; i < this.$cuztomisable.locations.countries.length; i++) {
-                        if (this.$cuztomisable.locations.countries[i].value == this.value.country) {
+                        if (this.$cuztomisable.locations.countries[i].value == this.value?.country) {
                             this.statesOrProvinces = this.$cuztomisable.locations.countries[i].states_or_provinces ?? [];
                             this.hasCity = this.$cuztomisable.locations.countries[i].city ?? true;
                             return true;
@@ -147,7 +151,7 @@ export default {
         }
     },
     props: {
-        modelValue: { type: [Object, String, Number], default: '' },
+        modelValue: { type: [Object, String, Number], default: () => ({}) },
         label: { type: String, default: null },
         placeholder: { type: String, default: '' },
         type: { type: String, default: 'input' },

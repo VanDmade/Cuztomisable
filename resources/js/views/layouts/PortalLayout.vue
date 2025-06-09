@@ -23,7 +23,7 @@
                     </div>
                     <div class="navbar-nav ms-auto" >
                         <span v-if="screenSize == 'large'" class="navbar-text text-white pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
-                            <img class="profile-image" :src="$url+'test.png'" @click="$router.push({ name: 'profile' })">
+                            <img class="profile-image" :src="$url+'test.png'" @click="$router.push({ path: '/profile' })">
                         </span>
                         <span class="nav-link d-inline-flex align-items-center text-white" @click="logout">
                             <span v-if="screenSize == 'large'" class="material-icons">logout</span>
