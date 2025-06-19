@@ -1,5 +1,5 @@
 <template>
-    <div class="modal fm-modal fade" :id="id+'-modal'" tabindex="-1" aria-hidden="true">
+    <div class="modal fm-modal fade" :id="id+'-modal'" tabindex="-1" aria-hidden="true" :data-bs-backdrop="static ? 'static' : true">
         <button type="button" v-show="false" :id="'close-'+id" data-bs-dismiss="modal"></button>
         <button type="button" v-show="false" :id="'open-'+id" data-bs-toggle="modal" :data-bs-target="'#'+id+'-modal'" data-bs-dismiss="modal"></button>
         <div class="modal-dialog fm-modal-dialog" :style="{ 'max-width': modalWidth }">
@@ -32,6 +32,7 @@ export default {
     },
     props: {
         modalWidth: { type: [Number, String], default: '500px' },
+        static: { type: Boolean, default: false }
     }
 }
 </script>

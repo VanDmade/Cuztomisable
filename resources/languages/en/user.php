@@ -31,12 +31,16 @@ return [
         'enabled' => 'You have enabled multi-factor authentication.',
         'disabled' => 'You have disabled multi-factor authentication.',
     ],
+    'verification' => 'Success! Your :type has been successfully verified. You may now continue using your account without interruption. If you were in the middle of a process, you can safely return to it. We appreciate your attention to keeping your account secure.',
+    'unsubscribe' => 'You have been successfully unsubscribed. You will no longer receive notifications to your :type.',
     'errors' => [
         'not_found' => 'The user was not found.',
         'locked' => 'Your account is currently locked.',
         'delete_my_account' => 'You cannot delete your own account.',
         'incorrect_password' => 'Hmm... You are unable to change your password.',
         'password_changed_recently' => 'An administrator recently reset this user\'s password. Please try again later and ask the user to check their spam or junk folder.',
+        'invalid_verification' => 'An error occurred while trying to verify your :type. Please try again, or request a new verification link if the issue continues. We\'re here to help if you need assistance.',
+        'invalid_unsubscribe' => 'We couldn\'t process your unsubscribe request. The link may be invalid, expired, or already used.',
     ],
     'image' => [
         'errors' => [

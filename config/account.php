@@ -74,6 +74,12 @@ return [
             'resend_after' => 300,
         ],
     ],
+    'emails' => [
+        // List of all parameters hidden within the email log.
+        'hidden_parameters' => [
+            'password',
+        ],
+    ],
     // Length of the token used within the URL, max length is 64
     'token_length' => 16,
     'notifications' => [

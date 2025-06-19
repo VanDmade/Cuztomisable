@@ -35,7 +35,7 @@ class Verification extends Mailable
             view: config('cuztomisable.account.notifications.email_verification.view'),
             with: [
                 'user' => $this->user,
-                'verificationUrl' => url('/verify/'.$this->user->id.'?email='.$this->user->email),
+                'verificationUrl' => url('/verification/'.$this->user->token.'/email?email='.$this->user->email),
                 'logo' => asset('images/logo.png'),
                 'company' => env('APP_NAME'),
             ],

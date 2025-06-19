@@ -94,15 +94,6 @@ class MFAController extends Controller
         }
     }
 
-    public function data(TableRequest $request)
-    {
-        try {
-
-        } catch (Exception $error) {
-            return $this->error($error);
-        }
-    }
-
     public function save(MFARequest $request, $token)
     {
         try {

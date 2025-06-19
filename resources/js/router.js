@@ -46,7 +46,7 @@ const routes = [
     },{
         name: 'message',
         path: '/message',
-        meta: { require_authentication: false },
+        meta: { require_authentication: false, layout: 'login-layout' },
         component: () => import("./views/Message.vue"),
     }
 ];

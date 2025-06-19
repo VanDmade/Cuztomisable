@@ -21,8 +21,9 @@ export default {
                 { name: 'Return to the login screen', link: 'login' },
         }
     },
-    methods: {
-
-    }
+    created: function() {
+        // Removes everything from the query string
+        this.$router.push({ path: this.$route.path, query: {} });
+    },
 }
 </script>

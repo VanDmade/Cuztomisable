@@ -8,10 +8,12 @@ use VanDmade\Cuztomisable\Requests\Users\UserRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
 use VanDmade\Cuztomisable\Models\Users;
+use VanDmade\Cuztomisable\Models\Image;
 use Auth;
 use DB;
 use Exception;
 use Hash;
+use Storage;
 
 class UserController extends Controller
 {
@@ -74,28 +76,52 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            if (is_null($id)) {
+            Storage::disk('s3')->put('test.txt', 'Hello from Laravel!');
+            dd(Storage::disk('s3')->exists('test.txt'));
+            exit;
+            if ($id == 'create') {
                 $user = new Users\User();
             } else {
-                $user = !Auth::user()->admin ? Auth::user() : Users\User::where('id', '=', $id)->first();
+                $user = !Auth::user()->admin || is_null($id) ? Auth::user() : Users\User::where('id', '=', $id)->first();
                 if (!isset($user->id)) {
                     throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
                 }
             }
-            $user->first_name = $data['first_name'];
-            $user->middle_name = $data['middle_name'] ?? null;
-            $user->last_name = $data['last_name'];
-            $user->suffix = $data['suffix'] ?? null;
-            $user->title = $data['title'] ?? null;
+            $user->name = $data['name'] ?? null;
             $user->username = $data['username'] ?? null;
             $user->email = $data['email'];
-            $user->gender = $data['gender'] ?? null;
-            $user->timezone = $data['timezone'] ?? null;
             if (config('cuztomisable.login.multi_factor_authentication.allowed', true)) {
                 $user->multi_factor_authentication = isset($data['mfa']) && $data['mfa'] == '1' ? true : false;
             }
             $user->save();
-            // TODO :: Add in the ability to upload an image
+            // Checks to see if the image exists and is valid prior to uploading it to the bucket
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $file = $request->file('image');
+                // Generates a path for the image to be uploaded into
+                $path = 'uploads/'.Auth::user()->id.'/'.(Auth::user()->token ?? 'token').'/';
+                $path = $file->store($path, $disk = 's3');
+                if (!Storage::disk('s3')->exists($path)) {
+                    throw new \Exception("Image not stored in S3: $path");
+                }
+                // Makes it so that the uploaded image is visible and can be used within the system
+                Storage::disk($disk)->setVisibility($path, 'public');
+                [$width, $height] = getimagesize($file->getRealPath());
+                $image = Image::create([
+                    'name' => $file->getClientOriginalName(),
+                    'extension' => $file->getClientOriginalExtension(),
+                    'path' => $path,
+                    'disk' => $disk,
+                    'parameters' => json_encode([
+                        'mime_type' => $file->getClientMimeType(),
+                        'size' => $file->getSize(),
+                        'width' => $width ?? 0,
+                        'height' => $height ?? 0,
+                    ]),
+                    'original' => true,
+                ]);
+                $user->image_id = $image->id;
+                $user->save();
+            }
             return $this->success([
                 'message' => __('cuztomisable/user.saved'),
             ]);
@@ -195,6 +221,76 @@ class UserController extends Controller
                 'message' => 'Token refreshed',
                 'token_expires_at' => Auth::user()->currentAccessToken()->expires_at->toIso8601String(),
             ])->withCookie($cookie);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function verification($token, $type)
+    {
+        try {
+            $hasError = true;
+            $user = Users\User::where('token', $token)->first();
+            if (isset($user->id)) {
+                if ($type === 'email') {
+                    $email = request()->query('email');
+                    if ($email && strcasecmp(trim($user->email), trim($email)) === 0) {
+                        if (is_null($user->email_verified_at)) {
+                            $user->email_verified_at = now();
+                            $user->save();
+                        }
+                        $hasError = false;
+                    }
+                } elseif ($type === 'phone') {
+                    $phone = str_replace(' ', '', request()->query('phone', ''));
+                    foreach ($user->phones as $phoneRecord) {
+                        $full = $phoneRecord->country_code.$phoneRecord->number;
+                        if ($phone === $full) {
+                            if (is_null($phoneRecord->verified_at)) {
+                                $phoneRecord->verified_at = now();
+                                $phoneRecord->save();
+                            }
+                            $hasError = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            $messageKey = $hasError ? 'errors.invalid_verification' : 'verification';
+            return redirect(url('/message?m='.__('cuztomisable/user.'.$messageKey, ['type' => $type])));
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function unsubscribe($token, $type)
+    {
+        try {
+            $hasError = true;
+            $user = Users\User::where('token', $token)->first();
+            if (isset($user->id)) {
+                if ($type === 'email') {
+                    $email = request()->query('email');
+                    if ($email && strcasecmp(trim($user->email), trim($email)) === 0) {
+                        $user->disable_emails = true;
+                        $user->save();
+                        $hasError = false;
+                    }
+                } elseif ($type === 'phone') {
+                    $phone = str_replace(' ', '', request()->query('phone', ''));
+                    foreach ($user->phones as $phoneRecord) {
+                        $full = $phoneRecord->country_code.$phoneRecord->number;
+                        if ($phone === $full) {
+                            $phoneRecord->disable_messages = true;
+                            $phoneRecord->save();
+                            $hasError = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            $messageKey = $hasError ? 'errors.invalid_unsubscribe' : 'unsubscribe';
+            return redirect(url('/message?m='.__('cuztomisable/user.'.$messageKey, ['type' => $type])));
         } catch (Exception $error) {
             return $this->error($error);
         }

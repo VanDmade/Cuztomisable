@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('username', 128)->nullable();
             $table->string('email', 128)->unique();
             $table->datetime('email_verified_at')->nullable();
+            $table->boolean('disable_emails')->default(false);
             $table->string('password', 64);
             $table->string('timezone', 64)->default('UTC');
             $table->boolean('locked')->default(false);
@@ -40,6 +41,7 @@ return new class extends Migration
             $table->boolean('admin')->default(false);
             $table->integer('attempts')->default(0);
             $table->datetime('attempt_timer')->nullable();
+            $table->string('token', 32)->unique();
         });
     }
 

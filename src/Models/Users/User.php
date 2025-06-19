@@ -26,6 +26,7 @@ class User extends Authenticatable
         'username',
         'email',
         'email_verified_at',
+        'disable_emails',
         'password',
         'timezone',
         'locked',
@@ -41,6 +42,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'disable_emails' => 'boolean',
         'locked' => 'boolean',
         'change_password' => 'boolean',
         'change_password_sent_at' => 'datetime',

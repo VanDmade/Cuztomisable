@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Users;
+use Auth;
 use Storage;
 
 class Image extends Model
@@ -42,6 +43,14 @@ class Image extends Model
     ];
 
     protected $appends = ['full_url'];
+
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function($model) {
+            $model->created_by = Auth::check() ? Auth::user()->id : null;
+        });
+    }
 
     public function output()
     {

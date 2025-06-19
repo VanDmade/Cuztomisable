@@ -20,6 +20,13 @@
                 </transition>
             </router-view>
         </component>
+        <fm-modal ref="inactivityModal" modal-width="275px" static>
+            <h3 class="card-title mb-4">Are you still here?</h3>
+            <h1 class="text-center mb-4">{{ countdown }}</h1>
+            <button type="button"
+                @click="cancelLogout()"
+                class="button button--primary button--block">I'm Still Here</button>
+        </fm-modal>
     </div>
 </template>
 <script>
@@ -32,7 +39,12 @@ export default {
             loadingMessage: 'Loading...',
             defaultLoadingMessage: 'Loading...',
             inactivityTimer: null,
+            // Will trigger inactivity logout sequence when 5 minutes has passed and zero movement of the mouse
             inactivityLimit: 5 * 60 * 1000,
+            verifyInactivity: null,
+            // Once the inactivity occurrs, 10 seconds will count down allowing the user to say they are still there.
+            verifyInactivityLimit: 10,
+            countdown: 0,
             events: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
             layout: 'login-layout',
             message: {
@@ -47,7 +59,8 @@ export default {
         // Checks the authentication of the user
         const response = await this.$store.dispatch('checkAuth');
         if (this.$store.state.authenticated &&
-            !this.$route.meta.require_authentication) {
+            !this.$route.meta.require_authentication &&
+            this.$route.name != 'message') {
             this.$router.push({ name: 'portal' });
         } else if (!this.$store.state.authenticated &&
             this.$route.meta.require_authentication) {
@@ -90,24 +103,53 @@ export default {
             this.resetInactivityTimer();
             this.events.forEach(event => window.addEventListener(event, this.resetInactivityTimer));
         },
-        removeActivityListeners() {
+        removeActivityListeners: function() {
+            clearTimeout(this.inactivityTimer);
+            clearTimeout(this.verifiyInactivity);
+            // This is for the modals that are potentially open and need to be closed
             const backdrop = document.querySelector('.modal-backdrop.fade.show');
             if (backdrop) {
-                backdrop.remove(); // cleanly removes the backdrop
-                document.body.classList.remove('modal-open'); // prevents scroll lock
+                // Cleanly removes the backdrop
+                backdrop.remove();
+                // Prevents scroll lock
+                document.body.classList.remove('modal-open');
             }
             this.events.forEach(event => window.removeEventListener(event, this.resetInactivityTimer));
         },
-        resetInactivityTimer() {
+        resetInactivityTimer: function() {
             clearTimeout(this.inactivityTimer);
             this.inactivityTimer = setTimeout(() => {
-                this.loadingMessage = 'See you next time!';
-                setTimeout(async () => {
-                    this.removeActivityListeners();
-                    await this.$store.dispatch('logout');
-                    this.$router.push({ name: 'login' });
-                }, 250);
+                this.$refs['inactivityModal'].open();
+                clearTimeout(this.verifiyInactivity);
+                this.startCountdown();
+                this.verifiyInactivity = setTimeout(async () => {
+                    this.$refs['inactivityModal'].close();
+                    this.logout();
+                }, this.verifyInactivityLimit * 1000);
             }, this.inactivityLimit);
+        },
+        startCountdown: function() {
+            this.countdown = this.verifyInactivityLimit;
+            setTimeout(() => {
+                for (let i = 0; i < this.countdown; i++) {
+                    setTimeout(() => {
+                        this.countdown--;
+                    }, i * 1000);
+                }
+            }, 500);
+        },
+        cancelLogout: function() {
+            clearTimeout(this.verifiyInactivity);
+            this.$refs['inactivityModal'].close();
+            this.resetInactivityTimer();
+        },
+        logout: function() {
+            this.loadingMessage = 'See you next time!';
+            setTimeout(async () => {
+                this.removeActivityListeners();
+                await this.$store.dispatch('logout');
+                this.$router.push({ name: 'login' });
+            }, 250);
         }
     },
     watch: {
