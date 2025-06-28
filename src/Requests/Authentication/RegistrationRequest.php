@@ -9,7 +9,7 @@ class RegistrationRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return config('cuztomisable/account.registration.disabled', false) || !empty($this->route('code'));
     }
 
     public function messages(): array
@@ -53,7 +53,7 @@ class RegistrationRequest extends FormRequest
             'country_code' => $requirePhone,
         ];
         // Determines if the address should be required, allowed, or straight up rejected
-        if (($address = config('cuztomisable.account.registration.address', false)) != false) {
+        if (($address = config('cuztomisable.account.address', false)) != false) {
             // If it's not required then it'll be dependant on whether any of it is filled out
             $required = $address['required'] || $this->input('address') != '' ||
                 $this->input('city') != '' || $this->input('state_or_province') != '' ||

@@ -34,8 +34,12 @@ const routes = [
         component: () => import("./views/Portal.vue"),
     },{
         name: 'user.form',
-        path: '/user/:id?',
-        alias: '/profile',
+        path: '/user/:id',
+        meta: { require_authentication: true },
+        component: () => import("./views/users/Form.vue"),
+    },{
+        name: 'profile',
+        path: '/profile',
         meta: { require_authentication: true },
         component: () => import("./views/users/Form.vue"),
     },{
@@ -43,6 +47,21 @@ const routes = [
         path: '/users',
         meta: { require_authentication: true },
         component: () => import("./views/users/Table.vue"),
+    },{
+        name: 'invites',
+        path: '/invites',
+        meta: { require_authentication: true },
+        component: () => import("./views/users/invites/Table.vue"),
+    },{
+        name: 'roles',
+        path: '/roles',
+        meta: { require_authentication: true },
+        component: () => import("./views/roles/Table.vue"),
+    },{
+        name: 'permissions',
+        path: '/permissions',
+        meta: { require_authentication: true },
+        component: () => import("./views/permissions/Table.vue"),
     },{
         name: 'message',
         path: '/message',

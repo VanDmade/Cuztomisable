@@ -68,6 +68,7 @@ export default {
             submitting: false,
             errors: [],
             passwordRequirementsMet: false,
+            code: this.$route.params.code ?? null,
             form: {
                 name: '',
                 username: '',
@@ -89,7 +90,31 @@ export default {
             }
         }
     },
+    created: function() {
+        // Ensures that registration via code is enabled. If not, it allows the user to register without a code.
+        if (this.code != null && this.code != '') {
+            this.verify();
+        } else if (this.$cuztomisable.registration.disabled) {
+            this.$router.push({
+                path: 'message',
+                query: {
+                    m: this.$cuztomisable.registration.disable_message
+                }
+            });
+        }
+    },
     methods: {
+        verify: function() {
+            axios.get(`/register/verify/${this.code}`).then(({ data }) => {
+                if (typeof(data.user) != 'undefined') {
+                    this.form.name = data.user.name;
+                    this.form.phone = data.user.phone ?? '';
+                    this.form.email = data.user.email ?? '';
+                }
+            }).catch(({ response }) => {
+                this.$emit('message', { text: response.data.message, error: true });
+            });
+        },
         save: function() {
             this.submitting = true;
             this.errors = [];
@@ -112,6 +137,7 @@ export default {
                 formData.append('country', this.form.address.country);
             }
             let code = typeof(this.$route.params.code) != 'undefined' ? ('/'+this.$route.params.code) : '';
+            formData = this.cleanFormData(formData);
             axios.post(`/register${code}`, formData).then(({ data }) => {
                 if (data.message) {
                     this.$emit('message', { text: data.message });

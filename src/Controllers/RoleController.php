@@ -4,9 +4,10 @@ namespace VanDmade\Cuztomisable\Controllers;
 
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\RoleRequest;
-use VanDmade\Cuztomisable\Requests\TableRequest;
+use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Models\Roles;
 use VanDmade\Cuztomisable\Models\Permission;
+use VanDmade\Cuztomisable\Helpers\Tablelify;
 use Auth;
 use DB;
 use Exception;
@@ -19,8 +20,8 @@ class RoleController extends Controller
         try {
             $role = Roles\Role::select('id', 'name', 'slug', 'description', 'created_by')
                 ->with([
-                    'createdBy' => fn($query) => $query->select('id', 'first_name as name', 'email'),
-                    'permissions' => fn($query) => $query->select('id', 'name', 'slug', 'description'),
+                    'createdBy' => fn($query) => $query->select('id', 'name', 'email'),
+                    'permissions' => fn($query) => $query->select('permissions.id', 'permissions.name', 'permissions.slug', 'permissions.description'),
                 ])
                 ->where('id', '=', $id)
                 ->withTrashed()
@@ -37,13 +38,16 @@ class RoleController extends Controller
         }
     }
 
-    public function table(TableRequest $request)
+    public function table(TablelifyRequest $request)
     {
         try {
             $data = $request->validated();
-            $query = null;
-            $parameters = [];
-            return $this->table($query, $data, $parameters);
+            $query = Roles\Role::select('id', 'name', 'slug', 'description')
+                ->where(function($query) use ($data) {
+                    $query->orWhere('name', 'LIKE', $data['search'])
+                        ->orWhere('slug', 'LIKE', $data['search']);
+                });
+            return Tablelify::run($query, $data);
         } catch (Exception $error) {
             return $this->error($error);
         }

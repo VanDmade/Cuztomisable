@@ -29,6 +29,7 @@ class User extends Authenticatable
         'disable_emails',
         'password',
         'timezone',
+        'token',
         'locked',
         'change_password',
         'change_password_sent_at',
@@ -63,6 +64,7 @@ class User extends Authenticatable
         parent::boot();
         self::creating(function($model) {
             $model->created_by = Auth::check() ? Auth::user()->id : null;
+            $model->token = generateCode(8);
         });
     }
 

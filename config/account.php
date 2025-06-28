@@ -41,30 +41,30 @@ return [
         'expires_in' => 300,
     ],
     'registration' => [
-        // Determines if registration is disabled
+        // Determines if registration is disabled unless a code is given
         'disabled' => false,
-        // Determines if registration can occur with a code
-        'code' => false,
         // Length of all codes sent to users
         'length' => 6,
         // Length of time the registration code will expire
-        'expires_in' => 300,
+        'expires_in' => 3600,
         /* Determines whether an email should be sent to an administrator.
          * If the account was created by another user, that user will receive the notification instead.
          * Ensure that CUZTOMISABLE_ADMIN is set in the .env file for fallback notifications. */
         'send_notification' => true,
-        /* Sets up the fields to be used within the registration form. Keep in mind that this is purely for the main
-         * Cuztomisable view and if you need more fields you should extend the Registration controller and create your
-         * own view. If set to false it will not show within the default registration form. You can ignore these fields
-         * if you are creating your own frontend. */
-        'address' => [
-            // If required is set to false, then the address field will not be required to submit but will be displayed
-            'required' => false,
-            // Determines whether or not the Address Two line should be displayed
-            'address_two' => true,
-            // Determines whether or not the Address Three line should be displayed
-            'address_three' => false,
-        ],
+        // Specifies the length of time between allowed resends
+        'resend_after' => 300,
+    ],
+    /* Sets up the fields to be used within the user form. Keep in mind that this is purely for the main
+     * Cuztomisable view and if you need more fields you should extend the Registration controller and create your
+     * own view. If set to false it will not show within the default form. You can ignore these fields
+     * if you are creating your own frontend. */
+    'address' => [
+        // If required is set to false, then the address field will not be required to submit but will be displayed
+        'required' => false,
+        // Determines whether or not the Address Two line should be displayed
+        'address_two' => true,
+        // Determines whether or not the Address Three line should be displayed
+        'address_three' => false,
     ],
     'administrator' => [
         'temporary_password' => [

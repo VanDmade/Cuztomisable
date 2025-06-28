@@ -26,7 +26,7 @@ return [
     ],
     /* The amount of time, in seconds, that the user's session is set to. If null,
      * then there is no session length, the user will remain logged in forever (Or until idle). */ 
-    'session_length' => 120,
+    'session_length' => 900,
     'attempts' => [
         // Amount of attempts before the account is put on hold
         'total' => 5,
@@ -55,6 +55,11 @@ return [
         'mfa' => [
             'type' => 'email|phone',
             'view' => 'emails.authentication.mfa',
+        ],
+        // login.mfa has to be set to true in order for this to be used
+        'invitation' => [
+            'type' => 'email',
+            'view' => 'emails.authentication.invitation',
         ],
     ],
 ];

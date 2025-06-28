@@ -3,6 +3,7 @@
 namespace VanDmade\Cuztomisable\Requests\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Models\Users;
 
 class UserRequest extends FormRequest
 {
@@ -21,6 +22,22 @@ class UserRequest extends FormRequest
             'boolean' => __('cuztomisable/global.form.boolean'),
             'size' => __('cuztomisable/global.form.phone.size'),
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $emailInUse = Users\User::where('email', $this->email)
+                ->where(function($query) {
+                    if ($this->route('id')) {
+                        $query->where('id', '!=', $this->route('id'));
+                    }
+                })
+                ->exists();
+            if ($emailInUse) {
+                $validator->errors()->add('email', __('cuztomisable/user.errors.email_in_use'));
+            }
+        });
     }
 
     public function prepareForValidation(): void
@@ -53,7 +70,7 @@ class UserRequest extends FormRequest
             'mfa' => 'nullable|in:0,1',
         ];
         // Determines if the address should be required, allowed, or straight up rejected
-        if (($address = config('cuztomisable.account.registration.address', false)) != false) {
+        if (($address = config('cuztomisable.account.address', false)) != false) {
             // If it's not required then it'll be dependant on whether any of it is filled out
             $required = $address['required'] || $this->input('address') != '' ||
                 $this->input('city') != '' || $this->input('state_or_province') != '' ||

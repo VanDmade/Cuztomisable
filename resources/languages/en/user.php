@@ -41,6 +41,7 @@ return [
         'password_changed_recently' => 'An administrator recently reset this user\'s password. Please try again later and ask the user to check their spam or junk folder.',
         'invalid_verification' => 'An error occurred while trying to verify your :type. Please try again, or request a new verification link if the issue continues. We\'re here to help if you need assistance.',
         'invalid_unsubscribe' => 'We couldn\'t process your unsubscribe request. The link may be invalid, expired, or already used.',
+        'email_in_use' => 'This email address is already in use by another account. If this user already has an account, they can reset their password instead.',
     ],
     'image' => [
         'errors' => [

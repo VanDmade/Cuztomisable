@@ -53,13 +53,13 @@
                             <button
                                 @click="edit(item.id)"
                                 class="button button--primary"
-                                :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Edit</button>
+                                :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Edit</button>
                         </div>
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
                                 @click="id = item.id; $refs.deleteUserModal.open();"
                                 class="button button--danger"
-                                :class="{ 'button--block': breakpoint('sm'), 'button-small ml-1': !breakpoint('sm') }">Delete</button>
+                                :class="{ 'button--block': breakpoint('sm'), 'button--small ml-1': !breakpoint('sm') }">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -83,13 +83,9 @@
                 </div>
             </div>
         </fm-modal>
-        <fm-modal ref="editUserModal" modal-width="1000px">
-            <user-form :id="id" v-on:close="$refs.editUserModal.close()"></user-form>
-        </fm-modal>
     </div>
 </template>
 <script>
-import UserForm from './Form.vue';
 export default {
     data: function() {
         return {
@@ -98,7 +94,7 @@ export default {
             url: '/users',
             headers: [
                 { name: 'Name', value: 'name_with_email', width: '340px' },
-                { name: 'Phone', value: 'phone', width: '20%' },
+                { name: 'Phone', value: 'phone', sortable: false, width: '20%' },
                 { name: 'Last Accessed', value: 'last_used_at', width: '20%' },
                 { name: 'Status', value: 'status', sortable: false, width: '140px' },
                 { name: '', value: 'actions', sortable: false, width: '150px' },
@@ -114,6 +110,9 @@ export default {
         }
     },
     methods: {
+        edit: function(id) {
+            this.$router.push({ name: 'user.form', params: { id: id }});
+        },
         remove: function() {
             this.submitting = true;
             axios.delete(`/user/${this.id}`).then(({ data }) => {
@@ -132,12 +131,9 @@ export default {
                 }, 500);
             });
         },
-        edit: function(id) {
-            this.$router.push({ name: 'user.form', params: { id: id }});
+        setMessage: function(message) {
+            this.$emit('message', message);
         },
     },
-    components: {
-        'user-form': UserForm,
-    }
 }
 </script>

@@ -100,7 +100,7 @@ export default {
         value: {
             immediate: true,
             handler: function(value) {
-                if (!value || typeof value !== 'object') {
+                if (!value || typeof value !== 'object' || typeof(value.country_code) == 'undefined') {
                     this.$emit('update:modelValue', {
                         country_code: this.$cuztomisable.locations.default_country_code ?? '',
                         number: '',

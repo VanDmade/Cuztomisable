@@ -1,12 +1,12 @@
 <template>
     <div class="tablelify-page">
         <div class="row mb-4">
-            <div class="col col-12" :class="{ 'col-md-8': !disableSearch }">
+            <div class="col col-12" :class="{ 'col-lg-8 col-md-6': !disableSearch }">
                 <slot name="header"></slot>
             </div>
-            <div v-if="!disableSearch" class="col col-md-4 col-12">
-                <div class="input-group">
-                    <fm-input label="Search" v-model="search" type="input" id="search" :disabled="disabled" hide-details/>
+            <div v-if="!disableSearch" class="col col-lg-4 col-md-6 col-12">
+                <div class="input-group fm-form-input">
+                    <input placeholder="Search" class="form-control fm-form-input" v-model="search" type="input" id="search" :disabled="disabled" />
                     <button type="button" class="button button--primary" @click="query">Refresh</button>
                 </div>
             </div>

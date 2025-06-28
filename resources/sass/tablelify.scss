@@ -59,6 +59,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    .tablelify-data.tablelify-multi-line {
+        white-space: unset;
+        overflow: unset;
+        text-overflow: unset;
+    }
     .tablelify-data.enabled-overflow {
         overflow: unset;
     }

@@ -48,10 +48,10 @@ class Permission extends Model
         return $this->hasManyThrough(
             Roles\Permission::class,
             Roles\Role::class,
+            'id',
             'role_id',
-            'id',
-            'id',
             'permission_id',
+            'id',
         );
     }
 

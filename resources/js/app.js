@@ -63,6 +63,11 @@ app.mixin({
             }
         },
         formatPhone: function(value, code = '') {
+            if (code == '' & value.indexOf('+') !== false) {
+                value = value.split(' ');
+                code = value[0].replace('+', '');
+                value = value[1];
+            }
             let format = '(XXX) XXX-XXXX';
             if (!value) {
                 return value;
@@ -94,6 +99,14 @@ app.mixin({
                 : { year: 'numeric', month: 'short', day: 'numeric' };
             const formatter = new Intl.DateTimeFormat(type, { ...defaultOptions, ...options });
             return formatter.format(date);
+        },
+        cleanFormData: function(formData) {
+            const cleanedFormData = new FormData();
+            for (const [key, value] of formData.entries()) {
+                const cleanedValue = (value.toLowerCase() == 'null' || value == null) ? '' : value;
+                cleanedFormData.append(key, cleanedValue);
+            }
+            return cleanedFormData;
         },
         goBack: function() {
             window.history.length > 1 ? window.history.back() : this.$router.push('/');

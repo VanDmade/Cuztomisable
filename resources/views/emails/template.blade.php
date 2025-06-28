@@ -91,11 +91,13 @@
             @yield('content')
         </div>
         <div class="footer">
-            <p>You're receiving this email because you're a registered user of {{ $company ?? 'Cuztomisable' }}.</p>
-            @if (isset($unsubscribe))
-                <p><a href="{{ $unsubscribe ?? '#' }}">Unsubscribe</a>
-                @if (isset($support))
-                    | <a href="{{ $support ?? '#' }}">Contact Support</a></p>
+            @if (!isset($footer) || $footer)
+                <p>You're receiving this email because you're a registered user of {{ $company ?? 'Cuztomisable' }}.</p>
+                @if (isset($unsubscribe))
+                    <p><a href="{{ $unsubscribe ?? '#' }}">Unsubscribe</a>
+                    @if (isset($support))
+                        | <a href="{{ $support ?? '#' }}">Contact Support</a></p>
+                    @endif
                 @endif
             @endif
         </div>

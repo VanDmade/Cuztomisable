@@ -114,7 +114,7 @@ export default {
         value: {
             immediate: true,
             handler: function(value) {
-                if (!value || typeof value !== 'object') {
+                if (!value || typeof value !== 'object' || typeof(value.country) == 'undefined') {
                     this.$emit('update:modelValue', {
                         address: '',
                         address_two: '',

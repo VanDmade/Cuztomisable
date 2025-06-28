@@ -8,46 +8,42 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use VanDmade\Cuztomisable\Models\Users\Registration;
+use Auth;
 
 class Invitation extends Mailable
 {
+
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    private $registration;
+
+    public function __construct(Registration $registration)
     {
-        //
+        $this->registration = $registration;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invitation',
+            subject: __('cuztomisable/authentication.emails.subjects.invitation'),
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: config('cuztomisable.login.notifications.invitation.view'),
+            with: [
+                'sender' => Auth::check() ? Auth::user()->name : null,
+                'name' => $this->registration->name,
+                'url' => url('/registration/'.$this->registration->code),
+                'expires' => config('cuztomisable.account.registration.expires_in', 300) / 60,
+                'logo' => asset('images/logo.png'),
+                'company' => env('APP_NAME'),
+                'footer' => false,
+            ],
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
-    }
 }

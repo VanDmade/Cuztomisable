@@ -25,6 +25,29 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: #000 !important;
 }
+#portal-layout {
+    .navbar-toggler {
+        border-color: white;
+    }
+    .navbar-toggler:focus {
+        box-shadow: 0 0 6px 0.1rem white;
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    .dropdown-item.active {
+        background-color: $color-primary !important;
+    }
+    .dropdown-item:focus {
+        background-color: lighten($color-primary, 5%) !important;
+    }
+    .dropdown-divider {
+        border-top: 1px solid var(--bs-dropdown-divider-bg) !important;
+    }
+    .navbar-brand, .nav-link {
+        color: $color-white !important;
+    }
+}
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
@@ -151,6 +174,21 @@ input:-webkit-autofill {
 .cursor {
     &--pointer { cursor: pointer; }
 }
+.button-group {
+    width: 100%;
+    display: flex;
+    .button {
+        flex: auto;
+    }
+    .button:first-child {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .button:last-child {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
 .button {
     border: none;
     border-radius: $border-radius;
@@ -170,7 +208,8 @@ input:-webkit-autofill {
     &--info       { background-color: $color-info; color: $color-text; }
     &--warning    { background-color: $color-warning; color: $color-text; }
     &--block      { width: 100%; margin-bottom: 0.5rem; }
-    &-small       { padding: 4px 12px; font-size: 12px; }
+    &--small      { padding: 4px 12px; font-size: 12px; }
+    &--large      { height: 58px; }
     &:hover {
         filter: brightness(0.95);
     }
@@ -242,7 +281,7 @@ input:-webkit-autofill {
     .page {
         padding: 0 32px;
         @media (max-width: $xsmall) {
-            padding: 24px;
+            padding: 0 calc(var(--bs-gutter-x) * 0.5);
             width: 100%;
         }
     }

@@ -7,8 +7,10 @@ use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Requests\Users\UserRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
-use VanDmade\Cuztomisable\Models\Users;
+use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Image;
+use VanDmade\Cuztomisable\Models\Phone;
+use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 use DB;
 use Exception;
@@ -65,8 +67,11 @@ class UserController extends Controller
                         ->orWhere('users.username', 'LIKE', $data['search'])
                         ->orWhere('p.number', 'LIKE', $data['search']);
                 });
-            $parameters = [];
-            return Tablelify::run($query, $data, $parameters);
+            /*$data['columns'] = [
+                'name_with_email' => 'users.name',
+                'last_used_at' => 'ip.last_used_at',
+            ];*/
+            return Tablelify::run($query, $data);
         } catch (Exception $error) {
             return $this->error($error);
         }
@@ -76,16 +81,10 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            Storage::disk('s3')->put('test.txt', 'Hello from Laravel!');
-            dd(Storage::disk('s3')->exists('test.txt'));
-            exit;
-            if ($id == 'create') {
-                $user = new Users\User();
-            } else {
-                $user = !Auth::user()->admin || is_null($id) ? Auth::user() : Users\User::where('id', '=', $id)->first();
-                if (!isset($user->id)) {
-                    throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
-                }
+            $user = !Auth::user()->admin || is_null($id) ?
+                Auth::user() : Users\User::where('id', '=', $id)->first();
+            if (!isset($user->id)) {
+                throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
             $user->name = $data['name'] ?? null;
             $user->username = $data['username'] ?? null;
@@ -94,6 +93,35 @@ class UserController extends Controller
                 $user->multi_factor_authentication = isset($data['mfa']) && $data['mfa'] == '1' ? true : false;
             }
             $user->save();
+            // Determines if the phone is set up and entered
+            if (!empty($data['phone'])) {
+                $phone = $user->defaultPhone;
+                if (!isset($phone->id)) {
+                    $phone = new Phone();
+                    $phone->user_id = $user->id;
+                    $phone->default = true;
+                }
+                $phone->number = $data['phone'];
+                $phone->country_code = $data['country_code'] ?? 1;
+                $phone->save();
+            }
+            // Makes sure the address is entered or if it needs to be ignored
+            if (config('cuztomisable.account.address') !== false && !empty($data['address'])) {
+                $address = $user->defaultAddress;
+                if (!isset($address->id)) {
+                    $address = new Address();
+                    $address->user_id = $user->id;
+                    $address->default = true;
+                }
+                $address->address = $data['address'];
+                $address->address_two = $data['address_two'] ?? null;
+                $address->address_three = $data['address_three'] ?? null;
+                $address->state_or_province = $data['state_or_province'];
+                $address->city = $data['city'];
+                $address->country = $data['country'];
+                $address->zip_or_postal_code = $data['zip_or_postal_code'];
+                $address->save();
+            }
             // Checks to see if the image exists and is valid prior to uploading it to the bucket
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
                 $file = $request->file('image');
@@ -101,7 +129,7 @@ class UserController extends Controller
                 $path = 'uploads/'.Auth::user()->id.'/'.(Auth::user()->token ?? 'token').'/';
                 $path = $file->store($path, $disk = 's3');
                 if (!Storage::disk('s3')->exists($path)) {
-                    throw new \Exception("Image not stored in S3: $path");
+                    throw new Exception('Image not stored in S3: '.$path);
                 }
                 // Makes it so that the uploaded image is visible and can be used within the system
                 Storage::disk($disk)->setVisibility($path, 'public');

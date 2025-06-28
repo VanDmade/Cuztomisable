@@ -4,8 +4,9 @@ namespace VanDmade\Cuztomisable\Controllers;
 
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\PermissionRequest;
-use VanDmade\Cuztomisable\Requests\TableRequest;
+use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Models\Permission;
+use VanDmade\Cuztomisable\Helpers\Tablelify;
 use Auth;
 use DB;
 use Exception;
@@ -18,8 +19,8 @@ class PermissionController extends Controller
         try {
             $permission = Permission::select('id', 'name', 'slug', 'description', 'created_by')
                 ->with([
-                    'createdBy' => fn($query)  => $query->select('id', 'first_name as name'),
-                    'roles' => fn($query) => $query->select('id', 'name', 'slug', 'description'),
+                    'createdBy' => fn($query)  => $query->select('id', 'name', 'email'),
+                    'roles' => fn($query) => $query->select('roles.id', 'roles.name', 'roles.slug', 'roles.description'),
                 ])
                 ->where('id', '=', $id)
                 ->withTrashed()
@@ -36,13 +37,16 @@ class PermissionController extends Controller
         }
     }
 
-    public function table(TableRequest $request)
+    public function table(TablelifyRequest $request)
     {
         try {
             $data = $request->validated();
-            $query = null;
-            $parameters = [];
-            return $this->table($query, $data, $parameters);
+            $query = Permission::select('id', 'name', 'slug', 'description')
+                ->where(function($query) use ($data) {
+                    $query->orWhere('name', 'LIKE', $data['search'])
+                        ->orWhere('slug', 'LIKE', $data['search']);
+                });
+            return Tablelify::run($query, $data);
         } catch (Exception $error) {
             return $this->error($error);
         }

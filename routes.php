@@ -28,6 +28,7 @@ Route::controller(Authentication\PasswordController::class)->group(function () {
     Route::get('/password/forgot/{token}/verify/{code?}', 'verify');
 });
 Route::controller(Authentication\RegistrationController::class)->group(function () {
+    Route::get('/register/verify/{code}', 'verify');
     Route::post('/register/{code?}', 'save');
 });
 Route::controller(Authentication\PasswordController::class)->group(function () {
@@ -48,6 +49,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/user/{id}/locked', 'toggleLocked');
         Route::patch('/user/{id}/mfa', 'toggleMfa');
         Route::get('/refresh', 'refresh');
+    });
+    Route::controller(Authentication\RegistrationController::class)->group(function () {
+        Route::get('/invites', 'table');
+        Route::post('/invite', 'invite');
+        Route::delete('/invite/{id}', 'toggleDelete');
+        Route::post('/invite/{id}/send', 'send');
     });
     Route::controller(PasswordController::class)->group(function () {
         Route::post('/user/change/password', 'change');

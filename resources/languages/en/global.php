@@ -8,6 +8,7 @@ return [
         'exists' => 'The value entered doesn\'t match our requirements.',
         'in' => 'Please refresh and try again!',
         'boolean' => 'The value must be true or false.',
+        'unique' => 'This field must be unique.',
         'phone' => [
             'size' => 'Please enter a valid phone number.',
         ],

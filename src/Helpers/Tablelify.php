@@ -1,6 +1,8 @@
 <?php
 
 namespace VanDmade\Cuztomisable\Helpers;
+
+use Illuminate\Database\Query\Expression;
 use Exception;
 
 class Tablelify
@@ -58,14 +60,14 @@ class Tablelify
         // Total rows prior to the search value being used
         $total = $query->count();
         $query = $query->where(function($query) use ($search, $searchColumns) {
-                // Makes 100% sure the request has sent in the search parameters
-                if (!is_null($search)) {
-                    // Iterates through the columns that the developer wants to search through
-                    foreach ($searchColumns as $i => $column) {
-                        $query->orWhere($column, 'LIKE', $search);
-                    }
+            // Makes 100% sure the request has sent in the search parameters
+            if (!is_null($search)) {
+                // Iterates through the columns that the developer wants to search through
+                foreach ($searchColumns as $i => $column) {
+                    $query->orWhere($column, 'LIKE', $search);
                 }
-            });
+            }
+        });
         // Total rows after the search value is sued
         $filteredTotal = $query->count();
         if (isset($parameters['additional']['group_by'])) {
@@ -104,7 +106,7 @@ class Tablelify
         // Allows for multiple columns to be ordered in a single direction
         foreach ($columns as $i => $column) {
             // Checks to see if the columns sent contain a direction as well within that array
-            if (isset($column['direction'])) {
+            if (!($column instanceof Expression) && isset($column['direction'])) {
                 $query->orderBy($column['column'], $column['direction']);
             } else {
                 $query = $query->orderBy($column, $direction ?? 'asc');

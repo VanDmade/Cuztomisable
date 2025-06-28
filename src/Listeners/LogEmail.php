@@ -10,8 +10,6 @@ use VanDmade\Cuztomisable\Models\Logs;
 class LogEmail
 {
 
-    private static $hidden = config('cuztomisable.account.emails.hidden_parameters', ['password']);
-
     public function handle(MessageSent $event): void
     {
         $sanitizedData = self::sanitizeSensitiveData($event->data ?? []);
@@ -34,8 +32,9 @@ class LogEmail
         if ($depth > 5) {
             return '**truncated**';
         }
+        $hidden = config('cuztomisable.account.emails.hidden_parameters', ['password']);
         foreach ($data as $key => &$value) {
-            if (in_array($key, self::$hidden)) {
+            if (in_array($key, $hidden)) {
                 $value = '********';
             } elseif (is_array($value)) {
                 // Recursive for nested arrays

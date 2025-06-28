@@ -38,7 +38,9 @@ class SettingsController extends Controller
                     'country_codes' => config('cuztomisable.locations.country_codes', []),
                 ],
                 'registration' => [
-                    'address' => config('cuztomisable.account.registration.address', false),
+                    'disabled' => config('cuztomisable.account.registration.disabled', false),
+                    'disable_message' => __('cuztomisable/authentication.registration.disabled', ['email' => env('CUZTOMISABLE_ADMIN')]),
+                    'address' => config('cuztomisable.account.address', false),
                 ],
             ]);
         } catch (Exception $error) {

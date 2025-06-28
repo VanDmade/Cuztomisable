@@ -27,9 +27,9 @@ return new class extends Migration
                 ->on('users')
                 ->onUpdate('cascade')
                 ->onDelete('set null');
-            $table->string('name', 64);
+            $table->string('name', 128);
             $table->string('username', 128)->nullable();
-            $table->string('email', 128)->unique();
+            $table->string('email', 128);
             $table->datetime('email_verified_at')->nullable();
             $table->boolean('disable_emails')->default(false);
             $table->string('password', 64);

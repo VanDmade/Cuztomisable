@@ -33,10 +33,12 @@ return new class extends Migration
                 ->on('users')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->string('email', 128);
+            $table->string('name', 128);
+            $table->string('email', 128)->nullable();
             $table->string('phone', 15)->nullable();
             $table->string('code', 16);
             $table->datetime('used_at')->nullable();
+            $table->datetime('sent_at')->nullable();
             $table->datetime('expires_at');
         });
     }

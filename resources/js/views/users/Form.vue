@@ -1,6 +1,6 @@
 <template>
     <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
-        <fm-loading :loading="loading || $store.state.loading" :message="loadingMessage"></fm-loading>
+        <fm-loading :loading="loading || $store.state.loading"></fm-loading>
         <fm-form v-if="!loading" ref="userForm" :form="form" @save="save">
             <div class="row mb-4">
                 <div class="col-lg-9 col-md-8 col-sm-12" :class="{ 'mb-6': breakpoint('sm') }">
@@ -72,7 +72,7 @@
             <hr v-if="breakpoint('sm')" class="mb-6">
             <div class="form-buttons" :class="{ 'mb-6': !breakpoint('sm'), 'mb-2': breakpoint('sm') }">
                 <button type="submit" class="button button--primary" :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }" :disabled="submitting">Save Changes</button>
-                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
+                <button type="button" class="button button--danger" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
         </fm-form>
         <fm-modal ref="mfaModal" v-on:open="$refs['user-mfa-form'].reset()" modal-width="340px">
@@ -142,19 +142,20 @@ export default {
                 formData.append('username', this.form.username ?? '');
             }
             formData.append('email', this.form.email ?? '');
-            formData.append('phone', this.form.phone.number ?? '');
-            formData.append('country_code', this.form.phone.country_code ?? '');
+            formData.append('phone', this.form.phone?.number ?? '');
+            formData.append('country_code', this.form.phone?.country_code ?? '');
             if (this.$cuztomisable.registration.address !== false) {
-                formData.append('address', this.form.address.address);
-                formData.append('address_two', this.form.address.address_two);
-                formData.append('address_three', this.form.address.address_three);
-                formData.append('city', this.form.address.city);
-                formData.append('state_or_province', this.form.address.state_or_province);
-                formData.append('zip_or_postal_code', this.form.address.zip_or_postal_code);
-                formData.append('country', this.form.address.country);
+                formData.append('address', this.form.address?.address);
+                formData.append('address_two', this.form.address?.address_two);
+                formData.append('address_three', this.form.address?.address_three);
+                formData.append('city', this.form.address?.city);
+                formData.append('state_or_province', this.form.address?.state_or_province);
+                formData.append('zip_or_postal_code', this.form.address?.zip_or_postal_code);
+                formData.append('country', this.form.address?.country);
             }
             this.submitting = true;
-            axios.post('/user'+(id != '' && typeof(id) != 'undefined' ? `/${id}` : ''), formData).then(({ data }) => {
+            formData = this.cleanFormData(formData);
+            axios.post(`/user/${id}`, formData).then(({ data }) => {
                 this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
@@ -204,6 +205,7 @@ export default {
         '$route.params.id': {
             immediate: true,
             handler: function(id) {
+                this.errors = [];
                 this.loading = true;
                 let user = {};
                 if (this.form.id != id) {
