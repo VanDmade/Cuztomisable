@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use VanDmade\Cuztomisable\Models\Permission;
+use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 use VanDmade\Cuztomisable\Models\Users\User;
 use Auth;
 
@@ -51,7 +51,12 @@ class Permission extends Model
 
     public function permission()
     {
-        return $this->belongsTo(Permission::class, 'permission_id');
+        return $this->belongsTo(PermissionModel::class, 'permission_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Roles\Role::class, 'role_id');
     }
 
     public function createdBy()

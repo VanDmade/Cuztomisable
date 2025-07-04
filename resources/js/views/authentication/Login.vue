@@ -1,8 +1,13 @@
 <template>
     <div id="login-page" class="page">
         <div class="card ma-2 pa-6">
-            <h3 class="card-title">Login</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Welcome to Cuztomisable!</h6>
+            <div class="d-flex">
+                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <div class="cz-title">
+                    <h3 class="card-title">Login</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">Welcome to Cuztomisable!</h6>
+                </div>
+            </div>
             <fm-form ref="loginForm" class="mt-4" :form="form"
                 @save="login">
                 <fm-input
@@ -17,14 +22,14 @@
                     type="password"
                     :errors="errors.password"
                     :disabled="submitting" />
-                <router-link :to="{ name: 'forgot' }" class="links">Forgot password?</router-link>
+                <router-link :to="{ name: 'forgot' }" class="button--link">Forgot password?</router-link>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Login</button>
                 </div>
             </fm-form>
         </div>
         <div class="text-center">
-            <router-link :to="{ name: 'registration' }" class="links">New here? Create an account!</router-link>
+            <router-link :to="{ name: 'registration' }" class="button--link">New here? Create an account!</router-link>
         </div>
     </div>
 </template>

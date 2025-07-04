@@ -33,7 +33,7 @@
                 <div class="col col-md-6 col-12">
                     <button type="button"
                         @click="close"
-                        class="button button--danger button--block mb-0"
+                        class="button button--secondary button--block mb-0"
                         :disabled="submitting">Cancel</button>
                 </div>
             </div>

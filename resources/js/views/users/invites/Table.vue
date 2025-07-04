@@ -11,7 +11,7 @@
                 <div class="tablelify-data">
                     {{ name }}
                     <p class="note mb-0">
-                        <a v-if="email != null" :href="'mailto:'+email">{{ email }}</a>
+                        <a v-if="email != null" class="color--link" :href="'mailto:'+email">{{ email }}</a>
                         <span v-else>{{ formatPhone(phone) }}</span>
                     </p>
                 </div>
@@ -20,7 +20,7 @@
                 <div class="tablelify-data">
                     {{ creator }}
                     <p class="note mb-0">
-                        <a :href="'mailto:'+creator_email">{{ creator_email }}</a>
+                        <a class="color--link" :href="'mailto:'+creator_email">{{ creator_email }}</a>
                     </p>
                 </div>
             </template>
@@ -50,7 +50,7 @@
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
                                 @click="send(item.id)"
-                                class="button button--primary"
+                                class="button button--secondary"
                                 :disabled="isSending(item.id)"
                                 :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">{{ buttonLabel(item.id, typeof(sending[item.id]) == 'undefined' ? item.resend_in : null) }}</button>
                         </div>

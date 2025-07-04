@@ -55,6 +55,11 @@ class Role extends Model
         );
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_roles');
+    }
+
     public function permissionLinks()
     {
         return $this->hasMany(Permission::class, 'role_id');

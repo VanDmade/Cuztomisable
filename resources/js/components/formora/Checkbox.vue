@@ -7,6 +7,7 @@
             :id="id"
             class="form-check-input"
             :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+            :disabled="disabled"
             :value="inputTrueValue"
             :readonly="readonly"
             @input="errorList = []">
@@ -27,7 +28,7 @@ export default {
     computed: {
         value: {
             get: function () {
-                return this.modelValue;
+                return this.modelValue || this.inputTrueValue == this.modelValue ? true : false;
             },
             set: function (value) {
                 if (value == true && this.inputTrueValue != null) {
@@ -51,8 +52,8 @@ export default {
     props: {
         modelValue: { type: [String, Number, Boolean], default: '' },
         label: { type: String, default: '' },
-        inputTrueValue: { type: String, default: null },
-        inputFalseValue: { type: String, default: null },
+        inputTrueValue: { type: [String, Number, Boolean], default: null },
+        inputFalseValue: { type: [String, Number, Boolean], default: null },
         inputClass: { type: String, default: '' },
         errors: { type: [Array, Object], default: [] },
         disabled: { type: Boolean, default: false },

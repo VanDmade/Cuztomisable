@@ -4,12 +4,17 @@ namespace VanDmade\Cuztomisable;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Router;
+use VanDmade\Cuztomisable\Middleware\CheckPermission;
 
 class CuztomisableServiceProvider extends ServiceProvider
 {
 
     public function boot(): void
     {
+        $router = $this->app->make(Router::class);
+        // Register route middleware alias
+        $router->aliasMiddleware('permission', CheckPermission::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Route::prefix('api')
             ->middleware(['api', Middleware\TokenFromCookie::class])

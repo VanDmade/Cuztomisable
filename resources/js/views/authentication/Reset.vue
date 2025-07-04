@@ -1,11 +1,16 @@
 <template>
     <div id="login-page" class="page">
         <div class="card ma-2 pa-6">
-            <h3 class="card-title">Reset Password</h3>
-            <h6 class="card-subtitle mb-2 text-muted">
-                <span v-if="!verifiedCode">The code was sent to your email address</span>
-                <span v-else>Enter your new password</span>
-            </h6>
+            <div class="d-flex">
+                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <div class="cz-title">
+                    <h3 class="card-title">Reset Password</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <span v-if="!verifiedCode">The code was sent to your email address</span>
+                        <span v-else>Enter your new password</span>
+                    </h6>
+                </div>
+            </div>
             <fm-form v-if="!verifiedCode" ref="codeForm" class="mt-4" :form="form" @save="verify(true)">
                 <fm-input
                     label="Code"
@@ -13,7 +18,7 @@
                     type="input"
                     :errors="errors.code"
                     :disabled="submitting" />
-                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="links" @click="send">Click here</a></p>
+                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="button--link" @click="send">Click here</a></p>
                 <p v-else-if="resending" class="mt-3">Resending...</p>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
@@ -33,7 +38,7 @@
             </fm-form>
         </div>
         <div v-if="!verifiedCode" class="text-center">
-            <router-link :to="{ name: 'login' }" class="links">Remember password?</router-link>
+            <router-link :to="{ name: 'login' }" class="button--link">Remember password?</router-link>
         </div>
     </div>
 </template>

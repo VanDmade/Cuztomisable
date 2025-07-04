@@ -26,8 +26,10 @@ class RoleRequest extends FormRequest
         $id = $this->route('id') ?? null;
         return [
             'name' => 'required',
-            'slug' => 'required|unique:roles,slug,'.$id,
+            'slug' => 'required|unique:roles,slug,'.$id.',id',
             'description' => 'nullable',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'nullable|exists:permissions,id',
         ];
     }
 }

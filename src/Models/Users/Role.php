@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use VanDmade\Cuztomisable\Models\Roles\Role;
+use VanDmade\Cuztomisable\Models\Roles;
 use VanDmade\Cuztomisable\Models\Users\User;
 use Auth;
 
@@ -55,7 +55,7 @@ class Role extends Model
 
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id');
+        return $this->belongsTo(Roles\Role::class, 'role_id');
     }
 
     public function createdBy()

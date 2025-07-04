@@ -25,6 +25,9 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: #000 !important;
 }
+.cz-authentication-logo {
+    height: 60px;
+}
 #portal-layout {
     .navbar-toggler {
         border-color: white;
@@ -36,10 +39,10 @@ input:-webkit-autofill {
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
     }
     .dropdown-item.active {
-        background-color: $color-primary !important;
+        background-color: $color-secondary !important;
     }
     .dropdown-item:focus {
-        background-color: lighten($color-primary, 5%) !important;
+        background-color: lighten($color-secondary, 5%) !important;
     }
     .dropdown-divider {
         border-top: 1px solid var(--bs-dropdown-divider-bg) !important;
@@ -47,6 +50,10 @@ input:-webkit-autofill {
     .navbar-brand, .nav-link {
         color: $color-white !important;
     }
+}
+.d-flex {
+    display: flex;
+    .flex-1 { flex: 1; }
 }
 .text-center { text-align: center; }
 .text-left { text-align: left; }
@@ -201,7 +208,8 @@ input:-webkit-autofill {
     text-align: center;
     &--primary    { background-color: $color-primary; }
     &--secondary  { background-color: $color-secondary; }
-    &--accent     { background-color: $color-accent; color: #454545; }
+    &--ternary    { background-color: $color-ternary; color: $color-text; }
+    &--accent     { background-color: $color-accent; }
     &--light      { background-color: $color-light; color: $color-text; }
     &--danger     { background-color: $color-danger; }
     &--success    { background-color: $color-success; color: $color-text; }
@@ -221,6 +229,7 @@ input:-webkit-autofill {
 .bg {
     &--primary    { background-color: $color-primary; }
     &--secondary  { background-color: $color-secondary; }
+    &--ternary    { background-color: $color-ternary; color: $color-text; }
     &--accent     { background-color: $color-accent; color: $color-text; }
     &--light      { background-color: $color-light; color: $color-text; }
     &--danger     { background-color: $color-danger; }
@@ -238,6 +247,7 @@ input:-webkit-autofill {
     &--success    { color: $color-success; }
     &--info       { color: $color-info; }
     &--warning    { color: $color-warning; }
+    &--link       { color: $color-link; }
 }
 .note {
     display: block;

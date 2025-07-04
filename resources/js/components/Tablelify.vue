@@ -58,7 +58,7 @@
                 <button type="button"
                     :disabled="page <= 1 || disabled"
                     @click="page--; query();"
-                    class="button button--secondary mr-1 tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_back</i></button>
+                    class="button button--ternary mr-1 tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_back</i></button>
                 <span v-for="number in totalPages">
                     <button type="button"
                         v-if="showButton(number)"
@@ -72,7 +72,7 @@
                 <button type="button"
                     :disabled="page == totalPages || totalPages == 0 || disabled"
                     @click="page++; query();"
-                    class="button button--secondary tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_forward</i></button>
+                    class="button button--ternary tablelify-button tablelify-pagination-button"><i style="font-size: 16px;" class="material-icons">arrow_forward</i></button>
             </div>
         </div>
     </div>

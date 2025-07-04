@@ -72,7 +72,7 @@
             <hr v-if="breakpoint('sm')" class="mb-6">
             <div class="form-buttons" :class="{ 'mb-6': !breakpoint('sm'), 'mb-2': breakpoint('sm') }">
                 <button type="submit" class="button button--primary" :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }" :disabled="submitting">Save Changes</button>
-                <button type="button" class="button button--danger" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
+                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
         </fm-form>
         <fm-modal ref="mfaModal" v-on:open="$refs['user-mfa-form'].reset()" modal-width="340px">

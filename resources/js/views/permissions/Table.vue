@@ -24,7 +24,7 @@
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
                                 @click="form(item.id)"
-                                class="button button--primary"
+                                class="button button--secondary"
                                 :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Edit</button>
                         </div>
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
@@ -81,8 +81,30 @@ export default {
     },
     methods: {
         form: function(id = null) {
-            this.id = id;
+            // Fixes the issue where the form doesn't reload after closing
+            if (id == this.id) {
+                this.id = null;
+            }
+            setTimeout(() => { this.id = id; }, 50);
             this.$refs['permissionModal'].open();
+        },
+        remove: function() {
+            this.submitting = true;
+            axios.delete(`/permission/${this.id}`).then(({ data }) => {
+                this.$emit('message', { text: data.message });
+                this.$refs.permissionTable.query();
+            }).catch(({ response }) => {
+                if (response?.data?.message) {
+                    this.$emit('message', { text: response.data.message, error: true });
+                }
+            }).finally(() => {
+                setTimeout(() => {
+                    this.$refs.deletePermissionModal.close();
+                }, 250);
+                setTimeout(() => {
+                    this.submitting = false;
+                }, 500);
+            });
         },
         setMessage: function(message) {
             this.$emit('message', message);

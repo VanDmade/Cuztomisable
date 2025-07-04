@@ -50,7 +50,7 @@ export default {
         modelValue: { type: [String, Number], default: '' },
         label: { type: String, default: null },
         placeholder: { type: String, default: '' },
-        rows: { type: Number, default: 2 },
+        rows: { type: [Number, String], default: 2 },
         maxlength: { type: Number, default: null },
         inputClass: { type: String, default: '' },
         errors: { type: [Array, Object], default: [] },

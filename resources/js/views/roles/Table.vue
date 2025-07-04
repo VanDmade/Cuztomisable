@@ -24,7 +24,7 @@
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
                                 @click="form(item.id)"
-                                class="button button--primary"
+                                class="button button--secondary"
                                 :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Edit</button>
                         </div>
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
@@ -46,7 +46,7 @@
                 v-on:redraw="$refs.roleTable.query()" />
         </fm-modal>
         <fm-modal ref="deleteRoleModal" modal-width="380px">
-            <h3 class="card-title">Delete User?</h3>
+            <h3 class="card-title">Delete Role?</h3>
             <h6 class="card-subtitle mb-6 text-muted">About to delete this role. Any users still assigned to it are about to feel very unauthorized.</h6>
             <div class="row">
                 <div class="col col-md-6 col-12">
@@ -82,8 +82,30 @@ export default {
     },
     methods: {
         form: function(id = null) {
-            this.id = id;
+            // Fixes the issue where the form doesn't reload after closing
+            if (id == this.id) {
+                this.id = null;
+            }
+            setTimeout(() => { this.id = id; }, 50);
             this.$refs['roleModal'].open();
+        },
+        remove: function() {
+            this.submitting = true;
+            axios.delete(`/role/${this.id}`).then(({ data }) => {
+                this.$emit('message', { text: data.message });
+                this.$refs.roleTable.query();
+            }).catch(({ response }) => {
+                if (response?.data?.message) {
+                    this.$emit('message', { text: response.data.message, error: true });
+                }
+            }).finally(() => {
+                setTimeout(() => {
+                    this.$refs.deleteRoleModal.close();
+                }, 250);
+                setTimeout(() => {
+                    this.submitting = false;
+                }, 500);
+            });
         },
         setMessage: function(message) {
             this.$emit('message', message);

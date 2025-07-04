@@ -10,7 +10,9 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Image;
+use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 use VanDmade\Cuztomisable\Models\Phone;
+use VanDmade\Cuztomisable\Models\Roles;
 use Auth;
 use Exception;
 
@@ -170,9 +172,42 @@ class User extends Authenticatable
         }
     }
 
+    public function roles()
+    {
+        return $this->hasManyThrough(
+            Roles\Role::class,
+            Role::class,
+            'user_id',
+            'id',
+            'id',
+            'role_id'
+        );
+    }
+
     public function permissions()
     {
-        
+        return $this->hasManyThrough(
+            PermissionModel::class,
+            Permission::class,
+            'user_id',
+            'id',
+            'id',
+            'permission_id'
+        );
+    }
+
+    public function getAllPermissions()
+    {
+        // Permissions from roles
+        $rolePermissions = $this->roles()->with('permissions')->get()
+            ->pluck('permissions')
+            ->flatten();
+        return $this->permissions->merge($rolePermissions)->unique('id');
+    }
+
+    public function hasPermission($slug)
+    {
+        return $this->getAllPermissions()->contains('slug', $slug);
     }
 
     public function profile()

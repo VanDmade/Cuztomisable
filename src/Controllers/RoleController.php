@@ -140,7 +140,7 @@ class RoleController extends Controller
     public function list()
     {
         return $this->success([
-            'list' => Roles\Role::select('id', 'name', 'slug as subtitle')->get(),
+            'list' => Roles\Role::select('id', 'name', 'description as subtitle')->get(),
         ]);
     }
 

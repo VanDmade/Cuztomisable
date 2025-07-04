@@ -1,8 +1,13 @@
 <template>
     <div id="forgot-page" class="page">
         <div class="card ma-2 pa-6">
-            <h3 class="card-title">Forgot Password</h3>
-            <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
+            <div class="d-flex">
+                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <div class="cz-title">
+                    <h3 class="card-title">Forgot Password</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
+                </div>
+            </div>
             <fm-form ref="forgotForm" class="mt-4" :form="form"
                 @save="save">
                 <fm-input
@@ -11,7 +16,7 @@
                     type="input"
                     :errors="errors.username"
                     :disabled="submitting" />
-                <router-link :to="{ name: 'login' }" class="links">Remember password?</router-link>
+                <router-link :to="{ name: 'login' }" class="button--link">Remember password?</router-link>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Send</button>
                 </div>

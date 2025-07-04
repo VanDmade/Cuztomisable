@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'unauthorized' => 'Access denied! This area is off-limits unless you’ve got superpowers (or permissions).',
     'note_to_nosey' => 'All of these fields are validated in the server, these fields are just for ease of use within the GUI...',
     'form' => [
         'required' => 'This field is required.',

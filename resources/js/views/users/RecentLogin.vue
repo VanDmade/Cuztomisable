@@ -18,13 +18,13 @@
                         v-if="typeof(forgetting[id]) == 'undefined' || !forgetting[id].active"
                         @click="setup('forget', id)"
                         class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Forget</button>
+                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Forget</button>
                     <button type="button"
                         v-else-if="forgetting[id].active ?? false"
                         @click="proceed('forget', id)"
                         :disabled="submitting[id] ?? false"
                         class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Remove</button>
+                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
                 </div>
                 <div v-else class="tablelify-data" :class="{ 'd-flex': !breakpoint('sm') }">
                     <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">No</div>
@@ -32,13 +32,13 @@
                         v-if="typeof(deleting[id]) == 'undefined' || !deleting[id].active"
                         @click="setup('delete', id)"
                         class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Delete</button>
+                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Delete</button>
                     <button type="button"
                         v-else-if="deleting[id].active ?? false"
                         @click="proceed('delete', id)"
                         :disabled="submitting[id] ?? false"
                         class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button-small mr-1': !breakpoint('sm') }">Remove</button>
+                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
                 </div>
             </template>
         </tablelify>

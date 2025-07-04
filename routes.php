@@ -66,20 +66,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/ip/{id}/forget', 'forget');
         Route::delete('/ip/{id}', 'toggleDelete');
     });
-    Route::controller(RoleController::class)->group(function () {
-        Route::get('/role/{id}', 'get');
-        Route::get('/roles', 'table');
-        Route::post('/role/{id?}', 'save');
-        Route::get('/list/roles', 'list');
-        Route::delete('/role/{id}', 'toggleDelete');
-        Route::delete('/role/{id}/permission/{permission}', 'removePermission');
-    });
-    Route::controller(PermissionController::class)->group(function () {
-        Route::get('/permission/{id}', 'get');
-        Route::get('/permissions', 'table');
-        Route::post('/permission/{id?}', 'save');
-        Route::get('/list/permissions', 'list');
-        Route::get('/list/role/{id}/permissions', 'list');
-        Route::delete('/permission/{id}', 'toggleDelete');
+    Route::middleware(['permission:view-permissions'])->group(function () {
+        Route::controller(RoleController::class)->group(function () {
+            Route::get('/role/{id}', 'get');
+            Route::get('/roles', 'table');
+            Route::post('/role/{id?}', 'save');
+            Route::get('/list/roles', 'list');
+            Route::delete('/role/{id}', 'toggleDelete');
+            Route::delete('/role/{id}/permission/{permission}', 'removePermission');
+        });
+        Route::controller(PermissionController::class)->group(function () {
+            Route::get('/permission/{id}', 'get');
+            Route::get('/permissions', 'table');
+            Route::post('/permission/{id?}', 'save');
+            Route::get('/list/permissions', 'list');
+            Route::get('/list/role/{id}/permissions', 'list');
+            Route::delete('/permission/{id}', 'toggleDelete');
+        });
     });
 });

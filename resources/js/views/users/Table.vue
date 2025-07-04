@@ -21,7 +21,7 @@
                         <div>{{ name }}</div>
                         <p class="note mb-0">
                             <i v-if="email_verified_at != null" class="material-icons mr-1 color--success">verified</i>
-                            <a :href="'mailto:'+email">{{ email }}</a>
+                            <a class="color--link" :href="'mailto:'+email">{{ email }}</a>
                         </p>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
                                 @click="edit(item.id)"
-                                class="button button--primary"
+                                class="button button--secondary"
                                 :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Edit</button>
                         </div>
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col col-md-6 col-12">
                     <button type="button"
-                        class="button button--primary button--block mb-0"
+                        class="button button--danger button--block mb-0"
                         :disabled="submitting"
                         @click="remove">Yes</button>
                 </div>

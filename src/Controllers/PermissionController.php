@@ -108,7 +108,7 @@ class PermissionController extends Controller
                     ->get()
                     ->pluck('permission_id');
             }
-            $list = Permission::select('id', 'name', 'slug as subtitle')
+            $list = Permission::select('id', 'name', 'description as subtitle')
                 ->where(function($query) use ($role, $permissions) {
                     if (!is_null($role)) {
                         $query->whereIn('id', $permissions);

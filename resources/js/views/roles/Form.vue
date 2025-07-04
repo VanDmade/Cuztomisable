@@ -22,6 +22,25 @@
                 :errors="errors.description"
                 :disabled="submitting"
                 rows="5" />
+            <hr class="mt-4 mb-4">
+            <h5 class="card-title" :class="{ 'mb-3': permissions.length != 0 }">Permission</h5>
+            <h6 v-if="permissions.length == 0" class="card-subtitle mb-6 text-muted">The system doesn't seem to have any permissions yet.</h6>
+            <div v-for="(permission, index) in permissions">
+                <div class="d-flex">
+                    <fm-checkbox
+                        :label="permission.name"
+                        v-model="form.permissions[permission.id.toString()]"
+                        type="checkbox"
+                        :disabled="submitting"
+                        :input-true-value="permission.id"
+                        :input-false-value="false"
+                        class="flex-1"
+                        hide-details />
+                    <i v-if="minimized(permission.id)" @click="minimize[permission.id] = false" class="cursor--pointer material-icons">expand_less</i>
+                    <i v-else @click="minimize[permission.id] = true" class="cursor--pointer material-icons">expand_more</i>
+                </div>
+                <p v-if="minimized(permission.id)" class="note">{{ permission.subtitle }}</p>
+            </div>
             <div class="row mt-4">
                 <div class="col col-md-6 col-12">
                     <button type="submit"
@@ -33,7 +52,7 @@
                 <div class="col col-md-6 col-12">
                     <button type="button"
                         @click="close"
-                        class="button button--danger button--block mb-0"
+                        class="button button--secondary button--block mb-0"
                         :disabled="submitting">Cancel</button>
                 </div>
             </div>
@@ -47,14 +66,30 @@ export default {
             loading: false,
             submitting: false,
             errors: [],
-            form: {},
+            permissions: [],
+            minimize: [],
+            form: {
+                permissions: {},
+            },
         }
+    },
+    created: function() {
+        this.getPermissions();
     },
     methods: {
         get: function() {
             this.loading = true;
             axios.get(`/role/${this.id}`).then(({ data }) => {
+                const assignedPermissions = new Set(data.role.permissions.map(p => p.id));
+                delete data.role.permissions;
                 this.form = data.role;
+                const permissions = {};
+                for (const { id } of this.permissions) {
+                    if (assignedPermissions.has(id)) {
+                        permissions[id] = id;
+                    }
+                }
+                this.form.permissions = permissions;
             }).catch(({ response }) => {
                 if (response?.data?.message) {
                     this.$emit('message', { text: response.data.message, error: true });
@@ -70,9 +105,16 @@ export default {
             formData.append('name', this.form.name ?? '');
             formData.append('slug', this.form.slug ?? '');
             formData.append('description', this.form.description ?? '');
+            let keys = Object.keys(this.form.permissions);
+            let counter = 0;
+            for (let i = 0; i < keys.length; i++) {
+                if (this.form.permissions[keys[i]] !== false) {
+                    formData.append(`permissions[${counter++}]`, this.form.permissions[keys[i]]);
+                }
+            }
             this.submitting = true;
             let id = this.id != null ? `/${this.id}` : '';
-            axios.post(`/role${id}`, formData).then(({ data }) => {
+            axios.post(`/role${id}`, this.cleanFormData(formData)).then(({ data }) => {
                 this.$emit('message', { text: data.message });
                 this.$emit('redraw');
                 setTimeout(() => {
@@ -91,13 +133,21 @@ export default {
                 }, 1500);
             });
         },
+        getPermissions: function() {
+            axios.get('/list/permissions').then(({ data }) => {
+                this.permissions = data.list;
+            });
+        },
         close: function() {
             this.$emit('close');
             setTimeout(() => {
                 this.errors = [];
-                this.form = {};
+                this.form = { permissions: {} };
             }, 250);
         },
+        minimized: function(id) {
+            return typeof(this.minimize[id]) != 'undefined' && this.minimize[id] ? true : false;
+        }
     },
     watch: {
         id: {
@@ -105,7 +155,7 @@ export default {
             handler: function(id) {
                 this.loading = true;
                 this.errors = [];
-                this.form = {};
+                this.form = { permissions: {} };
                 if (id != '' && id != null) {
                     this.get();
                 } else {

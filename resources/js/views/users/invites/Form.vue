@@ -40,14 +40,14 @@
                             :disabled="submitting">Invite</button>
                         <button type="submit"
                             @click="save(true)"
-                            class="button button--secondary button--block mb-0"
+                            class="button button--ternary button--block mb-0"
                             :class="{ 'mb-2': breakpoint('sm') }"
                             :disabled="submitting">Another</button>
                     </div>
                 </div>
                 <div class="col col-md-4 col-12">
                     <button type="button"
-                        class="button button--danger button--block mb-0"
+                        class="button button--secondary button--block mb-0"
                         :disabled="submitting"
                         @click="close">Nevermind</button>
                 </div>

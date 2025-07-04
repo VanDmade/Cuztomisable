@@ -1,6 +1,6 @@
 <template>
     <div id="portal-layout" class="layout">
-        <nav class="navbar navbar-expand-lg bg--secondary mb-6 shadow">
+        <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow">
             <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
                 <router-link class="navbar-brand" :to="{ name: 'portal' }">Cuztomisable</router-link>
                 <button class="navbar-toggler"

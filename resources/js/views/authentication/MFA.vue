@@ -1,11 +1,16 @@
 <template>
     <div id="mfa-page" class="page">
         <div class="card ma-2 pa-6">
-            <h3 class="card-title">Multi-Factor Authentication</h3>
-            <h6 class="card-subtitle mb-2 text-muted">
-                <span v-if="!sent">Enter the email address associated with your account.</span>
-                <span v-else>The code was sent! Please enter it below once you receive it.</span>
-            </h6>
+            <div class="d-flex">
+                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <div class="cz-title">
+                    <h3 class="card-title">Multi-Factor Authentication</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        <span v-if="!sent">Enter the email address associated with your account.</span>
+                        <span v-else>The code was sent! Please enter it below once you receive it.</span>
+                    </h6>
+                </div>
+            </div>
             <fm-form v-if="!sent" ref="mfaSelectForm" class="mt-4" :form="form" @save="send">
                 <div class="mfa-email" :class="send_via.phone != null ? 'mb-3' : 'mb-6'" v-if="send_via.email != null">
                     <fm-checkbox
@@ -41,7 +46,7 @@
                     :errors="errors.remember"
                     hide-details
                     :disabled="submitting" />
-                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="links" @click="send">Click here</a></p>
+                <p v-if="resend" class="login-link mt-3">Haven't received the code? <a href="#" class="button--link" @click="send">Click here</a></p>
                 <p v-else-if="resending" class="mt-3">Resending...</p>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
