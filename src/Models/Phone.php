@@ -57,9 +57,7 @@ class Phone extends Model
     public function number(): Attribute
     {
         return Attribute::make(
-            set: fn (string $value) => str_replace(' ', '',
-                str_replace('-', '',
-                    str_replace('_', '', $value)))
+            set: fn (string $value) => cleanPhone($value)
         );
     }
 

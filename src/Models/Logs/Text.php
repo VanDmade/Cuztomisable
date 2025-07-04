@@ -8,19 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
-class Email extends Model
+class Text extends Model
 {
 
     use HasFactory;
 
-    protected $table = 'email_logs';
+    protected $table = 'text_logs';
 
     protected $fillable = [
-        'to',
-        'cc',
-        'bcc',
-        'from',
-        'subject',
+        'country_code',
+        'number',
+        'message',
         'parameters',
         'created_by',
     ];
@@ -39,30 +37,6 @@ class Email extends Model
                 $model->created_by = Auth::user()->id;
             }
         });
-    }
-
-    public function to(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string|null $value) => json_decode($value) ? json_decode($value, true) : [],
-            set: fn (string|array $value) => !is_null($value) ? (is_array($value) ? json_encode($value) : $value) : null
-        );
-    }
-
-    public function cc(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string|null $value) => json_decode($value) ? json_decode($value, true) : [],
-            set: fn (string|array $value) => !is_null($value) ? (is_array($value) ? json_encode($value) : $value) : null
-        );
-    }
-
-    public function bcc(): Attribute
-    {
-        return Attribute::make(
-            get: fn (string|null $value) => json_decode($value) ? json_decode($value, true) : [],
-            set: fn (string|array $value) => !is_null($value) ? (is_array($value) ? json_encode($value) : $value) : null
-        );
     }
 
     public function parameters(): Attribute

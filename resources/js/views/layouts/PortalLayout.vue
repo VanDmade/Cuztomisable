@@ -2,7 +2,7 @@
     <div id="portal-layout" class="layout">
         <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow">
             <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
-                <router-link class="navbar-brand" :to="{ name: 'portal' }">Cuztomisable</router-link>
+                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/banner-white.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
