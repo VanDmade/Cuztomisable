@@ -137,10 +137,22 @@ class RoleController extends Controller
         }
     }
 
-    public function list()
+    public function list(Request $request)
     {
+        $includePermissions = $request->has('include_permissions');
+        $roles = Roles\Role::select('id', 'name', 'description as subtitle');
+        if ($includePermissions) {
+            $roles->with('permissionLinks:id,permission_id,role_id');
+        }
+        $roles = $roles->get();
+        if ($includePermissions) {
+            $roles->each(function ($role) {
+                $role->permission_list = $role->permissionLinks->pluck('permission_id');
+                unset($role->permissionLinks);
+            });
+        }
         return $this->success([
-            'list' => Roles\Role::select('id', 'name', 'description as subtitle')->get(),
+            'list' => $roles,
         ]);
     }
 

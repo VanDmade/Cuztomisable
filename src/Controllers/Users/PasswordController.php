@@ -5,7 +5,7 @@ namespace VanDmade\Cuztomisable\Controllers\Users;
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Requests\Users\Passwords\ChangeRequest;
-use VanDmade\Cuztomisable\Models\Users;
+use VanDmade\Cuztomisable\Models\Users as UserModels;
 use VanDmade\Cuztomisable\Mail\Users\Passwords\Temporary as TemporaryMail;
 use VanDmade\Cuztomisable\Mail\Users\Passwords\Changed as ChangedMail;
 use Auth;
@@ -30,7 +30,7 @@ class PasswordController extends Controller
             // Prevents the user from user previously used passwords
             $user->canUsePassword($data['new']);
             // Logs the password change
-            Users\Passwords\Password::create([
+            UserModels\Passwords\Password::create([
                 'user_id' => $user->id,
                 'password' => $password = Hash::make($data['new']),
             ]);
@@ -50,7 +50,7 @@ class PasswordController extends Controller
     public function send($id)
     {
         try {
-            $user = Users\User::where('id', '=', $id)->first();
+            $user = UserModels\User::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }

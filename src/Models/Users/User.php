@@ -184,6 +184,11 @@ class User extends Authenticatable
         );
     }
 
+    public function roleLinks()
+    {
+        return $this->hasMany(Role::class, 'user_id');
+    }
+
     public function permissions()
     {
         return $this->hasManyThrough(
@@ -194,6 +199,11 @@ class User extends Authenticatable
             'id',
             'permission_id'
         );
+    }
+
+    public function permissionLinks()
+    {
+        return $this->hasMany(Permission::class, 'user_id');
     }
 
     public function getAllPermissions()

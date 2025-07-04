@@ -3,8 +3,10 @@
         <fm-loading :loading="loading || $store.state.loading"></fm-loading>
         <fm-form v-if="!loading" ref="userForm" :form="form" @save="save">
             <div class="row mb-4">
-                <div class="col-lg-9 col-md-8 col-sm-12" :class="{ 'mb-6': breakpoint('sm') }">
-                    <div class="card pa-6">
+                <div class="col-lg-9 col-md-8 col-sm-12">
+                    <div class="card pa-6 mb-6">
+                        <h5 class="card-title">User Details</h5>
+                        <h6 class="card-subtitle mb-6 text-muted">Basic information and account settings.</h6>
                         <fm-input
                             label="Name"
                             v-model="form.name"
@@ -31,8 +33,11 @@
                             :disabled="submitting"
                             is-mobile
                             default />
+                    </div>
+                    <div v-if="$cuztomisable.registration.address !== false" class="card pa-6" :class="{ 'mb-6': breakpoint('sm') }">
+                        <h5 class="card-title">Address</h5>
+                        <h6 class="card-subtitle mb-6 text-muted">Primary residence and contact location.</h6>
                         <fm-address
-                            v-if="$cuztomisable.registration.address !== false"
                             label="Address"
                             v-model="form.address"
                             :errors="errors.address"
@@ -53,17 +58,22 @@
                     <div class="form-buttons">
                         <button
                             type="button"
-                            class="button button--accent button--block mb-2"
+                            class="button button--secondary button--block mb-2"
                             @click="$refs.mfaModal.open();"
                             :disabled="submitting">Multi-Factor Auth</button>
                         <button
                             type="button"
-                            class="button button--accent button--block mb-2"
+                            class="button button--secondary button--block mb-2"
+                            @click="$refs.securityModal.open();"
+                            :disabled="submitting">Roles & Permissions</button>
+                        <button
+                            type="button"
+                            class="button button--secondary button--block mb-2"
                             @click="$refs.passwordModal.open();"
                             :disabled="submitting">Change Password</button>
                         <button
                             type="button"
-                            class="button button--accent button--block mb-0"
+                            class="button button--secondary button--block mb-0"
                             @click="$refs.recentLoginModal.open();"
                             :disabled="submitting">Recent Logins</button>
                     </div>
@@ -79,8 +89,15 @@
             <component
                 is="user-mfa-form"
                 ref="user-mfa-form"
-                v-model="form.mfa"
                 v-on:close="$refs.mfaModal.close();"
+                v-on:message="message"
+                :user="form?.id"></component>
+        </fm-modal>
+        <fm-modal ref="securityModal" v-on:open="$refs['user-security-form'].reset()" modal-width="600px">
+            <component
+                is="user-security-form"
+                ref="user-security-form"
+                v-on:close="$refs.securityModal.close();"
                 v-on:message="message"
                 :user="form?.id"></component>
         </fm-modal>
@@ -110,6 +127,7 @@ import { ref, computed } from 'vue';
 import Password from './Password.vue';
 import MFA from './MFA.vue';
 import RecentLogin from './RecentLogin.vue';
+import Security from './Security.vue';
 export default {
     data: function() {
         return {
@@ -225,6 +243,7 @@ export default {
     },
     components: {
         'user-login-form': RecentLogin,
+        'user-security-form': Security,
         'user-mfa-form': MFA,
         'user-password-form': Password,
     }

@@ -100,6 +100,15 @@ app.mixin({
             const formatter = new Intl.DateTimeFormat(type, { ...defaultOptions, ...options });
             return formatter.format(date);
         },
+        appendIndexedValues: function(formData, list, field) {
+            let index = 0;
+            Object.entries(list).forEach(([key, value]) => {
+                if (value !== false) {
+                    formData.append(`${field}[${index++}]`, key);
+                }
+            });
+            return formData;
+        },
         cleanFormData: function(formData) {
             const cleanedFormData = new FormData();
             for (const [key, value] of formData.entries()) {

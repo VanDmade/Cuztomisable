@@ -4,6 +4,7 @@ use VanDmade\Cuztomisable\Controllers\SettingsController;
 use VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Controllers\RoleController;
+use VanDmade\Cuztomisable\Controllers\Users\AccessController;
 use VanDmade\Cuztomisable\Controllers\Users\UserController;
 use VanDmade\Cuztomisable\Controllers\Users\PasswordController;
 use VanDmade\Cuztomisable\Controllers\Users\IpAddressController;
@@ -39,6 +40,10 @@ Route::controller(FormoraController::class)->group(function () {
     Route::post('/formora/{page}', 'save');
 });
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::controller(AccessController::class)->group(function () {
+        Route::get('/user/{id}/access', 'get');
+        Route::post('/user/{id}/access', 'save');
+    });
     Route::controller(UserController::class)->group(function () {
         Route::get('/me', 'get');
         Route::get('/list/users', 'list');

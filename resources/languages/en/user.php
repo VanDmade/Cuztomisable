@@ -8,6 +8,9 @@ return [
             'temporary' => 'Your Temporary Password Has Been Issued',
         ],
     ],
+    'access' => [
+        'saved' => 'You have saved this user\'s access.',
+    ],
     'saved' => 'You have saved this user.',
     'deleted' => 'The user was deleted.',
     'undo' => 'The user was added backed into the system.',

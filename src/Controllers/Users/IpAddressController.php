@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
-use VanDmade\Cuztomisable\Models\Users;
+use VanDmade\Cuztomisable\Models\UserModels;
 use Auth;
 use DB;
 use Exception;
@@ -17,7 +17,7 @@ class IpAddressController extends Controller
     public function get($id)
     {
         try {
-            $ip = (!Auth::user()->admin ? Users\IpAddress() : Auth::user()->ipAddresses())
+            $ip = (!Auth::user()->admin ? UserModels\IpAddress() : Auth::user()->ipAddresses())
                 ->where('id', '=', $id)
                 ->withTrashed()
                 ->first();
@@ -36,7 +36,7 @@ class IpAddressController extends Controller
     {
         try {
             $data = $request->validated();
-            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : Users\User::where('id', '=', $id)->first();
+            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->first();
             $query = $user->ipAddresses()
                 ->select('user_ip_addresses.id', 'user_ip_addresses.ip_address',
                     'user_ip_addresses.last_used_at', 'user_ip_addresses.remember_until',
@@ -58,7 +58,7 @@ class IpAddressController extends Controller
     public function forget($id)
     {
         try {
-            $ip = (!Auth::user()->admin ? Users\IpAddress() : Auth::user()->ipAddresses())
+            $ip = (!Auth::user()->admin ? UserModels\IpAddress() : Auth::user()->ipAddresses())
                 ->where('id', '=', $id)
                 ->withTrashed()
                 ->first();
@@ -83,7 +83,7 @@ class IpAddressController extends Controller
     public function toggleDelete($id)
     {
         try {
-            $ip = (!Auth::user()->admin ? Users\IpAddress() : Auth::user()->ipAddresses())
+            $ip = (!Auth::user()->admin ? UserModels\IpAddress() : Auth::user()->ipAddresses())
                 ->where('id', '=', $id)
                 ->withTrashed()
                 ->first();
