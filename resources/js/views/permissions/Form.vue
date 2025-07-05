@@ -106,7 +106,6 @@ export default {
                 this.loading = true;
                 this.errors = [];
                 this.form = {};
-                console.log(id);
                 if (id != '' && id != null) {
                     this.get();
                 } else {

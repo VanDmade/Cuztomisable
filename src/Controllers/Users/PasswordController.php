@@ -20,12 +20,18 @@ class PasswordController extends Controller
         try {
             $data = $request->validated();
             $user = Auth::user();
-            // Checks that the user can change their password. Otherwise, it'll error
-            $user->canChangePassword();
-            // Validate the current password
-            if (!Hash::check($data['current'], $user->password)) {
-                $user->addAttempt();
-                throw new Exception(__('cuztomisable.user.errors.incorrect_password'), 404);
+            // Determines if the user is doing a forced password change or just altering it themselves
+            if (!isset($data['force']) || $data['force'] === false) {
+                // Checks that the user can change their password. Otherwise, it'll error
+                $user->canChangePassword();
+                // Validate the current password
+                if (!Hash::check($data['current'], $user->password)) {
+                    $user->addAttempt();
+                    throw new Exception(__('cuztomisable/user.errors.incorrect_password'), 404);
+                }
+            } elseif (!$user->change_password) {
+                // Checks to make sure that the user is set up to change their password by force
+                throw new Exception(__('cuztomisable/user.errors.no_force_change_allowed'), 403);
             }
             // Prevents the user from user previously used passwords
             $user->canUsePassword($data['new']);
@@ -36,11 +42,14 @@ class PasswordController extends Controller
             ]);
             // Updates the user's password
             $user->password = $password;
+            // Clears the forced change
+            $user->change_password = false;
+            $user->change_password_sent_at = null;
             $user->save();
             // Sends the notification email about the password change
             $this->email(new ChangedMail($user), $user->email);
             return $this->success([
-                'message' => $message ?? '',
+                'message' => __('cuztomisable/user.password.changed') ?? '',
             ]);
         } catch (Exception $error) {
             return $this->error($error);

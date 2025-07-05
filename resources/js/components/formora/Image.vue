@@ -85,7 +85,6 @@ export default {
                 }
             };
             tempImg.onerror = () => {
-                console.log('Failed to load the image.');
                 URL.revokeObjectURL(imageUrl);
             };
             tempImg.src = imageUrl;

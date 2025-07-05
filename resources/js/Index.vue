@@ -27,11 +27,17 @@
                 @click="cancelLogout()"
                 class="button button--primary button--block">I'm Still Here</button>
         </fm-modal>
+        <fm-modal ref="changePasswordModal" modal-width="450px" static>
+            <force-change-password-form
+                v-on:message="setMessage"
+                v-on:close="$refs['changePasswordModal'].close()"/>
+        </fm-modal>
     </div>
 </template>
 <script>
 import LoginLayout from './views/layouts/LoginLayout.vue';
 import PortalLayout from './views/layouts/PortalLayout.vue';
+import ForceChangePasswordForm from './components/ChangePassword.vue';
 export default {
     data: function() {
         return {
@@ -65,6 +71,9 @@ export default {
         } else if (!this.$store.state.authenticated &&
             this.$route.meta.require_authentication) {
             this.$router.push({ name: 'login' });
+        }
+        if (this.$store.state.change_password) {
+            this.$refs['changePasswordModal'].open();
         }
     },
     methods: {
@@ -172,11 +181,21 @@ export default {
                 }
             },
             deep: true,
+        },
+        '$store.state.change_password': {
+            immediate: true,
+            handler: function(value) {
+                if (value) {
+                    this.$refs['changePasswordModal'].open();
+                }
+            },
+            deep: true,
         }
     },
     components: {
         'login-layout': LoginLayout,
         'portal-layout': PortalLayout,
+        'force-change-password-form': ForceChangePasswordForm,
     }
 }
 </script>

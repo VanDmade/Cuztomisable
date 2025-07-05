@@ -71,8 +71,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         });
     });
     Route::controller(PasswordController::class)->group(function () {
-        Route::post('/user/change/password', 'change')
-            ->middleware('permission:change-user-passwords');
+        Route::post('/user/change/password', 'change');
         Route::post('/user/{id}/send/password', 'send')
             ->middleware('permission:reset-user-passwords');
     });

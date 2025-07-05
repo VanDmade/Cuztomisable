@@ -21,9 +21,15 @@ class ChangeRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $params = [
             'new' => 'required',
             'current' => 'required',
         ];
+        if ($this->has('force')) {
+            unset($params['current']);
+            $this->merge(['force' => true]);
+            $params['force'] = 'required|boolean';
+        }
+        return $params;
     }
 }

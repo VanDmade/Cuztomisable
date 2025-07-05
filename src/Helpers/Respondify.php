@@ -47,7 +47,6 @@ class Respondify
                 $responseCode = config('respondify.errors.sql_error_code', 500);
             }
         }
-        $responseCode = config('respondify.errors.code', 500);
         // Logs the errors of the site
         if (config('respondify.errors.log', false) && !is_null($model = config('respondify.errors.model', null))) {
             $model = new $model();

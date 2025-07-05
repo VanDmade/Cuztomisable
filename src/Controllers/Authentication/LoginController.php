@@ -83,6 +83,7 @@ class LoginController extends Controller
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
                 'permissions' => $user->permissionSlugs(),
+                'change_password' => $user->change_password,
             ]);
             return !$ipAddress->requireMfa() ? $response->withCookie($user->generateAuthCookie()) : $response;
         } catch (Exception $error) {

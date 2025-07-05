@@ -15,6 +15,7 @@ use VanDmade\Cuztomisable\Models\Phone;
 use VanDmade\Cuztomisable\Models\Roles;
 use Auth;
 use Exception;
+use Hash;
 
 class User extends Authenticatable
 {

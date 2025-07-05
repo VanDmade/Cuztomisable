@@ -34,6 +34,9 @@ return [
         'enabled' => 'You have enabled multi-factor authentication.',
         'disabled' => 'You have disabled multi-factor authentication.',
     ],
+    'password' => [
+        'changed' => 'You have changed your password!',
+    ],
     'verification' => 'Success! Your :type has been successfully verified. You may now continue using your account without interruption. If you were in the middle of a process, you can safely return to it. We appreciate your attention to keeping your account secure.',
     'unsubscribe' => 'You have been successfully unsubscribed. You will no longer receive notifications to your :type.',
     'errors' => [
@@ -45,6 +48,7 @@ return [
         'invalid_verification' => 'An error occurred while trying to verify your :type. Please try again, or request a new verification link if the issue continues. We\'re here to help if you need assistance.',
         'invalid_unsubscribe' => 'We couldn\'t process your unsubscribe request. The link may be invalid, expired, or already used.',
         'email_in_use' => 'This email address is already in use by another account. If this user already has an account, they can reset their password instead.',
+        'no_force_change_allowed' => 'Hmm… You can’t change your password this way. It’s possible there was an error or the password has already been updated. Please refresh the page and try again.',
     ],
     'image' => [
         'errors' => [
