@@ -206,6 +206,11 @@ class User extends Authenticatable
         return $this->hasMany(Permission::class, 'user_id');
     }
 
+    public function permissionSlugs()
+    {
+        return $this->permissions->pluck('slug');
+    }
+
     public function getAllPermissions()
     {
         // Permissions from roles

@@ -82,6 +82,7 @@ class LoginController extends Controller
                     'mfa' => $user->multi_factor_authentication ?? false,
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
+                'permissions' => $user->permissionSlugs(),
             ]);
             return !$ipAddress->requireMfa() ? $response->withCookie($user->generateAuthCookie()) : $response;
         } catch (Exception $error) {

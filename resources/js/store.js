@@ -8,6 +8,7 @@ export default createStore({
     state: function() {
         return {
             user: null,
+            permissions: [],
             authenticated: false,
             loading: false,
         };
@@ -15,6 +16,12 @@ export default createStore({
     getters: {
         user: function(state) {
             return state.user;
+        },
+        permissions: function(state) {
+            return state.permissions;
+        },
+        hasPermission: (state) => (slug) => {
+            return state.permissions.includes(slug);
         },
         authenticated: function(state) {
             return state.authenticated;
@@ -30,7 +37,11 @@ export default createStore({
         },
         CLEAR_USER: function(state) {
             state.user = null;
+            state.permissions = [];
             state.authenticated = false;
+        },
+        SET_PERMISSIONS: function(state, permissions) {
+            state.permissions = permissions;
         },
         SET_LOADING: function(state, value) {
             state.loading = value;
@@ -42,6 +53,7 @@ export default createStore({
             try {
                 const response = await axios.get('/me');
                 commit('SET_USER', response.data.user);
+                commit('SET_PERMISSIONS', response.data.permissions ?? []);
                 dispatch('performTokenRefresh');
             } catch (error) {
                 commit('CLEAR_USER');
@@ -56,6 +68,7 @@ export default createStore({
             let response = await axios.post('/login', credentials);
             if (response.data.multi_factor_authentication !== true) {
                 commit('SET_USER', response.data.user);
+                commit('SET_PERMISSIONS', response.data.permissions ?? []);
                 dispatch('startTokenRefresh');
             }
             return response;

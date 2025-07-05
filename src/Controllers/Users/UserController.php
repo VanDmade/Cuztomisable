@@ -38,6 +38,7 @@ class UserController extends Controller
                     'mfa' => $user->multi_factor_authentication ?? false,
                     'image' => !is_null($user->profile) ? $user->profile->output() : null,
                 ],
+                'permissions' => $user->permissionSlugs(),
             ]);
         } catch (Exception $error) {
             return $this->error($error);
