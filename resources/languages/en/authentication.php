@@ -29,6 +29,7 @@ return [
     'mfa' => [
         'sent' => 'The code was :sent to :location.',
         'verified' => 'The request has been verified.',
+        'phone_message' => '[:company] Your verification code is: :code',
         'errors' => [
             'not_created' => 'There was an error while creating your MFA code.',
             'not_found' => 'The code was not found.',
@@ -65,6 +66,10 @@ return [
         'undo' => 'The registration link was reactivated.',
         'resent' => 'The registration was resent.',
         'disabled' => 'Registration is currently disabled, which means new users aren\'t able to create accounts on their own at this time. If you\'re interested in becoming part of the platform or believe you\'ve reached this message in error, we encourage you to contact an administrator or a member of our support team. We\'d love to learn more about your interest, explore the opportunity for you to join, and provide any guidance or next steps you might need. Your enthusiasm is genuinely appreciated, and we\'re here to help however we can. Feel free to reach out to us at :email — we look forward to hearing from you!',
+        'sms' => [
+            'invited' => '[:company] Hey there! You\'ve got something special — visit our site and sign up using the following link: :url',
+            'verification' => '[:company] Don’t leave us hanging — tap the link and verify your number: :url',
+        ],
         'errors' => [
             'missing' => 'This registration link has expired, been used, or no longer exists.',
             'sent_recently' => 'A registration link was sent recently. Please wait before sending another.',

@@ -42,7 +42,7 @@ class Respondify
         if (!$debug) {
             // Lists out the cleaned error messages to prevent a user from recieving a message that doesn't make sense
             if (strpos($message, 'SQLERROR') !== false || true) {
-                // TODO :: Write default message for an SQL error
+                // Write default message for an SQL error
                 $message = __('respondify.sql_error');
                 $responseCode = config('respondify.errors.sql_error_code', 500);
             }
@@ -86,7 +86,7 @@ class Respondify
                 'line' => $error->getLine() ?? null,
                 'file' => $error->getFile() ?? null,
             ] : []
-        ), $responseCode);
+        ), is_numeric($responseCode) ? $responseCode : 500);
     }
 
     /**************************************************************************\

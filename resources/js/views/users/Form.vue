@@ -57,21 +57,25 @@
                     </div>
                     <div class="form-buttons">
                         <button
+                            v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
                             type="button"
                             class="button button--secondary button--block mb-2"
                             @click="$refs.mfaModal.open();"
                             :disabled="submitting">Multi-Factor Auth</button>
                         <button
+                            v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
                             type="button"
                             class="button button--secondary button--block mb-2"
                             @click="$refs.securityModal.open();"
                             :disabled="submitting">Roles & Permissions</button>
                         <button
+                            v-if="isMineOrHasPermission('reset-user-passwords')"
                             type="button"
                             class="button button--secondary button--block mb-2"
                             @click="$refs.passwordModal.open();"
                             :disabled="submitting">Change Password</button>
                         <button
+                            v-if="isMineOrHasPermission('view-user-logins')"
                             type="button"
                             class="button button--secondary button--block mb-0"
                             @click="$refs.recentLoginModal.open();"
@@ -81,11 +85,18 @@
             </div>
             <hr v-if="breakpoint('sm')" class="mb-6">
             <div class="form-buttons" :class="{ 'mb-6': !breakpoint('sm'), 'mb-2': breakpoint('sm') }">
-                <button type="submit" class="button button--primary" :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }" :disabled="submitting">Save Changes</button>
+                <button v-if="isMineOrHasPermission('manage-users')"
+                    type="submit"
+                    class="button button--primary"
+                    :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }"
+                    :disabled="submitting">Save Changes</button>
                 <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
         </fm-form>
-        <fm-modal ref="mfaModal" v-on:open="$refs['user-mfa-form'].reset()" modal-width="340px">
+        <fm-modal v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
+            ref="mfaModal"
+            v-on:open="$refs['user-mfa-form'].reset()"
+            modal-width="340px">
             <component
                 is="user-mfa-form"
                 ref="user-mfa-form"
@@ -93,7 +104,10 @@
                 v-on:message="message"
                 :user="form?.id"></component>
         </fm-modal>
-        <fm-modal ref="securityModal" v-on:open="$refs['user-security-form'].reset()" modal-width="600px">
+        <fm-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
+            ref="securityModal"
+            v-on:open="$refs['user-security-form'].reset()"
+            modal-width="600px">
             <component
                 is="user-security-form"
                 ref="user-security-form"
@@ -101,7 +115,10 @@
                 v-on:message="message"
                 :user="form?.id"></component>
         </fm-modal>
-        <fm-modal ref="passwordModal" v-on:open="$refs['user-password-form'].reset()" modal-width="425px">
+        <fm-modal v-if="isMineOrHasPermission('reset-user-passwords')"
+            ref="passwordModal"
+            v-on:open="$refs['user-password-form'].reset()"
+            modal-width="425px">
             <component
                 is="user-password-form"
                 ref="user-password-form"
@@ -110,7 +127,10 @@
                 :user="form?.id"
                 :admin="$store.state.user?.admin"></component>
         </fm-modal>
-        <fm-modal ref="recentLoginModal" v-on:open="$refs['user-login-form']?.reset()" modal-width="575px">
+        <fm-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
+            ref="recentLoginModal"
+            v-on:open="$refs['user-login-form']?.reset()"
+            modal-width="575px">
             <component
                 v-if="form.id"
                 is="user-login-form"
@@ -212,6 +232,9 @@ export default {
                     this.get();
                 }
             }
+        },
+        isMineOrHasPermission: function(slug) {
+            return this.$store.getters.hasPermission(slug) || typeof(this.$route.params.id) == 'undefined';
         }
     },
     watch: {

@@ -1,6 +1,6 @@
 <template>
     <div id="message-page">
-        <div class="card ma-2 pa-6">
+        <div class="card ma-2 pa-6 text-center">
             <p class="mb-0">
                 <span v-if="message == null">You're welcome to view this page, but it looks like it's not specifically intended for your role or current activity. Feel free to look around, or head back to your dashboard for tools tailored to you.</span>
                 <span v-else>{{ message }}</span>

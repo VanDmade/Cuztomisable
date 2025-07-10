@@ -18,17 +18,21 @@
                             <img class="collapsed-profile-image" :src="$url+'test.png'">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
-                        <hr v-if="screenSize == 'medium'">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Administrator</a>
-                            <ul class="dropdown-menu bg-white text-dark">
-                                <li><router-link class="dropdown-item" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }">Users</router-link></li>
-                                <li><router-link class="dropdown-item" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }">Invitations</router-link></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><router-link class="dropdown-item" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }">Roles</router-link></li>
-                                <li><router-link class="dropdown-item" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }">Permissions</router-link></li>
-                            </ul>
-                        </li>
+                        <template v-if="$store.getters.hasPermission('view-users|manage-users|invite-users|manage-roles-permissions')">
+                            <hr v-if="screenSize == 'medium'">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Administrator</a>
+                                <ul class="dropdown-menu bg-white text-dark">
+                                    <li v-if="$store.getters.hasPermission('view-users|manage-users')"><router-link class="dropdown-item" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }">Users</router-link></li>
+                                    <li v-if="$store.getters.hasPermission('invite-users')"><router-link class="dropdown-item" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }">Invitations</router-link></li>
+                                    <template v-if="$store.getters.hasPermission('manage-roles-permissions')">
+                                        <li v-if="$store.getters.hasPermission('view-users|manage-users|invite-users')"><hr class="dropdown-divider"></li>
+                                        <li><router-link class="dropdown-item" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }">Roles</router-link></li>
+                                        <li><router-link class="dropdown-item" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }">Permissions</router-link></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
                     </div>
                     <div class="navbar-nav ms-auto" >
                         <span v-if="screenSize == 'large'" class="navbar-text text-white pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
@@ -55,6 +59,9 @@ export default {
     },
     mounted: function() {
         this.onResize();
+        if (this.$route.meta.authentication && !this.$store.state.authenticated) {
+            this.$router.push({ name: 'login' });
+        }
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
         })

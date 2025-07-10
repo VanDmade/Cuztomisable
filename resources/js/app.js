@@ -20,8 +20,7 @@ import Tags from './components/Formora/Tags.vue';
 import Form from './components/Formora/Form.vue';
 import Modal from './components/Formora/Modal.vue';
 import Message from './components/Formora/Message.vue';
-// Creates the application to start mounting global components
-var app = createApp(Index).use(router);
+var app = createApp(Index);
 app.mixin({
     data: function() {
         return {
@@ -148,4 +147,20 @@ app.component('fm-textarea', Textarea);
 app.component('fm-message', Message);
 app.component('fm-modal', Modal);
 app.component('fm-image', Image);
-app.mount('#app');
+// Prior to directing, the app needs to detemrine if they are used in
+store.dispatch('checkAuth').then(() => {
+    // Appends the permission / authentication checker into the router
+    router.beforeEach((to, from, next) => {
+        const requiresAuth = to.meta.authentication === true;
+        const requiredPermission = to.meta.permissions;
+        const isAuthenticated = store.state.authenticated;
+        if (requiresAuth && !isAuthenticated) {
+            return next({ name: 'login' });
+        }
+        if (requiredPermission && !store.getters.hasPermission(requiredPermission)) {
+            return next({ name: 'message', query: { m: store.$cuztomisable.unauthorized_note } });
+        }
+        return next();
+    });
+    app.use(router).mount('#app');
+});

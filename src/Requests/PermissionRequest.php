@@ -3,14 +3,13 @@
 namespace VanDmade\Cuztomisable\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Auth;
 
 class PermissionRequest extends FormRequest
 {
 
     public function authorize(): bool
     {
-        return Auth::check() ? Auth::user()->admin : false;
+        return true;
     }
 
     public function messages(): array

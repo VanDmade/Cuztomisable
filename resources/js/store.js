@@ -11,6 +11,7 @@ export default createStore({
             permissions: [],
             change_password: false,
             authenticated: false,
+            ready: false,
             loading: false,
         };
     },
@@ -22,6 +23,15 @@ export default createStore({
             return state.permissions;
         },
         hasPermission: (state) => (slug) => {
+            if (!slug) return false;
+            if (slug.includes('|')) {
+                // OR logic
+                return slug.split('|').some(p => state.permissions.includes(p.trim()));
+            }
+            if (slug.includes('&')) {
+                // AND logic
+                return slug.split('&').every(p => state.permissions.includes(p.trim()));
+            }
             return state.permissions.includes(slug);
         },
         changePassword: function(state) {
@@ -29,6 +39,9 @@ export default createStore({
         },
         authenticated: function(state) {
             return state.authenticated;
+        },
+        ready: function(state) {
+            return state.ready;
         },
         isLoading: function(state) {
             return state.loading;
@@ -44,6 +57,9 @@ export default createStore({
             state.permissions = [];
             state.change_password = false;
             state.authenticated = false;
+        },
+        SET_READY: function(state, ready) {
+            state.ready = ready;
         },
         SET_CHANGE_PASSWORD: function(state, change) {
             state.change_password = change;
@@ -67,6 +83,7 @@ export default createStore({
             } catch (error) {
                 commit('CLEAR_USER');
             } finally {
+                commit('SET_READY', true);
                 setTimeout(() => {
                     commit('SET_LOADING', false);
                 }, 500);

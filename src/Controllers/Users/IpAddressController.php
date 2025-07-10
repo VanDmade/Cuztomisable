@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
-use VanDmade\Cuztomisable\Models\UserModels;
+use VanDmade\Cuztomisable\Models\Users as UserModels;
 use Auth;
 use DB;
 use Exception;

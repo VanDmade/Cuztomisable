@@ -5,12 +5,14 @@ namespace VanDmade\Cuztomisable\Controllers\Authentication;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use Illuminate\Http\Request;
 use VanDmade\Cuztomisable\Requests\Authentication\LoginRequest;
+use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use Exception;
 use Hash;
+use Str;
 
 class LoginController extends Controller
 {
@@ -67,7 +69,7 @@ class LoginController extends Controller
             $user->attempt_timer = null;
             $user->save();
             DB::commit();
-            $response = $this->success([
+            $response = [
                 'message' => __('cuztomisable/authentication.login.'.($ipAddress->requireMfa() ? 'mfa_' : '').'logged_in'),
                 'token' => $token ?? null,
                 'multi_factor_authentication' => $ipAddress->requireMfa(),
@@ -84,8 +86,23 @@ class LoginController extends Controller
                 ],
                 'permissions' => $user->permissionSlugs(),
                 'change_password' => $user->change_password,
-            ]);
-            return !$ipAddress->requireMfa() ? $response->withCookie($user->generateAuthCookie()) : $response;
+            ];
+            // Determines if a mobile app is calling the authentication or not
+            if ($mobile = $request->header('X-App-Platform') === 'mobile') {
+                $refreshToken = RefreshToken::create([
+                    'user_id' => $user->id,
+                    'token' => Hash::make($refreshToken = Str::random(64)),
+                    'expires_at' => now()->addDays(30),
+                ]);
+                $response['access_token'] = $user->createToken('mobile')->plainTextToken;
+                $response['refresh_token'] = $refreshToken->token ?? null;
+                $response['expires_in'] = config('cuztomisable.login.session_length', 900);
+                return $this->success($response);
+            }
+            $response = $this->success($response);
+            // Attaches the server cookie to the response
+            return !$ipAddress->requireMfa() ?
+                $response->withCookie($user->generateAuthCookie()) : $response;
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);

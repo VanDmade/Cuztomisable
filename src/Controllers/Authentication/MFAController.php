@@ -47,8 +47,13 @@ class MFAController extends Controller
                 $data['type'] = $code->sent_via;
             }
             if ($data['type'] == 'phone' && $sendVia['phone']) {
-                $code->sent_at = 'phone';
-                $this->text();
+                $code->sent_via = 'phone';
+                $phone = $code->user->mobilePhone;
+                $message = __('cuztomisable/authentication.mfa.phone_message', [
+                    'company' => env('APP_NAME'),
+                    'code' => $code->code,
+                ]);
+                $this->text($message, $phone->country_code, $phone->number);
             } else {
                 $code->sent_via = 'email';
                 $this->email(new MFAMail($code->user, $code), $code->user->email);

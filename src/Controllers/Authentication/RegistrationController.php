@@ -167,7 +167,12 @@ class RegistrationController extends Controller
             }
             if (isset($phone->id) &&
                 config('cuztomisable.authentication.notifications.phone_verification', false) !== false) {
-                // TODO :: Sends the phone verification text to the user
+                // Sends the phone verification text to the user
+                $message = __('cuztomisable/authentication.registration.sms.verification', [
+                    'company' => env('APP_NAME'),
+                    'url' => url('/registration/'.$registration->code),
+                ]);
+                $this->text($message, $phone->country_code, $phone->number);
             }
             // Determines if the admin or creator should be notified about the recent registration
             if (!is_null($sendRegisteredTo) && config('cuztomisable.account.registration.send_notification', false)) {
@@ -256,7 +261,11 @@ class RegistrationController extends Controller
             if (!is_null($registration->email)) {
                 $this->email(new InvitationMail($registration), $registration->email);
             } else {
-                // TODO :: Send the registration code/link via text
+                $message = __('cuztomisable/authentication.registration.sms.invited', [
+                    'company' => env('APP_NAME'),
+                    'url' => url('/registration/'.$registration->code),
+                ]);
+                $this->text($message, $data['country_code'], $data['phone']);
             }
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.invite'),
@@ -293,7 +302,12 @@ class RegistrationController extends Controller
             if (!is_null($registration->email)) {
                 $this->email(new InvitationMail($registration), $registration->email);
             } else {
-                // TODO :: Send the registration code/link via text
+                // Send the registration code/link via text
+                $message = __('cuztomisable/authentication.registration.sms.invited', [
+                    'company' => env('APP_NAME'),
+                    'url' => url('/registration/'.$registration->code),
+                ]);
+                $this->text($message, $registration->phone);
             }
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.resent'),
@@ -313,7 +327,6 @@ class RegistrationController extends Controller
                 // Updates the expiration date
                 $seconds = config('cuztomisable.account.registration.expires_in', 300);
                 $registration->expires_at = date('Y-m-d H:i:s', strtotime('+'.$seconds.' seconds'));
-                // TODO :: Resends the email / text message
             }
             // Resets OR sets the deleted at parameters for soft deletion
             $registration->deleted_by = $deleted ? null : Auth::user()->id;

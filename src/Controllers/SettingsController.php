@@ -16,9 +16,11 @@ class SettingsController extends Controller
             // All settings used within the frontend will need to be returned here
             return $this->success([
                 'note_to_nosey' => __('cuztomisable/global.note_to_nosey'),
+                'unauthorized_note' =>__('cuztomisable/global.unauthorized'),
                 'login_with' => config('cuztomisable.login.login_with', []),
                 'remember' => config('cuztomisable.login.remember', False),
                 'multi_factor_authentication' => [
+                    'enabled' => config('cuztomisable.login.multi_factor_authentication.allowed', 300),
                     'resend_after' => config('cuztomisable.login.multi_factor_authentication.resend_after', 300),
                     'send_via' => config('cuztomisable.login.multi_factor_authentication.send_via', ['email' => true]),
                 ],

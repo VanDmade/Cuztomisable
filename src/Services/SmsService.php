@@ -30,7 +30,7 @@ class SmsService
                 'secret' => env('AWS_SECRET_ACCESS_KEY', null),
             ],
             'http' => [
-                // TODO :: Remove before going to production
+                // Can be removed whenever not on local development
                 'verify' => env('APP_ENV') == 'local' ? false : true,
             ],
         ]);

@@ -9,7 +9,7 @@ class MFARequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return config('cuztomisable.login.multi_factor_authentication.enabled', false);
     }
 
     public function messages(): array

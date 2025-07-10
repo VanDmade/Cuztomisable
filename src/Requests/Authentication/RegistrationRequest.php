@@ -9,7 +9,7 @@ class RegistrationRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return config('cuztomisable/account.registration.disabled', false) || !empty($this->route('code'));
+        return config('cuztomisable.account.registration.disabled', false) || !empty($this->route('code'));
     }
 
     public function messages(): array

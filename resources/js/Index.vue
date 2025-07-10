@@ -63,15 +63,15 @@ export default {
     },
     async created() {
         // Checks the authentication of the user
-        const response = await this.$store.dispatch('checkAuth');
-        if (this.$store.state.authenticated &&
-            !this.$route.meta.require_authentication &&
+        //const response = await this.$store.dispatch('checkAuth');
+        /*if (this.$store.state.authenticated &&
+            !this.$route.meta.authentication &&
             this.$route.name != 'message') {
             this.$router.push({ name: 'portal' });
         } else if (!this.$store.state.authenticated &&
-            this.$route.meta.require_authentication) {
+            this.$route.meta.authentication) {
             this.$router.push({ name: 'login' });
-        }
+        }*/
         if (this.$store.state.change_password) {
             this.$refs['changePasswordModal'].open();
         }

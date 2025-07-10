@@ -41,6 +41,7 @@ class PasswordController extends Controller
             $sendVia = config('cuztomisable.account.passwords.send_via');
             if ($reset->sent_via == 'phone' && $sendVia['phone']) {
                 // TODO :: Sends the text message
+                
             } else {
                 // Sends the email
                 $this->email(new ForgotMail($reset), $reset->user->email);

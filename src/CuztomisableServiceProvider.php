@@ -2,6 +2,10 @@
 
 namespace VanDmade\Cuztomisable;
 
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
@@ -17,7 +21,15 @@ class CuztomisableServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermission::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Route::prefix('api')
-            ->middleware(['api', Middleware\TokenFromCookie::class])
+            ->middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                ShareErrorsFromSession::class,
+                Middleware\TokenFromCookie::class,
+                Middleware\RequireCsrfUnlessMobile::class,
+                Middleware\EnsureValidMobileAgent::class,
+            ])
             ->group(__DIR__.'/../routes.php');
     }
 

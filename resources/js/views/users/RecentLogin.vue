@@ -14,31 +14,35 @@
             <template #remember_until="{ id, remember, remember_until }">
                 <div v-if="remember" class="tablelify-data" :class="{ 'd-flex': !breakpoint('sm') }">
                     <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">{{ formatDate(remember_until) }}</div>
-                    <button type="button"
-                        v-if="typeof(forgetting[id]) == 'undefined' || !forgetting[id].active"
-                        @click="setup('forget', id)"
-                        class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Forget</button>
-                    <button type="button"
-                        v-else-if="forgetting[id].active ?? false"
-                        @click="proceed('forget', id)"
-                        :disabled="submitting[id] ?? false"
-                        class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
+                    <template v-if="$store.getters.hasPermission('clear-user-logins')">
+                        <button type="button"
+                            v-if="typeof(forgetting[id]) == 'undefined' || !forgetting[id].active"
+                            @click="setup('forget', id)"
+                            class="button button--danger"
+                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Forget</button>
+                        <button type="button"
+                            v-else-if="forgetting[id].active ?? false"
+                            @click="proceed('forget', id)"
+                            :disabled="submitting[id] ?? false"
+                            class="button button--danger"
+                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
+                    </template>
                 </div>
                 <div v-else class="tablelify-data" :class="{ 'd-flex': !breakpoint('sm') }">
                     <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">No</div>
-                    <button type="button"
-                        v-if="typeof(deleting[id]) == 'undefined' || !deleting[id].active"
-                        @click="setup('delete', id)"
-                        class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Delete</button>
-                    <button type="button"
-                        v-else-if="deleting[id].active ?? false"
-                        @click="proceed('delete', id)"
-                        :disabled="submitting[id] ?? false"
-                        class="button button--danger"
-                        :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
+                    <template v-if="$store.getters.hasPermission('clear-user-logins')">
+                        <button type="button"
+                            v-if="typeof(deleting[id]) == 'undefined' || !deleting[id].active"
+                            @click="setup('delete', id)"
+                            class="button button--danger"
+                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Delete</button>
+                        <button type="button"
+                            v-else-if="deleting[id].active ?? false"
+                            @click="proceed('delete', id)"
+                            :disabled="submitting[id] ?? false"
+                            class="button button--danger"
+                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
+                    </template>
                 </div>
             </template>
         </tablelify>
