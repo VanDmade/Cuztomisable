@@ -14,7 +14,7 @@ return [
         // Determines if the system allows the user to setup and use Multi Factor Authentication
         'allowed' => true,
         // How fast the user can resend the email/text in seconds (After the first resend)
-        'resend_after' => 15,
+        'resend_after' => 300,
         // The code will be recreated if resent and old codes cannot be used
         'recreate_code_on_resend' => true,
         /* Specifies that the MFA can be sent via phone and/or email.

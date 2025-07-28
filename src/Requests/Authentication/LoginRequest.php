@@ -32,6 +32,10 @@ class LoginRequest extends FormRequest
             foreach (['/', '_', '-', '(', ')', ' '] as $i => $key) {
                 $username = str_replace($key, '', $username);
             }
+            // Converts the value back into an email if for some reason the value is not a cleaned phone number
+            if (!is_numeric($username)) {
+                $type = 'email';
+            }
         }
         $this->merge([
             'type' => $type,

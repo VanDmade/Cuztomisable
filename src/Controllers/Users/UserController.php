@@ -3,7 +3,9 @@
 namespace VanDmade\Cuztomisable\Controllers\Users;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use VanDmade\Cuztomisable\Requests\TablelifyRequest;
+use VanDmade\Cuztomisable\Requests\Users\RefreshRequest;
 use VanDmade\Cuztomisable\Requests\Users\UserRequest;
 use VanDmade\Cuztomisable\Controllers\Controller;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
@@ -11,7 +13,9 @@ use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Image;
 use VanDmade\Cuztomisable\Models\Phone;
 use VanDmade\Cuztomisable\Models\Users as UserModels;
+use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use Auth;
+use Carbon\Carbon;
 use DB;
 use Exception;
 use Hash;
@@ -251,6 +255,45 @@ class UserController extends Controller
                 'message' => 'Token refreshed',
                 'token_expires_at' => Auth::user()->currentAccessToken()->expires_at->toIso8601String(),
             ])->withCookie($cookie);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function refreshToken(RefreshRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            // Find refresh token in DB
+            $token = RefreshToken::where('token', $data['token'])
+                ->where('expires_at', '>=', now())
+                ->first();
+            if (!isset($token->id)) {
+                throw new Exception(__('cuztomisable/user.refresh.errors.not_found'), 401);
+            }
+            // Makes sure the user exists and is still active in the system
+            if (is_null($token->user)) {
+                throw new Exception(__('cuztomisable/user.refresh.errors.user_not_found'), 404);
+            }
+            // Checks to see if the token was revoked
+            if ($token->revoked) {
+                throw new Exception(__('cuztomisable/user.refresh.errors.revoked'), 403);
+            }
+            // Determines if they want tokens to refresh or just the expiration date
+            if (config('cuztomisable.mobile.refresh.reset_token', false)) {
+                $newToken = Str::random(64);
+                $token->token = hash('sha256', $newToken);
+            }
+            $token->used_at = date('Y-m-d H:i:s');
+            $token->expires_at = now()->addDays(config('cuztomisable.mobile.refresh.expires_in', 30));
+            $token->save();
+            // Issue a new access token
+            $accessToken = $token->user->createToken('mobile')->plainTextToken;
+            return $this->success([
+                'access_token' => $accessToken,
+                'refresh_token' => $newToken ?? null,
+                'expires_in' => config('cuztomisable.login.session_length', 900),
+            ]);
         } catch (Exception $error) {
             return $this->error($error);
         }

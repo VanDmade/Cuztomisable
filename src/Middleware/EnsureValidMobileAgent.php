@@ -15,7 +15,7 @@ class EnsureValidMobileAgent
         // Optional: also check X-App-Platform for layered verification
         $isMobile = $request->header('X-App-Platform') === 'mobile';
         // Very simple check – make it stricter if needed
-        if ($isMobile && !preg_match('/Cuztomisable\/1\.0 \((Android|iOS|Other)\)/', $userAgent)) {
+        if ($isMobile && !preg_match('/Cuztomisable\/v1\.0 \((Android|iOS|Other)\)/', $userAgent)) {
             return response()->json([
                 'message' => 'Unauthorized – Invalid user agent.'
             ], 403);

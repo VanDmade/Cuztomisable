@@ -22,6 +22,13 @@ return [
         'already_locked' => 'Your account is already locked.',
         'temporary_password' => 'You have sent a temporary password to this user.',
     ],
+    'refresh' => [
+        'errors' => [
+            'not_found' => 'Your session has expired. Please log in again.',
+            'user_not_found' => 'We could not verify your account. Please log in again.',
+            'revoked' => 'This session has been revoked and can no longer be used. Please log in again.',
+        ],
+    ],
     'ip_address' => [
         'deleted' => 'The IP address was deleted.',
         'undo' => 'The IP address was added backed into the system.',

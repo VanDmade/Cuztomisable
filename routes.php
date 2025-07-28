@@ -39,6 +39,9 @@ Route::controller(FormoraController::class)->group(function () {
     Route::get('/formora/{page}', 'get');
     Route::post('/formora/{page}', 'save');
 });
+Route::controller(UserController::class)->group(function () {
+    Route::post('/refresh/token', 'refreshToken');
+});
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::controller(AccessController::class)->group(function () {
         Route::get('/user/{id}/access', 'get')
