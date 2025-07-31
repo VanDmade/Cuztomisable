@@ -58,7 +58,7 @@ class Error extends Model
 
     public function user()
     {
-        return $this->belongsTo(Users\User::class, 'user_id');
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
 }

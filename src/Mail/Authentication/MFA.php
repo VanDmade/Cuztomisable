@@ -9,7 +9,6 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Code;
-use VanDmade\Cuztomisable\Models\Users\User;
 
 class MFA extends Mailable
 {
@@ -18,7 +17,7 @@ class MFA extends Mailable
 
     private $user, $code;
 
-    public function __construct(User $user, Code $code)
+    public function __construct($user, Code $code)
     {
         $this->user = $user;
         $this->code = $code;

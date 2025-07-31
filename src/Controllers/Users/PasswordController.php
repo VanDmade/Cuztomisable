@@ -59,7 +59,7 @@ class PasswordController extends Controller
     public function send($id)
     {
         try {
-            $user = UserModels\User::where('id', '=', $id)->first();
+            $user = config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }

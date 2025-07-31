@@ -23,7 +23,7 @@ class LoginController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             // Finds the user based on the email, username, or phone
-            $user = Users\User::findUserByType($data['username'], $data['type']);
+            $user = config('auth.providers.users.model')::findUserByType($data['username'], $data['type']);
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/authentication.login.errors.invalid_credentials'), 404);
             }
@@ -31,7 +31,7 @@ class LoginController extends Controller
             if (!Auth::attemptWhen([
                 'email' => $user->email,
                 'password' => $data['password'],
-            ], function (Users\User $user) {
+            ], function ($user) {
                 // Checks to see if the user can log into their account
                 return $user->canLogIn();
             })) {

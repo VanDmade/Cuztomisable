@@ -5,7 +5,6 @@ namespace VanDmade\Cuztomisable\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use VanDmade\Cuztomisable\Models\Users\User;
 use Auth;
 
 class Formora extends Model

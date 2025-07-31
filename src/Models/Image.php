@@ -91,12 +91,12 @@ class Image extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(Users\User::class, 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
     public function deletedBy()
     {
-        return $this->belongsTo(Users\User::class, 'deleted_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
 }

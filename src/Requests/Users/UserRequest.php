@@ -3,7 +3,6 @@
 namespace VanDmade\Cuztomisable\Requests\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
-use VanDmade\Cuztomisable\Models\Users;
 
 class UserRequest extends FormRequest
 {
@@ -27,7 +26,7 @@ class UserRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $emailInUse = Users\User::where('email', $this->email)
+            $emailInUse = config('auth.providers.users.model')::where('email', $this->email)
                 ->where(function($query) {
                     if ($this->route('id')) {
                         $query->where('id', '!=', $this->route('id'));

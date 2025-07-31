@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use VanDmade\Cuztomisable\Models\Users\User;
 
 class Support extends Mailable
 {
@@ -17,7 +16,7 @@ class Support extends Mailable
 
     private $user, $text;
 
-    public function __construct(User $user, $text)
+    public function __construct($user, $text)
     {
         $this->user = $user;
         $this->text = $text;

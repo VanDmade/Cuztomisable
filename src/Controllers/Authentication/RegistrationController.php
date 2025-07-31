@@ -101,7 +101,7 @@ class RegistrationController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             // Creates the user
-            $user = Users\User::create([
+            $user = config('auth.providers.users.model')::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'username' => $data['username'] ?? null,
@@ -226,7 +226,7 @@ class RegistrationController extends Controller
                 throw new Exception(__('cuztomisable/authentication.registration.errors.recently_invited'), 404);
             }
             // Checks for a user that already exists in the system based on the email or phone
-            $exists = Users\User::where(function ($query) use ($email, $phone) {
+            $exists = config('auth.providers.users.model')::where(function ($query) use ($email, $phone) {
                 if (!empty($email)) {
                     $query->where('email', '=', $email);
                 } else {

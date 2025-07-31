@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use VanDmade\Cuztomisable\Models\Users\User;
 
 class Verification extends Mailable
 {
@@ -17,7 +16,7 @@ class Verification extends Mailable
 
     private $user;
 
-    public function __construct(User $user)
+    public function __construct($user)
     {
         $this->user = $user;
     }

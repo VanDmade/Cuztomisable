@@ -9,7 +9,6 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\IpAddress;
-use VanDmade\Cuztomisable\Models\Users\User;
 
 class NewIpAddress extends Mailable
 {
@@ -18,7 +17,7 @@ class NewIpAddress extends Mailable
 
     private $user, $ip;
 
-    public function __construct(User $user, IpAddress $ip)
+    public function __construct($user, IpAddress $ip)
     {
         $this->user = $user;
         $this->ip = $ip;

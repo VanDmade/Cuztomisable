@@ -16,7 +16,7 @@ class AccessController extends Controller
     public function get($id)
     {
         try {
-            $user = UserModels\User::where('id', '=', $id)->first();
+            $user = config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -35,7 +35,7 @@ class AccessController extends Controller
     {
         try {
             $data = $request->validated();
-            $user = UserModels\User::where('id', '=', $id)->first();
+            $user = config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }

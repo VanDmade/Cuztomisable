@@ -4,7 +4,6 @@ namespace VanDmade\Cuztomisable\Models\Users\Passwords;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use VanDmade\Cuztomisable\Models\Users\User;
 use Auth;
 
 class Password extends Model
@@ -38,12 +37,12 @@ class Password extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
 }

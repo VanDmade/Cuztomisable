@@ -17,7 +17,7 @@ use Auth;
 use Exception;
 use Hash;
 
-class User extends Authenticatable
+class UserOLD extends Authenticatable
 {
 
     use HasFactory, HasApiTokens, SoftDeletes;
@@ -293,18 +293,18 @@ class User extends Authenticatable
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
     public function deletedBy()
     {
-        return $this->belongsTo(User::class, 'deleted_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
     public static function findUserByType($username, $type)
     {
         // Finds the user based on the email, username, or phone
-        return User::where(function($query) use ($type, $username) {
+        return config('auth.providers.users.model')::where(function($query) use ($type, $username) {
             $query->orWhere($type, '=', $username);
             // If the username is null than the system will default to email address
             if ($type == 'username') {

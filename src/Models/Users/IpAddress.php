@@ -59,7 +59,7 @@ class IpAddress extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
     public function codes()
@@ -69,7 +69,7 @@ class IpAddress extends Model
 
     public function deletedBy()
     {
-        return $this->belongsTo(User::class, 'deleted_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
 }

@@ -75,7 +75,7 @@ class Email extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(Users\User::class, 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
 }

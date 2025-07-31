@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
-use VanDmade\Cuztomisable\Models\Users\User;
 use Auth;
 
 class Permission extends Model
@@ -56,12 +55,12 @@ class Permission extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
     public function deletedBy()
     {
-        return $this->belongsTo(User::class, 'deleted_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
 }

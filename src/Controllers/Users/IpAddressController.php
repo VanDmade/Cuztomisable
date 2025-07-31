@@ -36,7 +36,7 @@ class IpAddressController extends Controller
     {
         try {
             $data = $request->validated();
-            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->first();
+            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             $query = $user->ipAddresses()
                 ->select('user_ip_addresses.id', 'user_ip_addresses.ip_address',
                     'user_ip_addresses.last_used_at', 'user_ip_addresses.remember_until',

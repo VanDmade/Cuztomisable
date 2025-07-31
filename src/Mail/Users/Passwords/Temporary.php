@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use VanDmade\Cuztomisable\Models\Users\User;
 
 class Temporary extends Mailable
 {
@@ -17,7 +16,7 @@ class Temporary extends Mailable
 
     private $user, $password;
 
-    public function __construct(User $user, $password)
+    public function __construct($user, $password)
     {
         $this->user = $user;
         $this->password = $password;

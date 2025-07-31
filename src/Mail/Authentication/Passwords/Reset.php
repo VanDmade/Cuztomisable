@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use VanDmade\Cuztomisable\Models\Users\User;
 use VanDmade\Cuztomisable\Models\Users\Passwords\Reset as ResetModel;
 
 class Reset extends Mailable
@@ -18,7 +17,7 @@ class Reset extends Mailable
 
     private $user, $reset;
 
-    public function __construct(User $user, ResetModel $reset)
+    public function __construct($user, ResetModel $reset)
     {
         $this->user = $user;
         $this->reset = $reset;

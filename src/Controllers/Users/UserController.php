@@ -27,7 +27,7 @@ class UserController extends Controller
     public function get($id = null)
     {
         try {
-            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->first();
+            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -54,7 +54,7 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            $query = UserModels\User::select('users.id', 'users.name', 'users.email',
+            $query = config('auth.providers.users.model')::select('users.id', 'users.name', 'users.email',
                 'users.username', 'ip.last_used_at', 'p.number as phone', 'p.country_code',
                 'p.verified_at as phone_verified_at', 'users.email_verified_at',
                 'users.admin', 'users.locked', 'users.multi_factor_authentication as mfa')
@@ -88,7 +88,7 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             $user = !Auth::user()->admin || is_null($id) ?
-                Auth::user() : UserModels\User::where('id', '=', $id)->first();
+                Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -167,7 +167,7 @@ class UserController extends Controller
     public function toggleLocked($id = null)
     {
         try {
-            $user = !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->first();
+            $user = !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -186,7 +186,7 @@ class UserController extends Controller
     public function toggleDelete($id = null)
     {
         try {
-            $user = !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->withTrashed()->first();
+            $user = !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->withTrashed()->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -210,7 +210,7 @@ class UserController extends Controller
     public function toggleMfa($id = null)
     {
         try {
-            $user = !Auth::user()->admin ? Auth::user() : UserModels\User::where('id', '=', $id)->first();
+            $user = !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -229,7 +229,7 @@ class UserController extends Controller
     {
         try {
             $list = [];
-            foreach (UserModels\User::all() as $i => $user) {
+            foreach (config('auth.providers.users.model')::all() as $i => $user) {
                 $list[] = [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -250,10 +250,12 @@ class UserController extends Controller
             if (!Auth::check()) {
                 throw new Exception('Unauthenticated', 401);
             }
-            $cookie = Auth::user()->generateAuthCookie();
+            $user = Auth::user();
+            $cookie = $user->generateAuthCookie();
+            $latestToken = $user->tokens()->latest('id')->first();
             return $this->success([
                 'message' => 'Token refreshed',
-                'token_expires_at' => Auth::user()->currentAccessToken()->expires_at->toIso8601String(),
+                'token_expires_at' => optional($latestToken->expires_at)->toIso8601String(),
             ])->withCookie($cookie);
         } catch (Exception $error) {
             return $this->error($error);
@@ -303,7 +305,7 @@ class UserController extends Controller
     {
         try {
             $hasError = true;
-            $user = UserModels\User::where('token', $token)->first();
+            $user = config('auth.providers.users.model')::where('token', $token)->first();
             if (isset($user->id)) {
                 if ($type === 'email') {
                     $email = request()->query('email');
@@ -340,7 +342,7 @@ class UserController extends Controller
     {
         try {
             $hasError = true;
-            $user = UserModels\User::where('token', $token)->first();
+            $user = config('auth.providers.users.model')::where('token', $token)->first();
             if (isset($user->id)) {
                 if ($type === 'email') {
                     $email = request()->query('email');

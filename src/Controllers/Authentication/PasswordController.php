@@ -21,7 +21,7 @@ class PasswordController extends Controller
         try {
             $data = $request->validated();
             // Finds the user based on the email, username, or phone
-            $user = Users\User::findUserByType($data['username'], $data['type']);
+            $user = config('auth.providers.users.model')::findUserByType($data['username'], $data['type']);
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
             }
