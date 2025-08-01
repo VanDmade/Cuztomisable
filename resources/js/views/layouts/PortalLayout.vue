@@ -18,6 +18,11 @@
                             <img class="collapsed-profile-image" :src="$url+'test.png'">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
+                        <template v-if="navigation && navigation.length">
+                            <li class="nav-item" v-for="(item, index) in navigation">
+                                <router-link class="nav-link" :class="$route.name == item.route ? 'active' : ''" :to="{ name: item.route }">{{ item.text }}</router-link>
+                            </li>
+                        </template>
                         <template v-if="$store.getters.hasPermission('view-users|manage-users|invite-users|manage-roles-permissions')">
                             <hr v-if="screenSize == 'medium'">
                             <li class="nav-item dropdown">
