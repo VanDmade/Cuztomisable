@@ -141,6 +141,12 @@
 .form-floating > .form-control:focus ~ label {
     transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem) !important;
 }
+.fm-image-container {
+    display: flex;
+    position: relative;
+    width: 100% !important;
+    border-radius: 8px;
+}
 .fm-form-input {
     .form-control:focus,
     .form-check-input:focus {
@@ -218,7 +224,6 @@
             }
         }
         .fm-image-container {
-            display: flex;
             .fm-form-multiple-image-container {
                 box-sizing: content-box;
                 position: relative;
@@ -305,30 +310,32 @@
 .fm-form-multi-entries {
     .fm-form-multi-entries-label {
         display: flex;
+        align-items: flex-end;
         .fm-form-multi-entries-add {
             text-align: right;
             flex: 1;
+            padding-bottom: 8px;
         }
     }
     .fm-form-multi-entry {
         .fm-button-container {
-            .btn {
+            .button {
                 height: 100%;
                 border-top-left-radius: 0;
                 border-bottom-left-radius: 0;
             }
         }
         .fm-button-container.fm-button-remove-border-radius {
-            .btn {
+            .button {
                 border-radius: 0;
             }
         }
         .fm-button-container.d-grid {
-            .btn {
+            .button {
                 border-radius: var(--bs-border-radius);
             }
         }
-        .fm-btn-reorder {
+        .fm-button-reorder {
             @media (max-width: 768px) {
                 margin-top: 16px;
             }
@@ -342,14 +349,14 @@
                 flex: 4;
             }
         }
-        .fm-btn-reorder.fm-btn-reorder-upward {
+        .fm-button-reorder.fm-button-reorder-upward {
             @media (max-width: 768px) {
                 width: 50%;
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
             }
         }
-        .fm-btn-reorder.fm-btn-reorder-downward {
+        .fm-button-reorder.fm-button-reorder-downward {
             @media (max-width: 768px) {
                 width: 50%;
                 border-top-left-radius: 0;

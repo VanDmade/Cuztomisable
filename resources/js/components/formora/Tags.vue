@@ -14,6 +14,7 @@
                     :placeholder="placeholder"
                     @input="errorList = []; search = true;"
                     v-on:keyup.enter="add"
+                    @keydown.enter.prevent
                     @blur="blur">
                 <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label">{{ label }}</label>
                 <div class="fm-tag-selector shadow" v-show="search && searchList().length > 0 && item.name != ''">
@@ -36,7 +37,7 @@
         <ul v-if="!hideDetails && errorList.length > 0" class="form-errors fm-form-errors mb-1">
             <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
         </ul>
-        <div class="fm-tags mb-2">
+        <div class="fm-tags mb-2" v-if="value.length > 0">
             <span class="input-group" v-for="(tag, index) in value" :key="id + '_' + index">
                 <span class="fm-tag"
                     :class="{ 'fm-tag-existing': tag.id.toString().indexOf('NEW-') }"
@@ -57,6 +58,7 @@ export default {
                 color: this.generateColor(),
                 name: '',
             },
+            search: '',
             counter: 0,
             errorList: [],
         }
@@ -109,6 +111,7 @@ export default {
         },
         remove: function(index) {
             this.value.splice(index, 1);
+                this.$emit('update:modelValue', this.value);
         },
         addListItem: function(item) {
             this.item = JSON.parse(JSON.stringify(item));

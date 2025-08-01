@@ -1,12 +1,12 @@
 <template>
     <div class="fm-form-multi-entries">
         <div class="fm-form-multi-entries-label">
-            <div class="mt-4">
-                <h5 v-if="label != null" class="mt-0" :class="{ 'mb-4': notes == null, 'mb-1': notes != null }">{{ label }}</h5>
+            <div class="mt-2">
+                <h5 v-if="label != null" class="mt-0" :class="{ 'mb-2': notes == null, 'mb-1': notes != null }">{{ label }}</h5>
                 <p v-if="notes != null" class="notes">{{ notes }}</p>
             </div>
             <div class="fm-form-multi-entries-add">
-                <button type="button" @click="add" class="btn btn-primary btn-sm mt-4">{{ addLabel }}</button>
+                <button type="button" @click="add" class="button button--primary button--small mt-2">{{ addLabel }}</button>
             </div>
         </div>
         <div class="fm-form-multi-entry" v-for="(mainItem, multiIndex) in value">
@@ -18,18 +18,18 @@
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
                         :disabled="multiIndex == 0"
-                        class="btn fm-btn-reorder fm-btn-reorder-upward btn-outline-secondary px-1"
+                        class="button fm-button-reorder fm-button-reorder-upward button-outline-secondary px-1"
                         @click="reorderUp(multiIndex)"><span class="material-icons">arrow_upward</span></button>
                     <button
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
                         :disabled="multiIndex == value.length - 1"
-                        class="btn fm-btn-reorder fm-btn-reorder-downward btn-outline-secondary px-1"
+                        class="button fm-button-reorder fm-button-reorder-downward button-outline-secondary px-1"
                         @click="reorderDown(multiIndex)"><span class="material-icons">arrow_downward</span></button>
                     <div class="fm-button-container" :class="{ 'd-grid mt-4': breakpoint('sm'), 'fm-button-remove-border-radius': settings }">
                         <button
                             type="button"
-                            class="btn btn-danger"
+                            class="button button--danger"
                             :disabled="removeAll == false && value.length == 1 && alternativeIndex == 0"
                             @click="remove(multiIndex, alternativeIndex == 0 ? null : (alternativeIndex - 1))">{{ isAskingToRemove(multiIndex, alternativeIndex == 0 ? null : (alternativeIndex - 1)) ? 'Are your sure?' : removeLabel }}</button>
                     </div>
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div v-if="breakpoint('sm')" class="fm-button-container d-grid">
-            <button v-if="addButton == true" type="button" @click="add" class="btn btn-primary">{{ addLabel }}</button>
+            <button v-if="addButton == true" type="button" @click="add" class="button btn--primary">{{ addLabel }}</button>
         </div>
     </div>
 </template>

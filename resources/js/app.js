@@ -111,7 +111,7 @@ app.mixin({
         cleanFormData: function(formData) {
             const cleanedFormData = new FormData();
             for (const [key, value] of formData.entries()) {
-                const cleanedValue = (value.toLowerCase() == 'null' || value == null) ? '' : value;
+                const cleanedValue = ((typeof value === 'string' && value.toLowerCase() == 'null') || value == null) ? '' : value;
                 cleanedFormData.append(key, cleanedValue);
             }
             return cleanedFormData;

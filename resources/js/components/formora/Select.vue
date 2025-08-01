@@ -5,16 +5,17 @@
             v-model="value"
             :id="id"
             class="form-control form-select fm-form-control fm-form-select"
-            :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+            :class="[{ 'is-invalid': errorList.length > 0, 'empty': isEmpty }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
             @input="errorList = []">
             <option v-if="newEntry" :value="newEntryValue">{{ newEntryText }}</option>
+            <option v-if="getItems().length == ''" value="no no no! You cannot select me!" disabled>{{ emptyText }}</option>
             <option v-if="!required" value=""></option>
             <option v-for="(item, itemIndex) in getItems()"
                 :value="yesNo ? item.value : (typeof(item[inputValue]) == 'undefined' ? item : item[inputValue])">{{ yesNo ? item.text : (typeof(item[inputText]) == 'undefined' ? item : item[inputText]) }}</option>
         </select>
-        <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label" :class="{ 'empty': value == '' || value == null }">{{ label }}</label>
+        <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label" :class="{ 'empty': isEmpty }">{{ label }}</label>
         <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
             <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
         </ul>
@@ -35,6 +36,9 @@ export default {
         }
     },
     computed: {
+        isEmpty: function() {
+            return this.value === '' || this.value === null ? true : false;
+        },
         value: {
             get: function () {
                 return this.modelValue;
@@ -73,6 +77,7 @@ export default {
         newEntry: { type: Boolean, default: false },
         newEntryText: { type: String, default: 'New Entry' },
         newEntryValue: { type: [String, Number], default: '0' },
+        emptyText: { type: String, default: 'Hmm... Something is missing...' },
     }
 }
 </script>
