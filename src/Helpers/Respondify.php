@@ -75,6 +75,9 @@ class Respondify
             }
             $model->save();
         }
+        if (is_numeric($responseCode) && $responseCode >= 500) {
+            $responseCode = 500;
+        }
         return response()->json(
             array_merge([
                 'success' => false,

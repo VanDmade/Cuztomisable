@@ -18,6 +18,7 @@ import Checkbox from './components/Formora/Checkbox.vue';
 import Textarea from './components/Formora/Textarea.vue';
 import Tags from './components/Formora/Tags.vue';
 import Form from './components/Formora/Form.vue';
+import Autofill from './components/Formora/Autofill.vue';
 import Modal from './components/Formora/Modal.vue';
 import Message from './components/Formora/Message.vue';
 const axios = Axios.create({
@@ -44,6 +45,7 @@ export async function loadCuztomisableApp(mountId = '#cuztomisable-app') {
         'fm-message': Message,
         'fm-modal': Modal,
         'fm-image': Image,
+        'fm-autofill': Autofill,
     };
     Object.entries(globalComponents).forEach(([name, comp]) => {
         app.component(name, comp);

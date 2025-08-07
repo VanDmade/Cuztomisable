@@ -3,7 +3,7 @@
         <div class="fm-form-multi-entries-label">
             <div class="mt-2">
                 <h5 v-if="label != null" class="mt-0" :class="{ 'mb-2': notes == null, 'mb-1': notes != null }">{{ label }}</h5>
-                <p v-if="notes != null" class="notes">{{ notes }}</p>
+                <p v-if="notes != null" class="notes mb-2">{{ notes }}</p>
             </div>
             <div class="fm-form-multi-entries-add">
                 <button type="button" @click="add" class="button button--primary button--small mt-2">{{ addLabel }}</button>

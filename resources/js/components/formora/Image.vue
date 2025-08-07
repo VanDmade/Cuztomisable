@@ -7,7 +7,7 @@
             accept="image/*"
             class="form-control d-none" />
         <i v-if="changed()" @click="reset" class="fm-image-reset cursor--pointer material-icons">close</i>
-        <div class="image-container" :class="{ 'cursor--pointer': uploader }" @click="triggerFileInput">
+        <div class="image-container" :class="{ 'cursor--pointer': uploader, 'fm-border': bordered }" @click="triggerFileInput">
             <img
                 v-if="visible"
                 :src="url"
@@ -16,13 +16,13 @@
                 loading="lazy"
                 :ref="elementId+'-img'"
                 @load="setImageDimensions" />
-            <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-0 mt-1">
-                <li v-for="(error, i) in errorList" :key="elementId+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
-            </ul>
-            <div v-if="$refs[elementId] != null && details">
-                <strong>Dimensions:</strong> {{ width }} x {{ height }} px<br />
-                <strong>File Size:</strong> {{ formatedSize }}
-            </div>
+        </div>
+        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-0 mt-1">
+            <li v-for="(error, i) in errorList" :key="elementId+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        </ul>
+        <div v-if="$refs[elementId] != null && details">
+            <strong>Dimensions:</strong> {{ width }} x {{ height }} px<br />
+            <strong>File Size:</strong> {{ formatedSize }}
         </div>
     </div>
 </template>
@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         changed: function() {
-            return this.src != this.url;
+            return (this.src != this.url || typeof(this.modelValue?.id) != 'undefined') && this.url != (this.$url+this.default);
         },
         setImageDimensions: function() {
             const img = this.$refs[this.elementId+'-img'];
@@ -90,7 +90,7 @@ export default {
             tempImg.src = imageUrl;
         },
         reset: function() {
-            this.url = this.src;
+            this.url = this.$url+this.default;
             this.errorList = [];
             this.$emit('update:modelValue', '');
         },
@@ -109,6 +109,24 @@ export default {
         },
     },
     watch: {
+        modelValue: {
+            handler: function(value) {
+                if (!(value instanceof File)) {
+                    if (!value || value === '') {
+                        this.reset();
+                    } else if (typeof value === 'object' && value.path) {
+                        this.url = value.path;
+                    }
+                }
+            },
+            deep: true,
+        },
+        src: {
+            handler: function(src) {
+                this.url = src;
+            },
+            deep: true,
+        },
         errors: {
             immediate: true,
             handler: function(errors) {
@@ -117,14 +135,16 @@ export default {
         },
     },
     props: {
-        modelValue: { type: [File, String], default: '' },
+        modelValue: { type: [File, Object, String], default: '' },
         src: { type: String, required: true },
+        default: { type: String, default: 'cuztomisable/profile.png' },
         alt: { type: String, default: '' },
         imgClass: { type: String, default: '' },
         uploader: { type: Boolean, default: false },
         hideDetails: { type: Boolean, default: false },
         details: { type: Boolean, default: false },
         square: { type: Boolean, default: true },
+        bordered: { type: Boolean, default: false },
     },
 }
 </script>

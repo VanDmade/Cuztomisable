@@ -11,7 +11,7 @@
             :value="inputTrueValue"
             :readonly="readonly"
             @input="errorList = []">
-        <label class="form-check-label" :for="id">{{ label }}</label>
+        <label v-if="!noLabel" class="form-check-label" :for="id">{{ label }}</label>
         <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
             <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
         </ul>
@@ -52,6 +52,7 @@ export default {
     props: {
         modelValue: { type: [String, Number, Boolean], default: '' },
         label: { type: String, default: '' },
+        noLabel: { type: Boolean, default: false },
         inputTrueValue: { type: [String, Number, Boolean], default: null },
         inputFalseValue: { type: [String, Number, Boolean], default: null },
         inputClass: { type: String, default: '' },
