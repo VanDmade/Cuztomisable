@@ -226,6 +226,14 @@ input:-webkit-autofill {
     &--block      { width: 100%; margin-bottom: 0.5rem; }
     &--small      { padding: 4px 12px; font-size: 12px; }
     &--large      { height: 58px; }
+    &--text {
+        background-color: #fff;
+        color: $color-primary !important;
+        &:hover {
+            background-color: #fff !important;
+            filter: brightness(1) !important;
+        }
+    }
     &:hover {
         filter: brightness(0.95);
     }
@@ -233,6 +241,9 @@ input:-webkit-autofill {
         opacity: 0.6;
         cursor: not-allowed;
     }
+}
+.button-width {
+    width: 150px;
 }
 .bg {
     &--primary    { background-color: $color-primary; }

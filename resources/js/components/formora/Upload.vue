@@ -34,32 +34,35 @@ export default {
         }
     },
     mounted: function() {
-        if (this.value == null) {
-            return;
-        }
-        if (typeof(this.value.id) !== 'undefined') {
-            this.value = [this.value];
-        }
-        setTimeout(() => {
-            var container = document.getElementById(this.id+'-container');
-            var previewImage = document.getElementById(this.id);
-            if (this.value.length == 1) {
-                previewImage.src = this.value[0].path;
-            } else {
-                for (let i = 0; i < this.value.length; i++) {
-                    let [imageContainer, image, clear] = this.setupImage(this.value[i], i);
-                    imageContainer.appendChild(image);
-                    imageContainer.appendChild(clear);
-                    container.appendChild(imageContainer);
-                }
-            }
-            if (this.value.length > 0) {
-                this.total = this.value.length;
-                this.selected = true;
-            }
-        }, 50);
+        this.setup();
     },
     methods: {
+        setup: function() {
+            if (this.value == null) {
+                return;
+            }
+            if (typeof(this.value.id) !== 'undefined') {
+                this.value = [this.value];
+            }
+            setTimeout(() => {
+                var container = document.getElementById(this.id+'-container');
+                var previewImage = document.getElementById(this.id);
+                if (this.value.length == 1) {
+                    previewImage.src = this.value[0].path;
+                } else {
+                    for (let i = 0; i < this.value.length; i++) {
+                        let [imageContainer, image, clear] = this.setupImage(this.value[i], i);
+                        imageContainer.appendChild(image);
+                        imageContainer.appendChild(clear);
+                        container.appendChild(imageContainer);
+                    }
+                }
+                if (this.value.length > 0) {
+                    this.total = this.value.length;
+                    this.selected = true;
+                }
+            }, 50);
+        },
         upload: function(ignoreSelected = false) {
             if (!this.selected || ignoreSelected == true) {
                 this.errorList = [];
@@ -257,7 +260,18 @@ export default {
         modelValue: {
             immediate: true,
             handler: function(value) {
+                if (value == '') {
+                    const container = document.getElementById(this.id + '-container');
+                    if (container) container.innerHTML = '';
+                    let image = document.getElementById(this.id);
+                    if (image) image.src = this.default;
+                    this.total = 0;
+                    this.selected = false;
+                    this.details = {};
+                    return;
+                }
                 let image = document.getElementById(this.id);
+                this.setup();
             },
             deep: true,
         },

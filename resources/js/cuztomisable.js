@@ -8,6 +8,7 @@ import Tablelify from './components/Tablelify.vue';
 import Loading from './components/Formora/Loading.vue';
 import Upload from './components/Formora/Upload.vue';
 import Address from './components/Formora/Address.vue';
+import Carousel from './components/Formora/Carousel.vue';
 import Phone from './components/Formora/Phone.vue';
 import Input from './components/Formora/Input.vue';
 import Radio from './components/Formora/Radio.vue';
@@ -32,6 +33,7 @@ export async function loadCuztomisableApp(mountId = '#cuztomisable-app') {
         tablelify: Tablelify,
         'fm-loading': Loading,
         'fm-form': Form,
+        'fm-carousel': Carousel,
         'fm-input': Input,
         'fm-address': Address,
         'fm-phone': Phone,
@@ -57,6 +59,13 @@ export async function loadCuztomisableApp(mountId = '#cuztomisable-app') {
         created() { window.addEventListener('resize', this.onResize); },
         unmounted() { window.removeEventListener('resize', this.onResize); },
         methods: {
+            copyToClipboard: function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Copied to clipboard:', text)
+                }).catch(err => {
+                    console.error('Failed to copy:', err)
+                });
+            },
             breakpoint(type) {
                 return (type === 'lg' && this.width >= 992)
                     || (type === 'md' && this.width >= 768)

@@ -2,7 +2,7 @@
     <div class="permission-form">
         <fm-loading v-if="loading" :loading="loading" :large="false" :full="false" />
         <fm-form v-show="!loading" ref="permissionForm" :form="form" @save="save">
-            <h3 class="card-title">Permissions</h3>
+            <h3 class="card-title">{{ form?.id ? 'Manage': 'Create' }} Permission</h3>
             <h6 class="card-subtitle mb-6 text-muted">Specify the permission key, slug, and purpose.</h6>
             <fm-input
                 label="Name"
@@ -22,20 +22,17 @@
                 :errors="errors.description"
                 :disabled="submitting"
                 rows="5" />
-            <div class="row mt-4">
-                <div class="col col-md-6 col-12">
-                    <button type="submit"
-                        @click="save"
-                        class="button button--primary button--block mb-0"
-                        :class="{ 'mb-2': breakpoint('sm') }"
-                        :disabled="submitting">Save</button>
-                </div>
-                <div class="col col-md-6 col-12">
-                    <button type="button"
-                        @click="close"
-                        class="button button--secondary button--block mb-0"
-                        :disabled="submitting">Cancel</button>
-                </div>
+            <div class="mt-4">
+                <button type="submit"
+                    @click="save"
+                    class="button button--primary"
+                    :class="{ 'mb-2 button--block': breakpoint('sm'), 'mb-0 button-width': !breakpoint('sm') }"
+                    :disabled="submitting">Save</button>
+                <button type="button"
+                    class="button button--secondary"
+                    :class="{ 'mb-2 button--block': breakpoint('sm'), 'ml-4 mb-0 button-width': !breakpoint('sm') }"
+                    :disabled="submitting"
+                    @click="close">Nevermind</button>
             </div>
         </fm-form>
     </div>

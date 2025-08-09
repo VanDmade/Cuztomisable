@@ -85,3 +85,35 @@ function cleanPhone($number)
     }
     return $number;
 }
+
+/******************************************************************************\
+ *
+ * Cleans the number and makes it a whole number unless it should be a decimal
+ * 
+ * @return string  The cleaned number
+ * 
+\******************************************************************************/
+function displayNumber($number)
+{
+    return ($number == (int)$number) ? (int)$number : (float)$number;
+}
+
+/******************************************************************************\
+ *
+ * Obscures the name of the user for public use.
+ * 
+ * @return string  The obscured name
+ * 
+\******************************************************************************/
+function obscureName($fullName)
+{
+    $parts = preg_split('/\s+/', trim($fullName));
+    if (count($parts) < 2) {
+        // If there's no last name, just return the first name as-is
+        return $fullName;
+    }
+    $firstName = $parts[0];
+    $lastName = end($parts);
+    $lastChar = mb_substr($lastName, 0, 1);
+    return ucwords($firstName.' '.$lastChar.'.');
+}

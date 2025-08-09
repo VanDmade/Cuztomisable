@@ -6,7 +6,7 @@
                 <p v-if="notes != null" class="notes mb-2">{{ notes }}</p>
             </div>
             <div class="fm-form-multi-entries-add">
-                <button type="button" @click="add" class="button button--primary button--small mt-2">{{ addLabel }}</button>
+                <button type="button" @click="add" :disabled="disabled" class="button button--primary button--small mt-2">{{ addLabel }}</button>
             </div>
         </div>
         <div class="fm-form-multi-entry" v-for="(mainItem, multiIndex) in value">
@@ -17,20 +17,20 @@
                     <button
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
-                        :disabled="multiIndex == 0"
+                        :disabled="(multiIndex == 0) || disabled"
                         class="button fm-button-reorder fm-button-reorder-upward button-outline-secondary px-1"
                         @click="reorderUp(multiIndex)"><span class="material-icons">arrow_upward</span></button>
                     <button
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
-                        :disabled="multiIndex == value.length - 1"
+                        :disabled="(multiIndex == value.length - 1) || disabled"
                         class="button fm-button-reorder fm-button-reorder-downward button-outline-secondary px-1"
                         @click="reorderDown(multiIndex)"><span class="material-icons">arrow_downward</span></button>
                     <div class="fm-button-container" :class="{ 'd-grid mt-4': breakpoint('sm'), 'fm-button-remove-border-radius': settings }">
                         <button
                             type="button"
                             class="button button--danger"
-                            :disabled="removeAll == false && value.length == 1 && alternativeIndex == 0"
+                            :disabled="(removeAll == false && value.length == 1 && alternativeIndex == 0) || disabled"
                             @click="remove(multiIndex, alternativeIndex == 0 ? null : (alternativeIndex - 1))">{{ isAskingToRemove(multiIndex, alternativeIndex == 0 ? null : (alternativeIndex - 1)) ? 'Are your sure?' : removeLabel }}</button>
                     </div>
                     <slot :value="value" :index="multiIndex" :alternativeIndex="alternativeIndex == 0 ? null : (alternativeIndex - 1)" name="settings"></slot>
@@ -49,7 +49,7 @@
             </div>
         </div>
         <div v-if="breakpoint('sm')" class="fm-button-container d-grid">
-            <button v-if="addButton == true" type="button" @click="add" class="button btn--primary">{{ addLabel }}</button>
+            <button v-if="addButton == true" type="button" @click="add" :disabled="disabled" class="button btn--primary">{{ addLabel }}</button>
         </div>
     </div>
 </template>

@@ -122,6 +122,60 @@
         }
     }
 }
+.fm-carousel {
+    margin: auto;
+    .fm-carousel-image {
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
+    .fm-carousel-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 10px;
+        .fm-carousel-image {
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            transition: transform 0.2s;
+        }
+        .fm-carousel-nav {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #333;
+            padding: 0 10px;
+        }
+        .fm-carousel-nav:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+    }
+    .fm-carousel-thumbs {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+    .fm-carousel-thumb {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: 0.2s;
+    }
+    .fm-carousel-thumb:hover {
+        opacity: 1;
+    }
+    .fm-carousel-thumb.active {
+        border-color: #009688;
+        opacity: 1;
+    }
+}
 .fm-image-input {
     &:hover .fm-image,
     &:active .fm-image,

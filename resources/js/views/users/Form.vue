@@ -88,9 +88,9 @@
                 <button v-if="isMineOrHasPermission('manage-users')"
                     type="submit"
                     class="button button--primary"
-                    :class="{ 'button--block': breakpoint('sm'), 'mr-4': !breakpoint('sm') }"
+                    :class="{ 'button--block': breakpoint('sm'), 'mr-4 button-width': !breakpoint('sm') }"
                     :disabled="submitting">Save Changes</button>
-                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm')}" @click="goBack()" :disabled="submitting">Go Back</button>
+                <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
         </fm-form>
         <fm-modal v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
