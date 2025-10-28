@@ -8,11 +8,14 @@ use VanDmade\Cuztomisable\Requests\Authentication\MFA\MFARequest;
 use VanDmade\Cuztomisable\Requests\Authentication\MFA\SendRequest;
 use VanDmade\Cuztomisable\Requests\TableRequest;
 use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
+use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 use Carbon\Carbon;
 use DB;
 use Exception;
+use Hash;
+use Str;
 
 class MFAController extends Controller
 {
@@ -129,7 +132,7 @@ class MFAController extends Controller
             $code->used_at = date('Y-m-d H:i:s');
             $code->save();
             DB::commit();
-            return $this->success([
+            $response = [
                 'message' => __('cuztomisable/authentication.login.logged_in'),
                 'multi_factor_authentication' => false,
                 'remember' => isset($data['remember']) && $data['remember'] == '1',
@@ -139,7 +142,20 @@ class MFAController extends Controller
                     'phone' => $code->user->mobilePhone->full_phone_number ?? null,
                     'image' => !is_null($code->user->profile) ? $code->user->profile->output() : null,
                 ],
-            ])->withCookie($code->user->generateAuthCookie());
+            ];
+            // Determines if a mobile app is calling the authentication or not
+            if ($request->header('X-App-Platform') === 'mobile') {
+                $refreshToken = RefreshToken::create([
+                    'user_id' => $code->user->id,
+                    'token' => Hash::make($refreshToken = Str::random(64)),
+                    'expires_at' => now()->addDays(30),
+                ]);
+                $response['access_token'] = $code->user->createToken('mobile')->plainTextToken;
+                $response['refresh_token'] = $refreshToken->token ?? null;
+                $response['expires_in'] = config('cuztomisable.login.session_length', 900);
+                return $this->success($response);
+            }
+            return $this->success($response)->withCookie($code->user->generateAuthCookie());
         } catch (Exception $error) {
             DB::rollback();
             return $this->error($error);

@@ -88,7 +88,7 @@ class LoginController extends Controller
                 'change_password' => $user->change_password,
             ];
             // Determines if a mobile app is calling the authentication or not
-            if ($mobile = $request->header('X-App-Platform') === 'mobile') {
+            if ($request->header('X-App-Platform') === 'mobile' && !$ipAddress->requireMfa()) {
                 $refreshToken = RefreshToken::create([
                     'user_id' => $user->id,
                     'token' => Hash::make($refreshToken = Str::random(64)),
