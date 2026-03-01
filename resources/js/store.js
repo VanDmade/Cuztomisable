@@ -52,7 +52,7 @@ export default createStore({
     mutations: {
         SET_USER: function(state, user) {
             state.user = user;
-            state.authenticated = true;
+            state.authenticated = !!user;
         },
         CLEAR_USER: function(state) {
             state.user = null;
@@ -77,20 +77,11 @@ export default createStore({
         async checkAuth({ commit, dispatch }) {
             commit('SET_LOADING', true);
             try {
-                const cookieName = this.$cuztomisable?.login?.cookie_name ?? 'api_token';
-                const hasApiTokenCookie = document.cookie
-                    .split(';')
-                    .some((entry) => entry.trim().startsWith(`${cookieName}=`));
-
-                if (!hasApiTokenCookie) {
-                    commit('CLEAR_USER');
-                    return;
-                }
-
                 const response = await axios.get('/me');
-                commit('SET_USER', response.data.user);
-                commit('SET_PERMISSIONS', response.data.permissions ?? []);
-                commit('SET_CHANGE_PASSWORD', response.data.change_password ?? false);
+                const payload = response?.data?.data ?? response?.data ?? {};
+                commit('SET_USER', payload.user ?? null);
+                commit('SET_PERMISSIONS', payload.permissions ?? []);
+                commit('SET_CHANGE_PASSWORD', !!payload.change_password);
                 dispatch('performTokenRefresh');
             } catch (error) {
                 commit('CLEAR_USER');
@@ -104,10 +95,11 @@ export default createStore({
         async login({ commit, dispatch }, credentials) {
             await axios.get('/sanctum/csrf-cookie');
             let response = await axios.post('/login', credentials);
-            if (response.data.multi_factor_authentication !== true) {
-                commit('SET_USER', response.data.user);
-                commit('SET_PERMISSIONS', response.data.permissions ?? []);
-                commit('SET_CHANGE_PASSWORD', response.data.change_password ?? false);
+            const payload = response?.data?.data ?? response?.data ?? {};
+            if (payload.multi_factor_authentication !== true) {
+                commit('SET_USER', payload.user ?? null);
+                commit('SET_PERMISSIONS', payload.permissions ?? []);
+                commit('SET_CHANGE_PASSWORD', !!payload.change_password);
                 dispatch('startTokenRefresh');
             }
             return response;

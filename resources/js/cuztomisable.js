@@ -1,6 +1,9 @@
 import './bootstrap';
+import '../sass/app.scss';
+import '../sass/formora.scss';
+import '../sass/tablelify.scss';
 import * as axiosModule from 'axios';
-import { createApp, h, reactive, defineComponent } from 'vue';
+import { createApp, h, reactive, defineComponent, Fragment } from 'vue';
 import { createInertiaApp, Link, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import store from './store';
@@ -22,6 +25,8 @@ import Form from './components/Formora/Form.vue';
 import Autofill from './components/Formora/Autofill.vue';
 import Modal from './components/Formora/Modal.vue';
 import Message from './components/Formora/Message.vue';
+import notify from './utils/notify';
+import loading from './utils/loading';
 import LoginLayout from './views/layouts/LoginLayout.vue';
 import PortalLayout from './views/layouts/PortalLayout.vue';
 
@@ -34,6 +39,14 @@ const LOGIN_LAYOUT_PAGES = new Set([
     'authentication/Reset',
     'authentication/MFA',
     'Message',
+]);
+
+const AUTH_GUEST_ROUTE_NAMES = new Set([
+    'login',
+    'registration',
+    'forgot',
+    'reset',
+    'mfa',
 ]);
 
 const ROUTES = {
@@ -236,7 +249,12 @@ export async function loadCuztomisableApp() {
         async setup({ el, App, props, plugin }) {
             Object.assign(routeState, parseRouteFromUrl(props.initialPage.url));
 
-            const app = createApp({ render: () => h(App, props) });
+            const app = createApp({
+                render: () => h(Fragment, [
+                    h(Message),
+                    h(App, props),
+                ]),
+            });
 
             app.use(plugin);
             app.use(store);
@@ -288,6 +306,13 @@ export async function loadCuztomisableApp() {
             visit('/');
         },
     };
+
+    app.config.globalProperties.$notify = notify;
+    app.config.globalProperties.$message = notify;
+    app.provide('notify', notify);
+    app.provide('message', notify);
+    app.config.globalProperties.$loading = loading;
+    app.provide('loading', loading);
 
     store.$cuztomisable = app.config.globalProperties.$cuztomisable = settings;
     app.config.globalProperties.$url = normalizeBaseUrl(import.meta.env.VITE_URL);
@@ -369,6 +394,10 @@ export async function loadCuztomisableApp() {
     });
 
     await store.dispatch('checkAuth');
+
+    if (store.state.authenticated && AUTH_GUEST_ROUTE_NAMES.has(routeState.name)) {
+        await visit('/portal', true);
+    }
 
     app.mount(el);
     return { app, store };

@@ -3,7 +3,7 @@
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
         <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow" v-if="navbar">
             <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
-                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/banner-white.png'" style="height: 32px;"></router-link>
+                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/logo.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
@@ -53,15 +53,33 @@
             </div>
         </nav>
         <slot></slot>
+        <fm-modal ref="inactivityModal" modal-width="275px" static>
+            <h3 class="card-title mb-4">Are you still here?</h3>
+            <h1 class="text-center mb-4">{{ countdown }}</h1>
+            <button type="button"
+                @click="cancelLogout()"
+                class="button button--primary button--block">I'm Still Here</button>
+        </fm-modal>
+        <fm-modal ref="changePasswordModal" modal-width="450px" static>
+            <force-change-password-form v-on:close="handleChangePasswordClose"/>
+        </fm-modal>
     </div>
 </template>
 <script>
+import ForceChangePasswordForm from '../../components/ChangePassword.vue';
+
 export default {
     data: function() {
         return {
             navbar: this.$store.state.authenticated,
             navbarToggle: false,
             screenSize: 'large',
+            inactivityTimer: null,
+            verifyInactivity: null,
+            inactivityLimit: 5 * 60 * 1000,
+            verifyInactivityLimit: 10,
+            countdown: 0,
+            events: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
         }
     },
     mounted: function() {
@@ -69,24 +87,111 @@ export default {
         if (this.$route.meta.authentication && !this.$store.state.authenticated) {
             this.$router.push({ name: 'login' });
         }
+        if (this.$store.state.change_password) {
+            this.$nextTick(() => {
+                this.$refs['changePasswordModal']?.open();
+            });
+        }
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
         })
     },
     beforeDestroy: function() { 
+        this.removeActivityListeners();
         window.removeEventListener('resize', this.onResize); 
     },
     methods: {
+        handleChangePasswordClose: function() {
+            if (this.$store.state.change_password) {
+                this.$nextTick(() => {
+                    this.$refs['changePasswordModal']?.open();
+                });
+                return;
+            }
+
+            this.$refs['changePasswordModal']?.close();
+        },
         onResize: function() {
             this.screenSize = window.innerWidth <= 992 ? 'medium' : 'large';
         },
+        startInactivityWatcher: function() {
+            this.resetInactivityTimer();
+            this.events.forEach(event => window.addEventListener(event, this.resetInactivityTimer));
+        },
+        removeActivityListeners: function() {
+            clearTimeout(this.inactivityTimer);
+            clearTimeout(this.verifyInactivity);
+            const backdrop = document.querySelector('.modal-backdrop.fade.show');
+            if (backdrop) {
+                backdrop.remove();
+                document.body.classList.remove('modal-open');
+            }
+            this.events.forEach(event => window.removeEventListener(event, this.resetInactivityTimer));
+        },
+        resetInactivityTimer: function() {
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = setTimeout(() => {
+                this.$refs['inactivityModal'].open();
+                clearTimeout(this.verifyInactivity);
+                this.startCountdown();
+                this.verifyInactivity = setTimeout(async () => {
+                    this.$refs['inactivityModal'].close();
+                    this.logout();
+                }, this.verifyInactivityLimit * 1000);
+            }, this.inactivityLimit);
+        },
+        startCountdown: function() {
+            this.countdown = this.verifyInactivityLimit;
+            setTimeout(() => {
+                for (let i = 0; i < this.countdown; i++) {
+                    setTimeout(() => {
+                        this.countdown--;
+                    }, i * 1000);
+                }
+            }, 500);
+        },
+        cancelLogout: function() {
+            clearTimeout(this.verifyInactivity);
+            this.$refs['inactivityModal'].close();
+            this.resetInactivityTimer();
+        },
         async logout() {
-            this.$emit('loadingMessage', 'See you next time!');
+            this.$loading.show({ message: 'See you next time!' });
             setTimeout(async () => {
+                this.removeActivityListeners();
                 await this.$store.dispatch('logout');
                 this.$router.push({ name: 'login' });
             }, 250);
-        }
+        },
     },
+    watch: {
+        '$store.state.authenticated': {
+            immediate: true,
+            handler: function(value) {
+                if (value) {
+                    this.startInactivityWatcher();
+                } else {
+                    this.removeActivityListeners();
+                }
+            },
+            deep: true,
+        },
+        '$store.state.change_password': {
+            immediate: true,
+            handler: function(value) {
+                this.$nextTick(() => {
+                    if (value) {
+                        this.$refs['changePasswordModal']?.open();
+                    } else {
+                        this.$refs['changePasswordModal']?.close();
+                    }
+                });
+            },
+            deep: true,
+        },
+    },
+    components: {
+        'force-change-password-form': ForceChangePasswordForm,
+    }
 }
 </script>

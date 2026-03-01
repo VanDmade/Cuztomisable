@@ -89,7 +89,7 @@ export default {
                 formData.append('new', this.form.new ?? '');
             }
             axios.post(`/user/${this.user}/${this.submitAction}/password`, formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
                 setTimeout(() => {
                     this.$emit('close');
                 }, 1000);
@@ -98,7 +98,7 @@ export default {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.push({ text: response.data.message, color: 'danger' });
                 }
             }).finally(() => {
                 setTimeout(() => {

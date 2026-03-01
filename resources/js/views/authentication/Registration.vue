@@ -117,7 +117,7 @@ export default {
                     this.form.email = data.user.email ?? '';
                 }
             }).catch(({ response }) => {
-                this.$emit('message', { text: response.data.message, error: true });
+                this.$message.error(response.data.message);
             });
         },
         save: function() {
@@ -145,7 +145,7 @@ export default {
             formData = this.cleanFormData(formData);
             axios.post(`/register${code}`, formData).then(({ data }) => {
                 if (data.message) {
-                    this.$emit('message', { text: data.message });
+                    this.$message.success(data.message);
                 }
                 setTimeout(() => {
                     this.$router.push({ name: 'login' });
@@ -164,7 +164,7 @@ export default {
                     };
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
                 setTimeout(() => {
                     this.submitting = false;

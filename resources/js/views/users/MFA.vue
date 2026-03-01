@@ -33,13 +33,19 @@ export default {
         toggle: function(value) {
             this.submitting = true;
             axios.patch(`/user/${this.user}/mfa`).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.success(data?.message || 'Multi-factor authentication updated successfully.');
                 setTimeout(() => {
                     this.$emit('close');
                     setTimeout(() => {
                         this.value = !this.value;
                     }, 250);
                 }, 1000);
+            }).catch(({ response }) => {
+                if (response?.data?.message) {
+                    this.$message.danger(response.data.message);
+                    return;
+                }
+                this.$message.danger('Unable to update multi-factor authentication right now.');
             }).finally(() => {
                 setTimeout(() => {
                     this.submitting = false;

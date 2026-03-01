@@ -22,8 +22,10 @@ export default {
         }
     },
     created: function() {
-        // Removes everything from the query string
-        this.$router.push({ path: this.$route.path, query: {} });
+        // Removes everything from the query string only when needed
+        if (Object.keys(this.$route.query ?? {}).length > 0) {
+            this.$router.replace({ path: this.$route.path, query: {} });
+        }
     },
 }
 </script>

@@ -1,50 +1,64 @@
 <template>
-    <div class="fm-messages">
-        <div v-for="(item, index) in messages" class="fm-message-container">
-            <div v-if="item.text != ''"
-                class="fm-message shadow fade-in"
-                :class="item.error ? 'fm-message-error' : 'fm-message-success'">{{ item.text }}</div>
+    <div class="fm-messages" :style="containerStyle">
+        <div v-for="item in messages" :key="item.id" class="fm-message-container">
+            <div class="fm-message shadow fade-in" :class="messageClasses(item)">
+                <span class="fm-message-text">{{ item.text }}</span>
+                <button
+                    v-if="item.persistent"
+                    type="button"
+                    class="fm-message-close"
+                    @click="close(item.id)">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
         </div>
     </div>
 </template>
 <script>
+import notify from '../../utils/notify';
+
 export default {
-    data: function() {
-        return {
-            messages: [],
-            template: {
-                id: 0,
-                text: '',
-                error: false,
-            },
-            counter: 1,
-        }
+    computed: {
+        messages() {
+            return notify.state.items;
+        },
+        containerStyle() {
+            return {
+                minWidth: this.minWidth || notify.state.settings.minWidth,
+                maxWidth: this.maxWidth || notify.state.settings.maxWidth,
+            };
+        },
     },
     methods: {
+        messageClasses(item) {
+            const color = String(item?.color ?? 'success').toLowerCase();
+            const classes = [`fm-message-${color}`];
 
+            if (color === 'danger') {
+                classes.push('fm-message-error');
+            }
+
+            return classes;
+        },
+        close(id) {
+            notify.remove(id);
+        },
     },
     watch: {
         message: {
             handler: function(value) {
-                if (value.text == '') {
+                if (!value || !value.text) {
                     return;
                 }
-                let template = JSON.parse(JSON.stringify(this.template));
-                template.id = value.id;
-                template.text = value.text;
-                template.error = value.error;
-                this.messages.push(template);
-                // Counts the words to add to or remove a few seconds to make sure the user can read the message.
-                let totalWords = value.text.split(' ').length;
-                // The average reader can read 3-4 words per second, so 5 should be more than enough.
-                let averageReadSpeed = Math.ceil(totalWords / 5) * 2000;
-                setTimeout(() => {
-                    for (var i = 0; i < this.messages.length; i++) {
-                        if (this.messages[i].id == template.id) {
-                            this.messages[i].text = '';
-                        }
-                    }
-                }, this.length > averageReadSpeed ? this.length : averageReadSpeed);
+                const totalWords = value.text.split(' ').length;
+                const averageReadSpeed = Math.ceil(totalWords / 5) * 2000;
+                const duration = this.length > averageReadSpeed ? this.length : averageReadSpeed;
+
+                notify.push(value, {
+                    duration,
+                    color: value.color,
+                    persistent: value.persistent,
+                });
             },
             deep: true,
         }
@@ -52,7 +66,8 @@ export default {
     props: {
         message: { type: [Array, Object], default: [] },
         length: { type: Number, default: 4000 },
-        error: { type: Boolean, default: false },
+        minWidth: { type: [Number, String], default: null },
+        maxWidth: { type: [Number, String], default: null },
     }
 }
 </script>

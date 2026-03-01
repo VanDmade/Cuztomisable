@@ -116,11 +116,11 @@ export default {
         remove: function() {
             this.submitting = true;
             axios.delete(`/user/${this.id}`).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
                 this.$refs.userTable.query();
             }).catch(({ response }) => {
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.push({ text: response.data.message, color: 'danger' });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -132,7 +132,7 @@ export default {
             });
         },
         setMessage: function(message) {
-            this.$emit('message', message);
+            this.$message.push({ ...(message ?? {}), color: message?.error ? 'danger' : message?.color });
         },
     },
 }

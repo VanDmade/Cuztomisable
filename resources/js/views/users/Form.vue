@@ -194,7 +194,7 @@ export default {
             this.submitting = true;
             formData = this.cleanFormData(formData);
             axios.post(`/user/${id}`, formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -209,7 +209,7 @@ export default {
                     };
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.push({ text: response.data.message, color: 'danger' });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -218,7 +218,7 @@ export default {
             });
         },
         message: function(message) {
-            this.$emit('message', message);
+            this.$message.push({ ...(message ?? {}), color: message?.error ? 'danger' : message?.color });
         },
         handleUserChange: function(user) {
             if (typeof(this.form.id) == 'undefined') {

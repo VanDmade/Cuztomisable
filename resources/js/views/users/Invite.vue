@@ -117,7 +117,7 @@ export default {
             }
             this.submitting = true;
             axios.post('/invite', formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
                 setTimeout(() => {
                     this.close();
                 }, 500);
@@ -126,7 +126,7 @@ export default {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.push({ text: response.data.message, color: 'danger' });
                 }
             }).finally(() => {
                 setTimeout(() => {

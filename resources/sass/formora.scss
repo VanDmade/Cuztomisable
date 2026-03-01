@@ -149,21 +149,111 @@
 }
 .fm-messages {
     position: fixed;
-    max-width: 400px;
-    bottom: 0;
-    right: 30px;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    width: auto;
+    max-width: calc(100vw - 2rem);
     z-index: 999999999;
+    pointer-events: none;
     .fm-message-container {
+        width: 100%;
+        pointer-events: auto;
         .fm-message {
-            padding: 8px 16px;
-            margin-bottom: 15px;
+            padding: 0.75rem 0.9rem;
+            border-radius: $border-radius;
+            color: $color-text;
+            background: $color-bg;
+            border: 1px solid $color-border;
+            border-left: 4px solid $color-primary;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
+        .fm-message-text {
+            white-space: pre-wrap;
+            line-height: 1.35;
+            font-size: 0.92rem;
+        }
+        .fm-message.fm-message-primary {
+            background: $color-primary;
+            border-left-color: $color-primary;
+            color: $color-white;
+        }
+        .fm-message.fm-message-secondary {
+            background: $color-secondary;
+            border-left-color: $color-secondary;
+            color: $color-white;
+        }
+        .fm-message.fm-message-ternary {
+            background: $color-ternary;
+            border-left-color: $color-ternary;
+            color: $color-white;
+        }
+        .fm-message.fm-message-danger,
         .fm-message.fm-message-error {
             background: $color-danger;
+            border-left-color: $color-danger;
+            color: $color-white;
         }
         .fm-message.fm-message-success {
             background: $color-success;
+            border-left-color: $color-success;
+            color: $color-white;
         }
+        .fm-message.fm-message-info {
+            background: $color-info;
+            border-left-color: $color-info;
+            color: $color-white;
+        }
+        .fm-message.fm-message-warning {
+            background: $color-warning;
+            border-left-color: $color-warning;
+            color: $color-white;
+        }
+        .fm-message.fm-message-light {
+            background: $color-light;
+            color: $color-text;
+            border-left-color: $color-muted;
+        }
+        .fm-message-close {
+            border: 0;
+            background: transparent;
+            color: inherit;
+            line-height: 1;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.75;
+            transition: opacity 0.2s ease-in-out;
+            &:hover {
+                opacity: 1;
+            }
+            .material-icons {
+                font-size: 1.1rem;
+                line-height: 1;
+            }
+        }
+    }
+}
+@media (max-width: $small) {
+    .fm-messages {
+        top: auto;
+        bottom: 0.5rem;
+        left: 0;
+        right: 0;
+        align-items: stretch;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 0.5rem 0.5rem;
     }
 }
 .fm-carousel {

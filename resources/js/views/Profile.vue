@@ -110,7 +110,7 @@ export default {
             }
             this.submitting = true;
             axios.post('/user', formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.success(data.message);
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -125,7 +125,7 @@ export default {
                     };
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {

@@ -100,8 +100,8 @@ export default {
         this.setToken();
         if (!this.token) {
             this.verifying = false;
-            this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
-            this.$emit('loading', false);
+            this.$notify.error('Your MFA session token is missing. Please log in again.');
+            this.$loading.hide();
             this.$router.push({ name: 'login' });
             return;
         }
@@ -144,7 +144,7 @@ export default {
             this.expiryRedirected = true;
             this.expiresIn = 0;
             this.clearExpiryCountdown();
-            this.$emit('message', { text: 'Your code has expired. Please try again.', error: true });
+            this.$notify.error('Your code has expired. Please try again.');
             this.$router.push({ name: 'login' });
         },
         resolveToken: function() {
@@ -161,9 +161,6 @@ export default {
             this.resend = false;
             this.submitting = true;
             const switchingToCode = !this.sent;
-            if (switchingToCode) {
-                this.verifying = true;
-            }
             this.setToken();
             if (!this.token) {
                 this.submitting = false;
@@ -171,7 +168,7 @@ export default {
                     this.verifying = false;
                     this.autoSending = false;
                 }
-                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+                this.$notify.error('Your MFA session token is missing. Please log in again.');
                 this.$router.push({ name: 'login' });
                 return;
             }
@@ -186,18 +183,25 @@ export default {
             }
             formData.append('type', this.form.email ? 'email' : (this.form.phone ? 'phone' : 'resend'));
             return axios.post(`/login/mfa/${this.token}/send`, formData).then(({ data }) => {
-                this.sent = true;
+                if (switchingToCode) {
+                    this.verifying = false;
+                    setTimeout(() => {
+                        this.sent = true;
+                    }, 1000);
+                } else {
+                    this.sent = true;
+                }
                 this.setupResend();
                 this.refreshExpiry();
                 // Sets a success message for the MFA sending
-                this.$emit('message', { text: data.message });
+                this.$notify.success(data.message);
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
                     // Output the message about the error
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$notify.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -214,7 +218,7 @@ export default {
             this.setToken();
             if (!this.token) {
                 this.submitting = false;
-                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+                this.$notify.error('Your MFA session token is missing. Please log in again.');
                 this.$router.push({ name: 'login' });
                 return;
             }
@@ -224,7 +228,7 @@ export default {
                 formData.append('remember', this.form.remember ? '1' : '0');
                 const { data } = await axios.post(`/login/mfa/${this.token}`, formData);
                 await this.$store.dispatch('checkAuth');
-                this.$emit('message', { text: data.message });
+                this.$notify.success(data.message);
                 setTimeout(() => {
                     this.$router.push({ name: 'portal' });
                 }, 150);
@@ -232,9 +236,8 @@ export default {
                 const response = error.response;
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
-                }
-                if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                } else if (response?.data?.message) {
+                    this.$notify.error(response.data.message);
                 }
             } finally {
                 setTimeout(() => {
@@ -246,13 +249,13 @@ export default {
             this.setToken();
             if (!this.token) {
                 this.verifying = false;
-                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
-                this.$emit('loading', false);
+                this.$notify.error('Your MFA session token is missing. Please log in again.');
+                this.$loading.hide();
                 this.$router.push({ name: 'login' });
                 return;
             }
             this.verifying = true;
-            this.$emit('loading', true);
+            this.$loading.show();
             axios.get(`/login/mfa/${this.token}/verify`).then(({ data }) => {
                 // Determines if the user just refreshed and if the code was already sent
                 if (data.sent == true) {
@@ -278,12 +281,12 @@ export default {
                     this.send();
                     return;
                 }
-                this.$emit('message', { text: data.message });
+                this.$notify.success(data.message);
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 } else if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$notify.error(response.data.message);
                     setTimeout(() => {
                         this.$router.push({ name: 'login' });
                     }, 1500);
@@ -292,7 +295,7 @@ export default {
                 if (!this.autoSending) {
                     this.verifying = false;
                 }
-                this.$emit('loading', false);
+                this.$loading.hide();
             });
         },
         setupResend: function() {

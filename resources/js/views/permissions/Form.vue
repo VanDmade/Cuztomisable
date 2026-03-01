@@ -54,7 +54,7 @@ export default {
                 this.form = data.permission;
             }).catch(({ response }) => {
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -70,7 +70,7 @@ export default {
             this.submitting = true;
             let id = this.id != null ? `/${this.id}` : '';
             axios.post(`/permission${id}`, formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.success(data.message);
                 this.$emit('redraw');
                 setTimeout(() => {
                     this.close();
@@ -80,7 +80,7 @@ export default {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {

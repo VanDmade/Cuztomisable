@@ -116,10 +116,9 @@ export default {
             this.sending[id] = true;
             axios.post(`/invite/${id}/send`).then(({ data }) => {
                 this.$refs.inviteTable.query();
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
                 this.countdown(id, data.resend_in);
             }).catch((error) => {
-                alert(error);
                 setTimeout(() => {
                     this.sending[id] = false;
                 }, 500);
@@ -128,11 +127,11 @@ export default {
         remove: function() {
             this.submitting = true;
             axios.delete(`/invite/${this.id}`).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.push({ text: data.message });
                 this.$refs.inviteTable.query();
             }).catch(({ response }) => {
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.push({ text: response.data.message, color: 'danger' });
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -152,7 +151,7 @@ export default {
             this.cooldowns[id] = timeLeft;
             // Start countdown
             this.countdownTimers[id] = setInterval(() => {
-                if (this.cooldowns[id] > 0) {
+                if (this.cooldowns[id] > 0) { 
                     this.cooldowns[id]--;
                 } else {
                     clearInterval(this.countdownTimers[id]);
@@ -170,7 +169,7 @@ export default {
                     'Resending...' : `${this.cooldowns[id]} seconds`) : 'Resend';
         },
         setMessage: function(message) {
-            this.$emit('message', message);
+            this.$message.push({ ...(message ?? {}), color: message?.error ? 'danger' : message?.color });
         },
     },
     beforeDestroy: function() {

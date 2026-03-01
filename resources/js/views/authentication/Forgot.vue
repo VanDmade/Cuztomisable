@@ -42,16 +42,27 @@ export default {
             var formData = new FormData();
             formData.append('username', this.form.username ?? '');
             axios.post('/password/forgot', formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                const payload = data?.data ?? data ?? {};
+                const token = payload.token ?? payload.reset_token ?? payload.password_reset_token ?? null;
+                const message = payload.message ?? data?.message ?? 'Reset code sent successfully.';
+
+                this.$notify.success(message);
+
+                if (!token) {
+                    this.$notify.error('Unable to continue to password reset. Please try again.');
+                    this.submitting = false;
+                    return;
+                }
+
                 setTimeout(() => {
-                    this.$router.push({ name: 'reset', params: { token: data.token }})
+                    this.$router.push({ path: `/reset/${encodeURIComponent(String(token))}` });
                 }, 1500);
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$notify.error(response.data.message);
                 }
                 setTimeout(() => {
                     this.submitting = false;

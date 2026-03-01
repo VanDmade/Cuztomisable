@@ -1,11 +1,24 @@
 <template>
     <fm-form ref="forceChangePasswordForm" :form="form" @save="save">
+        <input
+            type="text"
+            autocomplete="username"
+            tabindex="-1"
+            aria-hidden="true"
+            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none;">
+        <input
+            type="password"
+            autocomplete="current-password"
+            tabindex="-1"
+            aria-hidden="true"
+            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none;">
         <h3 class="card-title">Password Change Required</h3>
         <h6 class="card-subtitle mb-4 text-muted">You must update your password before you can continue.</h6>
         <fm-input
             label="Password"
             v-model="form.new"
             type="password"
+            autocomplete="new-password"
             :errors="errors.new"
             :disabled="submitting" />
         <requirements :password="form.new" v-on:completed="completed"></requirements>
@@ -35,7 +48,7 @@ export default {
             let formData = new FormData();
             formData.append('new', this.form.new);
             axios.post('/user/change/password?force', this.cleanFormData(formData)).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.success(data.message);
                 this.$store.commit('SET_CHANGE_PASSWORD', false);
                 setTimeout(() => {
                     this.$emit('close');
@@ -45,7 +58,7 @@ export default {
                     this.errors = response.data.errors;
                 }
                 if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
                 if (response?.status == 403) {
                     // They are unauthorized to make this change, so the system will close out of the modal

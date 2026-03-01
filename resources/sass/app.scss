@@ -1,5 +1,25 @@
 @import "./variables.scss";
 
+:root {
+    --color-primary: #{$color-primary};
+    --color-secondary: #{$color-secondary};
+    --color-ternary: #{$color-ternary};
+    --color-accent: #{$color-accent};
+    --color-danger: #{$color-danger};
+    --color-success: #{$color-success};
+    --color-info: #{$color-info};
+    --color-warning: #{$color-warning};
+    --color-light: #{$color-light};
+    --color-bg: #{$color-bg};
+    --color-surface: #{$color-bg};
+    --color-text: #{$color-text};
+    --color-muted: #{$color-muted};
+    --color-white: #{$color-white};
+    --color-border: #{$color-border};
+    --color-link: #{$color-link};
+    --color-primary-ring: #{rgba($color-primary, 0.2)};
+}
+
 *, ::after, ::before {
     background-repeat: no-repeat;
     box-sizing: inherit;
@@ -27,6 +47,7 @@ input:-webkit-autofill {
 }
 .cz-authentication-logo {
     height: 60px;
+    padding: 8px;
 }
 #portal-layout {
     .navbar-toggler {
@@ -268,6 +289,55 @@ input:-webkit-autofill {
     &--warning    { color: $color-warning; }
     &--link       { color: $color-link; }
 }
+
+.btn-primary,
+.button--primary,
+.btn--primary { background-color: $color-primary; }
+
+.btn-secondary,
+.button--secondary { background-color: $color-secondary; }
+
+.btn-danger,
+.button--danger { background-color: $color-danger; }
+
+.button--accent { background-color: $color-accent; color: $color-text; }
+.button--success { background-color: $color-success; color: $color-text; }
+.button--info { background-color: $color-info; color: $color-text; }
+.button--warning { background-color: $color-warning; color: $color-text; }
+
+.button--text { color: $color-primary !important; }
+
+.button-outline-secondary {
+    border-color: $color-secondary;
+    color: $color-secondary;
+}
+
+.button-outline-secondary:hover {
+    background-color: rgba($color-secondary, 0.12);
+}
+
+.button--link,
+.color--link { color: $color-link; }
+
+.button--link:hover,
+.color--link:hover { filter: brightness(0.9); }
+
+.links { color: $color-secondary; }
+
+.text-primary { color: $color-primary; }
+.text-danger,
+.form-error,
+.fm-form-error { color: $color-danger; }
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: $color-primary;
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba($color-primary, 0.2);
+}
+
+.form-check-input { color: $color-primary; }
 .note {
     display: block;
     font-size: 12px;

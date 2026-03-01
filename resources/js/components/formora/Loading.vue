@@ -81,10 +81,6 @@ export default {
     font-size: 3rem;
 }
 
-.text-primary {
-    color: #f97316;
-}
-
 .visually-hidden {
     position: absolute !important;
     width: 1px !important;

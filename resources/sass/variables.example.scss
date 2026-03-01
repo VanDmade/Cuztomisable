@@ -1,27 +1,30 @@
-
+// Breakpoints
 $xsmall:            576px;
 $small:             768px;
 $medium:            992px;
 $large:             1200px;
 $xlarge:            1400px;
 
-$color-primary:     #00796B;
-$color-secondary:   #546E7A;
-$color-ternary:     #ECEFF1;
-$color-accent:      #FF7043;
-$color-danger:      #D32F2F;
-$color-success:     #388E3C;
-$color-info:        #039Be5;
-$color-warning:     #FFA000;
-$color-light:       #FDF6EC;
-$color-link:        #1976D2;
+// Brand Colors (Matched to Hexagon Logo)
+$color-primary:     #F47C20;   // Deep burnt orange
+$color-secondary:   #A63A0A;   // Mid orange
+$color-ternary:     #F79A4A;   // Light orange
+$color-accent:      #FF8C2A;   // Bright highlight node
+$color-danger:      #C62828;
+$color-success:     #2E7D32;
+$color-info:        #0277BD;
+$color-warning:     #F9A825;
+$color-light:       #FAF9F6;
+$color-link:        #E65100;
 
+// Base UI Colors
 $color-bg:          #FAF9F6;
 $color-text:        #1C1C1C;
+$color-muted:       #6C757D;
 $color-white:       #FFFFFF;
-$color-success:     #6AB26A;
+$color-border:      #E5D3C5;
 
+// UI Tokens
 $border-radius:     0.5rem;
 $padding:           0.6rem 1.2rem;
 $transition:        all 0.2s ease-in-out;
-

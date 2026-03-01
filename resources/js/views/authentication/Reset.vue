@@ -51,7 +51,7 @@ export default {
             submitting: false,
             disableSubmit: true,
             errors: [],
-            token: this.$route.params.token,
+            token: '',
             verifiedCode: false,
             resend: false,
             resending: false,
@@ -67,10 +67,32 @@ export default {
         }
     },
     created: function() {
+        this.setToken();
+        if (!this.token) {
+            this.$notify.error('Your reset token is missing. Please request a new reset code.');
+            this.$router.push({ name: 'forgot' });
+            return;
+        }
         this.verify(false);
     },
     methods: {
+        resolveToken: function() {
+            const routeToken = this.$route?.params?.token;
+            const queryToken = this.$route?.query?.token;
+            const pageToken = this.$page?.props?.token;
+            const value = routeToken ?? queryToken ?? pageToken ?? null;
+            return value ? String(value).trim() : '';
+        },
+        setToken: function() {
+            this.token = this.resolveToken();
+        },
         verify: function(verifyCode) {
+            this.setToken();
+            if (!this.token) {
+                this.$notify.error('Your reset token is missing. Please request a new reset code.');
+                this.$router.push({ name: 'forgot' });
+                return;
+            }
             if (verifyCode) {
                 if (this.form.code == '') {
                     this.errors.code = [];
@@ -82,7 +104,7 @@ export default {
             var code = verifyCode ? ('/'+this.form.code) : '';
             axios.get(`/password/forgot/${this.token}/verify${code}`).then(({ data }) => {
                 if (verifyCode) {
-                    this.$emit('message', { text: data.message });
+                    this.$message.success(data.message);
                     setTimeout(() => {
                         this.verifiedCode = true;
                     }, 1500);
@@ -95,7 +117,7 @@ export default {
                     this.errors.code = [];
                     this.errors.code.push(response?.data?.message);
                 } else if (response?.data?.message) {
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                     this.$router.push({ name: 'forgot' });
                 }
             }).finally(() => {
@@ -105,6 +127,12 @@ export default {
             });
         },
         send: function() {
+            this.setToken();
+            if (!this.token) {
+                this.$notify.error('Your reset token is missing. Please request a new reset code.');
+                this.$router.push({ name: 'forgot' });
+                return;
+            }
             this.resending = true;
             this.resend = false;
             this.submitting = true;
@@ -119,7 +147,7 @@ export default {
             }).catch(({ response }) => {
                 if (response?.data?.message) {
                     // Output the message about the error
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {
@@ -129,13 +157,19 @@ export default {
             });
         },
         save: function() {
+            this.setToken();
+            if (!this.token) {
+                this.$notify.error('Your reset token is missing. Please request a new reset code.');
+                this.$router.push({ name: 'forgot' });
+                return;
+            }
             this.errors = [];
             this.submitting = true;
             var formData = new FormData();
             formData.append('code', this.form.code);
             formData.append('password', this.form.password);
             axios.post(`/password/forgot/${this.token}`, formData).then(({ data }) => {
-                this.$emit('message', { text: data.message });
+                this.$message.success(data.message);
                 this.$router.push({ name: 'login' });
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
@@ -143,7 +177,7 @@ export default {
                 }
                 if (response?.data?.message) {
                     // Output the message about the error
-                    this.$emit('message', { text: response.data.message, error: true });
+                    this.$message.error(response.data.message);
                 }
             }).finally(() => {
                 setTimeout(() => {
