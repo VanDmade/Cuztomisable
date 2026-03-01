@@ -11,7 +11,10 @@
             @input="errorList = []">
             <option v-if="newEntry" :value="newEntryValue">{{ newEntryText }}</option>
             <option v-if="getItems().length == ''" value="no no no! You cannot select me!" disabled>{{ emptyText }}</option>
-            <option v-if="!required" value=""></option>
+            <option
+                v-if="!required || isEmpty"
+                value=""
+                :hidden="required && !isEmpty"></option>
             <option v-for="(item, itemIndex) in getItems()"
                 :value="yesNo ? item.value : (typeof(item[inputValue]) == 'undefined' ? item : item[inputValue])">{{ yesNo ? item.text : (typeof(item[inputText]) == 'undefined' ? item : item[inputText]) }}</option>
         </select>
@@ -33,17 +36,30 @@ export default {
     methods: {
         getItems: function() {
             return this.yesNo ? this.yesOrNo : this.items;
+        },
+        isValueEmpty: function(value) {
+            if (value == null) {
+                return true;
+            }
+            if (typeof value === 'string') {
+                const normalized = value.trim().toLowerCase();
+                return normalized === '' || normalized === 'null' || normalized === 'undefined';
+            }
+            return false;
         }
     },
     computed: {
         isEmpty: function() {
-            return this.value === '' || this.value === null ? true : false;
+            return this.isValueEmpty(this.value);
         },
         value: {
             get: function () {
-                return this.modelValue;
+                return this.isValueEmpty(this.modelValue) ? '' : this.modelValue;
             },
             set: function (value) {
+                if (this.isValueEmpty(value)) {
+                    value = '';
+                }
                 // Allows for ease of creation of method if a new entry is selected and it'll trigger functionality in parent component
                 if (this.newEntry && value == this.newEntryValue) {
                     this.$emit('newEntrySelected');

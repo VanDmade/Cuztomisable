@@ -54,11 +54,19 @@ export default {
             formData.append('password', this.form.password ?? '');
             try {
                 let response = await this.$store.dispatch('login', formData);
+                const payload = response?.data?.data ?? response?.data ?? {};
                 setTimeout(() => {
-                    if (response.data.multi_factor_authentication === true) {
+                    if (payload.multi_factor_authentication === true) {
+                        const mfaToken = payload.token ?? payload.mfa_token ?? null;
+                        if (!mfaToken) {
+                            this.errors.username = [];
+                            this.errors.username.push('Unable to continue to multi-factor authentication. Please try logging in again.');
+                            this.submitting = false;
+                            return;
+                        }
                         setTimeout(() => {
                             // Redirect to the MFA page
-                            this.$router.push({ name: 'mfa', params: { token: response.data.token }});
+                            this.$router.push({ path: `/mfa/${encodeURIComponent(String(mfaToken))}` });
                         }, 150);
                     } else {
                         this.$router.push({ name: 'portal' });

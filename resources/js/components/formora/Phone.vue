@@ -61,6 +61,9 @@ export default {
             errorList: [],
         }
     },
+    mounted: function() {
+        this.ensureDefaultCountryCode();
+    },
     computed: {
         value: {
             get: function () {
@@ -100,11 +103,21 @@ export default {
         value: {
             immediate: true,
             handler: function(value) {
-                if (!value || typeof value !== 'object' || typeof(value.country_code) == 'undefined') {
+                if (!value || typeof value !== 'object') {
                     this.$emit('update:modelValue', {
-                        country_code: this.$cuztomisable.locations.default_country_code ?? '',
+                        country_code: this.defaultCountryCode(),
                         number: '',
                         extension: '',
+                        mobile: this.isMobile,
+                        default: this.isDefault,
+                    });
+                    return;
+                }
+
+                if (!value.country_code) {
+                    this.$emit('update:modelValue', {
+                        ...value,
+                        country_code: this.defaultCountryCode(),
                         mobile: this.isMobile,
                         default: this.isDefault,
                     });
@@ -112,16 +125,41 @@ export default {
             },
             deep: true,
         },
+        '$cuztomisable.locations.default_country_code': {
+            immediate: true,
+            handler: function() {
+                this.ensureDefaultCountryCode();
+            },
+        },
         'value.country_code': {
             handler: function(code) {
-                if (code == '') {
+                if (!code) {
                     if (this.value == '' || this.value == null) {
                         this.value = { country_code: '', number: '' };
                     }
-                    this.value.country_code = this.$cuztomisable.locations.default_country_code ?? '';
+                    this.value.country_code = this.defaultCountryCode();
                 }
             },
             deep: true,
+        },
+    },
+    methods: {
+        defaultCountryCode: function() {
+            return this.$cuztomisable?.locations?.default_country_code ?? '';
+        },
+        ensureDefaultCountryCode: function() {
+            const value = this.modelValue;
+            if (!value || typeof value !== 'object') {
+                return;
+            }
+            if (!value.country_code) {
+                this.$emit('update:modelValue', {
+                    ...value,
+                    country_code: this.defaultCountryCode(),
+                    mobile: this.isMobile,
+                    default: this.isDefault,
+                });
+            }
         },
     },
     props: {

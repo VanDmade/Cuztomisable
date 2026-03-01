@@ -1,5 +1,6 @@
 <template>
     <div id="mfa-page" class="page">
+        <fm-loading :loading="verifying" :full="true" :large="true" message="Loading..."></fm-loading>
         <div class="card ma-2 pa-6">
             <div class="d-flex">
                 <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
@@ -31,6 +32,7 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting || (!form.email && !form.phone && !resending)">Send</button>
                 </div>
+                <p v-if="sent && expiresIn !== null" class="text-center text-muted mt-2 text-xs">Code expires in {{ formattedExpiresIn }}</p>
             </fm-form>
             <fm-form v-else ref="mfaForm" class="mt-4" :form="form" @save="save">
                 <fm-input
@@ -40,7 +42,7 @@
                     :errors="errors.code"
                     :disabled="submitting" />
                 <fm-checkbox
-                    label="Remember device?"
+                    label="Remember device? (Do not use on a public or shared device)"
                     v-model="form.remember"
                     type="checkbox"
                     :errors="errors.remember"
@@ -51,18 +53,35 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
                 </div>
+                <p v-if="sent && expiresIn !== null" class="text-center text-muted mt-2 text-xs">Code expires in {{ formattedExpiresIn }}</p>
             </fm-form>
         </div>
     </div>
 </template>
 <script>
 export default {
+    computed: {
+        formattedExpiresIn: function() {
+            if (this.expiresIn === null) {
+                return '';
+            }
+            const totalSeconds = Math.max(0, Number(this.expiresIn) || 0);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        },
+    },
     data: function() {
         return {
+            verifying: true,
+            autoSending: false,
             submitting: false,
             resend: false,
             errors: [],
-            token: this.$route.params.token,
+            token: '',
+            expiresIn: null,
+            expiresTimer: null,
+            expiryRedirected: false,
             sent: false,
             resending: false,
             send_via: {
@@ -78,22 +97,98 @@ export default {
         }
     },
     created: function() {
+        this.setToken();
+        if (!this.token) {
+            this.verifying = false;
+            this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+            this.$emit('loading', false);
+            this.$router.push({ name: 'login' });
+            return;
+        }
         this.verify();
     },
+    unmounted: function() {
+        this.clearExpiryCountdown();
+    },
     methods: {
+        startExpiryCountdown: function(seconds) {
+            this.clearExpiryCountdown();
+            const normalized = Number.isFinite(Number(seconds)) ? Math.max(0, Math.floor(Number(seconds))) : 0;
+            this.expiresIn = normalized;
+            this.expiryRedirected = false;
+            if (normalized <= 0) {
+                this.handleCodeExpired();
+                return;
+            }
+            this.expiresTimer = setInterval(() => {
+                if (this.expiresIn === null || this.expiresIn <= 0) {
+                    this.handleCodeExpired();
+                    return;
+                }
+                this.expiresIn = this.expiresIn - 1;
+                if (this.expiresIn <= 0) {
+                    this.handleCodeExpired();
+                }
+            }, 1000);
+        },
+        clearExpiryCountdown: function() {
+            if (this.expiresTimer) {
+                clearInterval(this.expiresTimer);
+                this.expiresTimer = null;
+            }
+        },
+        handleCodeExpired: function() {
+            if (this.expiryRedirected) {
+                return;
+            }
+            this.expiryRedirected = true;
+            this.expiresIn = 0;
+            this.clearExpiryCountdown();
+            this.$emit('message', { text: 'Your code has expired. Please try again.', error: true });
+            this.$router.push({ name: 'login' });
+        },
+        resolveToken: function() {
+            const routeToken = this.$route?.params?.token;
+            const pageToken = this.$page?.props?.token;
+            const value = routeToken ?? pageToken ?? null;
+            return value ? String(value).trim() : '';
+        },
+        setToken: function() {
+            this.token = this.resolveToken();
+        },
         send: function() {
             var resending = this.resend;
             this.resend = false;
             this.submitting = true;
+            const switchingToCode = !this.sent;
+            if (switchingToCode) {
+                this.verifying = true;
+            }
+            this.setToken();
+            if (!this.token) {
+                this.submitting = false;
+                if (switchingToCode) {
+                    this.verifying = false;
+                    this.autoSending = false;
+                }
+                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+                this.$router.push({ name: 'login' });
+                return;
+            }
             var formData = new FormData();
             if (!this.form.email && !this.form.phone && !resending) {
                 this.submitting = false;
+                if (switchingToCode) {
+                    this.verifying = false;
+                    this.autoSending = false;
+                }
                 return;
             }
             formData.append('type', this.form.email ? 'email' : (this.form.phone ? 'phone' : 'resend'));
-            axios.post(`/login/mfa/${this.token}/send`, formData).then(({ data }) => {
+            return axios.post(`/login/mfa/${this.token}/send`, formData).then(({ data }) => {
                 this.sent = true;
                 this.setupResend();
+                this.refreshExpiry();
                 // Sets a success message for the MFA sending
                 this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
@@ -107,11 +202,22 @@ export default {
             }).finally(() => {
                 setTimeout(() => {
                     this.submitting = false;
+                    if (switchingToCode) {
+                        this.verifying = false;
+                        this.autoSending = false;
+                    }
                 }, 1500);
             });
         },
         async save() {
             this.submitting = true;
+            this.setToken();
+            if (!this.token) {
+                this.submitting = false;
+                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+                this.$router.push({ name: 'login' });
+                return;
+            }
             try {
                 const formData = new FormData();
                 formData.append('code', this.form.code);
@@ -137,32 +243,42 @@ export default {
             }
         },
         verify: function() {
+            this.setToken();
+            if (!this.token) {
+                this.verifying = false;
+                this.$emit('message', { text: 'Your MFA session token is missing. Please log in again.', error: true });
+                this.$emit('loading', false);
+                this.$router.push({ name: 'login' });
+                return;
+            }
+            this.verifying = true;
+            this.$emit('loading', true);
             axios.get(`/login/mfa/${this.token}/verify`).then(({ data }) => {
                 // Determines if the user just refreshed and if the code was already sent
                 if (data.sent == true) {
                     this.sent = true;
                     this.form.type = data.sent_via;
+                    this.startExpiryCountdown(data.expires_in ?? 0);
                     this.setupResend();
                     return;
                 }
+                this.expiresIn = null;
+                this.clearExpiryCountdown();
                 // Sets the send via parameters for the checkbox
                 this.send_via = {
                     phone: data.phone,
                     email: data.email,
                 };
-                // Determines if the type should be set because there isn't more than one option
-                if (this.send_via.phone == null) {
-                    this.form.email = true;
-                } else if (this.send_via.email == null) {
-                    this.form.phone == true;
-                }
-                // Checks to see if there is only one possible locaiton to send the code to
-                if (this.form.email || this.form.phone) {
-                    this.sent = true;
+                // Defaults to email when available, otherwise phone
+                this.form.email = !!this.send_via.email;
+                this.form.phone = !this.form.email && !!this.send_via.phone;
+                const availableMethods = [this.send_via.email, this.send_via.phone].filter(v => !!v).length;
+                if (availableMethods === 1) {
+                    this.autoSending = true;
                     this.send();
-                } else {
-                    this.$emit('message', { text: data.message });
+                    return;
                 }
+                this.$emit('message', { text: data.message });
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
@@ -173,6 +289,9 @@ export default {
                     }, 1500);
                 }
             }).finally(() => {
+                if (!this.autoSending) {
+                    this.verifying = false;
+                }
                 this.$emit('loading', false);
             });
         },
@@ -182,8 +301,24 @@ export default {
                 this.resend = true;
             }, resendAfter);
         },
+        refreshExpiry: function() {
+            axios.get(`/login/mfa/${this.token}/verify`).then(({ data }) => {
+                if (data?.sent === true) {
+                    this.startExpiryCountdown(data.expires_in ?? 0);
+                }
+            }).catch(() => {
+                this.expiryRedirected = false;
+                this.expiresIn = null;
+                this.clearExpiryCountdown();
+            });
+        },
     },
     watch: {
+        '$route.path': {
+            handler: function() {
+                this.setToken();
+            }
+        },
         'form.email': {
             handler: function(value) {
                 if (value == true) {

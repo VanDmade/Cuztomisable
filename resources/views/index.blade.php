@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="icon" type="image/png" href="cuztomisable/logo.png">
-    <title>Cuztomisable</title>
-    @vite(['resources/sass/app.scss','resources/sass/formora.scss','resources/sass/tablelify.scss'])
+    <link rel="icon" type="image/png" href="/cuztomisable/logo.png">
+    <title inertia>Cuztomisable</title>
+    @inertiaHead
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div id="app"></div>
+    @inertia
 </body>
-@vite(['resources/js/app.js'])
 </html>

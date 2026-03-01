@@ -1,5 +1,6 @@
 <template>
     <div id="portal-layout" class="layout">
+        <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
         <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow" v-if="navbar">
             <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
                 <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/banner-white.png'" style="height: 32px;"></router-link>

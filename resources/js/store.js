@@ -1,5 +1,7 @@
 import { createStore } from 'vuex';
-import axios from 'axios';
+import * as axiosModule from 'axios';
+
+const axios = axiosModule.default ?? axiosModule;
 
 axios.defaults.withCredentials = true;
 let refreshTimeout = null;
@@ -75,6 +77,16 @@ export default createStore({
         async checkAuth({ commit, dispatch }) {
             commit('SET_LOADING', true);
             try {
+                const cookieName = this.$cuztomisable?.login?.cookie_name ?? 'api_token';
+                const hasApiTokenCookie = document.cookie
+                    .split(';')
+                    .some((entry) => entry.trim().startsWith(`${cookieName}=`));
+
+                if (!hasApiTokenCookie) {
+                    commit('CLEAR_USER');
+                    return;
+                }
+
                 const response = await axios.get('/me');
                 commit('SET_USER', response.data.user);
                 commit('SET_PERMISSIONS', response.data.permissions ?? []);
