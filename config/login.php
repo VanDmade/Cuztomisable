@@ -10,6 +10,8 @@ return [
     ],
     // Allows the user to remember the account, this will ignore the session_length if set to true
     'remember' => false,
+    // Cookie name used for web auth token
+    'cookie_name' => 'api_token',
     'multi_factor_authentication' => [
         // Determines if the system allows the user to setup and use Multi Factor Authentication
         'allowed' => true,
@@ -17,6 +19,10 @@ return [
         'resend_after' => 300,
         // The code will be recreated if resent and old codes cannot be used
         'recreate_code_on_resend' => true,
+        // Maximum allowed code attempts before invalidation
+        'attempts' => [
+            'max' => 5,
+        ],
         /* Specifies that the MFA can be sent via phone and/or email.
          * If both set to false, the user's email will be used. */
         'send_via' => [
@@ -50,6 +56,10 @@ return [
         'new_ip_address' => [
             'type' => 'email',
             'view' => 'emails.authentication.new_ip_address',
+            // Skip notifications for recognized device fingerprints
+            'skip_known_devices' => false,
+            // CIDR ranges that will skip new IP notifications
+            'trusted_ip_ranges' => [],
         ],
         // login.mfa has to be set to true in order for this to be used
         'mfa' => [
@@ -61,5 +71,24 @@ return [
             'type' => 'email',
             'view' => 'emails.authentication.invitation',
         ],
+    ],
+    /* Mobile app user agent validation
+     * enabled: require user agent matching for X-App-Platform=mobile
+     * apps: list of allowed app names with optional min_version
+     * platforms: allowed platform labels in UA
+     * Example UA: AppName/v1.0 (Android)
+     */
+    'mobile_agent' => [
+        'enabled' => true,
+        // Optional API key to validate mobile clients bypassing CSRF
+        'api_key' => null,
+        'api_key_header' => 'X-App-Key',
+        'apps' => [
+            ['name' => 'Mixing Maverik', 'min_version' => '1.0.0'],
+            ['name' => 'Cuztomisable', 'min_version' => '1.0.0'],
+        ],
+        'platforms' => ['Android', 'iOS', 'Other'],
+        // Log failed user agent checks for troubleshooting
+        'log_invalid' => false,
     ],
 ];

@@ -35,14 +35,14 @@ Route::controller(Authentication\RegistrationController::class)->group(function 
 Route::controller(Authentication\PasswordController::class)->group(function () {
     Route::get('/lock/{user}/reset/{id}/{token}', 'lock');
 });
-Route::controller(FormoraController::class)->group(function () {
-    Route::get('/formora/{page}', 'get');
-    Route::post('/formora/{page}', 'save');
-});
 Route::controller(UserController::class)->group(function () {
     Route::post('/refresh/token', 'refreshToken');
 });
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::controller(FormoraController::class)->group(function () {
+        Route::get('/formora/{page}', 'get');
+        Route::post('/formora/{page}', 'save');
+    });
     Route::controller(AccessController::class)->group(function () {
         Route::get('/user/{id}/access', 'get')
             ->middleware('permission:view-user-roles-permissions|manage-user-roles-permissions');
@@ -57,8 +57,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
             Route::get('/users', 'table');
             Route::get('/user/{id}', 'get');
         });
+        // Route for specifically altering your own account
+        Route::post('/profile', 'save')->name('profile');
+        Route::patch('/mfa', 'toggleMfa')->name('toggle.mfa');
         Route::middleware(['permission:manage-users'])->group(function () {
-            Route::post('/user/{id?}', 'save');
+            Route::post('/user/{id?}', 'save')->name('users.update');
             Route::delete('/user/{id}', 'toggleDelete');
             Route::patch('/user/{id}/locked', 'toggleLocked');
         });
@@ -81,6 +84,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::controller(IpAddressController::class)->group(function () {
         Route::get('/ip/{id}', 'get');
         Route::get('/user/{id}/ips', 'table');
+        Route::patch('/ip/{id}', 'save');
         Route::middleware(['permission:clear-user-logins'])->group(function () {
             Route::delete('/ip/{id}/forget', 'forget');
             Route::delete('/ip/{id}', 'toggleDelete');

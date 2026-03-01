@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Requests\Authentication\MFA;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class MFARequest extends FormRequest
+class MFARequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,12 +12,13 @@ class MFARequest extends FormRequest
         return config('cuztomisable.login.multi_factor_authentication.allowed', false);
     }
 
-    public function messages(): array
+    public function prepareForValidation(): void
     {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'in' => __('cuztomisable/global.form.in'),
-        ];
+        if ($this->missing('remember')) {
+            $this->merge([
+                'remember' => '0',
+            ]);
+        }
     }
 
     public function rules(): array

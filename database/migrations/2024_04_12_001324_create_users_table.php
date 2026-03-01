@@ -33,7 +33,7 @@ return new class extends Migration
             $table->datetime('email_verified_at')->nullable();
             $table->boolean('disable_emails')->default(false);
             $table->string('password', 64);
-            $table->string('timezone', 64)->default('UTC');
+            $table->string('timezone', 64)->default('America/New_York');
             $table->boolean('locked')->default(false);
             $table->boolean('change_password')->default(false);
             $table->datetime('change_password_sent_at')->nullable();

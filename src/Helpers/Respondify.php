@@ -2,7 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Helpers;
 
-use Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class Respondify
 {
@@ -14,7 +16,7 @@ class Respondify
      * 
      * @return array The default success response for Respondify class
     \**************************************************************************/
-    public static function success($parameters)
+    public static function success(mixed $parameters): JsonResponse
     {
         // Makes sure the information sent in is an array, if it isn't it forces the data type
         $parameters = !is_array($parameters) ? [$parameters] : $parameters;
@@ -29,7 +31,7 @@ class Respondify
      * 
      * @return array The default error response for the Respondify class
     \**************************************************************************/
-    public static function error($error, $parameters = [])
+    public static function error(Throwable $error, array $parameters = []): JsonResponse
     {
         $debug = env('APP_DEBUG', false);
         $debugCode = uniqid();
@@ -41,7 +43,7 @@ class Respondify
         }
         if (!$debug) {
             // Lists out the cleaned error messages to prevent a user from recieving a message that doesn't make sense
-            if (strpos($message, 'SQLERROR') !== false || true) {
+            if (strpos($message, 'SQLERROR') !== false) {
                 // Write default message for an SQL error
                 $message = __('respondify.sql_error');
                 $responseCode = config('respondify.errors.sql_error_code', 500);
@@ -99,7 +101,7 @@ class Respondify
      * 
      * @return array Array of information to view while debugging
     \**************************************************************************/
-    public static function debug($parameters)
+    public static function debug(mixed $parameters): JsonResponse
     {
         // Makes sure the information sent in is an array, if it isn't it forces the data type
         $parameters = !is_array($parameters) ? [$parameters] : $parameters;

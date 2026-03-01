@@ -5,6 +5,8 @@ return [
     'filtered' => true,
     // Whether to return the next/previous page parameter in the table response
     'page_details' => true,
+    // Max page size for any table request
+    'max_size' => 100,
     'default' => [
         // Default page size, if for some reason the page size is not sent in
         'size' => 10,

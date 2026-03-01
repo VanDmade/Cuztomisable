@@ -45,7 +45,7 @@ class TablelifyRequest extends FormRequest
             'column' => $parameters['column'],
             'columns' => $parameters['columns'],
             'direction' => !in_array($parameters['direction'], ['asc', 'desc', null]) ? null : $parameters['direction'],
-            'search' => '%'.($parameters['search'] ?? '').'%',
+            'search' => empty($parameters['search']) ? null : $parameters['search'],
             'filters' => $parameters['filters'] ?? [],
         ];
         // Removes the filters if for some reason they are not sent
@@ -66,7 +66,8 @@ class TablelifyRequest extends FormRequest
         return [
             'page' => 'required|integer|min:1',
             // If the size is set to "All" it will allow the developer to easily not put a limit on the list
-            'size' => 'required|'.(strtolower($this->size) != 'all' ? 'integer|between:1,100' : 'in:all'),
+            'size' => 'required|'.(strtolower($this->size) != 'all' ?
+                'integer|between:1,'.(int) config('tablelify.max_size', 100) : 'in:all'),
             'column' => 'nullable',
             'direction' => 'nullable|in:asc,desc',
             'search' => 'nullable',

@@ -4,9 +4,10 @@ namespace VanDmade\Cuztomisable\Models\Users;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 
 class Registration extends Model
 {
@@ -25,6 +26,7 @@ class Registration extends Model
         'user_id',
         'expires_at',
         'created_by',
+        'attempt_counter',
         'deleted_at',
         'deleted_by',
     ];
@@ -34,23 +36,25 @@ class Registration extends Model
         'sent_at' => 'datetime',
         'expires_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'attempt_counter' => 'integer',
     ];
 
     protected $hidden = [
         'code',
+        'attempt_counter',
         'user_id',
         'created_by',
         'deleted_by',
     ];
 
-    public static function boot()
+    protected static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
-            $model->created_by = Auth::user()->id;
+            $model->created_by = Auth::id();
             if (is_null($model->expires_at)) {
                 $seconds = config('cuztomisable.account.registration.expires_in', 300);
-                $model->expires_at = date('Y-m-d H:i:s', strtotime('+'.$seconds.' seconds'));
+                $model->expires_at = now()->addSeconds($seconds);
             }
             $model->code = generateCode(
                 config('cuztomisable.account.registration.length', 6),
@@ -59,17 +63,17 @@ class Registration extends Model
         });
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
@@ -84,7 +88,7 @@ class Registration extends Model
         return Carbon::parse($expiresAt)->diffForHumans();
     }
 
-    public function getResendInAttribute($value)
+    public function getResendInAttribute($value): int
     {
         $resendAfter = config('cuztomisable.account.registration.resend_after', 300);
         $sentAt = Carbon::parse($value)->setTimezone('UTC');

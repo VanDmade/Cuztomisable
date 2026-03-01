@@ -2,22 +2,14 @@
 
 namespace VanDmade\Cuztomisable\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class RoleRequest extends FormRequest
+class RoleRequest extends BaseRequest
 {
 
     public function authorize(): bool
     {
         return true;
-    }
-
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'unique' => __('cuztomisable/global.form.unique'),
-        ];
     }
 
     public function rules(): array
@@ -30,5 +22,13 @@ class RoleRequest extends FormRequest
             'permissions' => 'nullable|array',
             'permissions.*' => 'nullable|exists:permissions,id',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'name' => trim((string) $this->input('name')),
+            'slug' => trim((string) $this->input('slug')),
+        ]);
     }
 }

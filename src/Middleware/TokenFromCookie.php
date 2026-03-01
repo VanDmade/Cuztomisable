@@ -4,14 +4,16 @@ namespace VanDmade\Cuztomisable\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TokenFromCookie
 {
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if ($request->hasCookie('api_token') && !$request->bearerToken()) {
-            $token = $request->cookie('api_token');
+        $cookieName = config('cuztomisable.login.cookie_name', 'api_token');
+        if ($request->hasCookie($cookieName) && !$request->bearerToken()) {
+            $token = $request->cookie($cookieName);
             $request->headers->set('Authorization', 'Bearer '.$token);
         }
         return $next($request);

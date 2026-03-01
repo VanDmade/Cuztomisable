@@ -5,7 +5,8 @@ namespace VanDmade\Cuztomisable\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class Formora extends Model
 {
@@ -29,7 +30,7 @@ class Formora extends Model
         'user_id',
     ];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -50,6 +51,11 @@ class Formora extends Model
     public function form(): Attribute
     {
         return Attribute::make(get: fn () => json_decode($this->attributes['form'] ?? null, true));
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
 }

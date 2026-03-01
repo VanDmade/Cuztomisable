@@ -2,26 +2,30 @@
 
 namespace VanDmade\Cuztomisable\Services;
 
-use Aws\Sns\SnsClient;
 use Aws\Exception\AwsException;
+use Aws\Sns\SnsClient;
 use VanDmade\Cuztomisable\Models\Logs;
 use Exception;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class SmsService
 {
 
-    protected ?SNSClient $client = null;
+    protected ?SnsClient $client = null;
     protected bool $debug;
+    protected bool $verifyTls;
 
     public function __construct()
     {
-        $this->debug = env('APP_DEBUG', false);
+        $this->debug = (bool) config('app.debug', false);
+        $this->verifyTls = config('app.env') !== 'local';
     }
 
-    protected function setup()
+    protected function setup(): void
     {
-        if ($this->client) return;
+        if ($this->client) {
+            return;
+        }
         $this->client = new SnsClient([
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'version' => 'latest',
@@ -31,20 +35,22 @@ class SmsService
             ],
             'http' => [
                 // Can be removed whenever not on local development
-                'verify' => env('APP_ENV') == 'local' ? false : true,
+                'verify' => $this->verifyTls,
             ],
         ]);
     }
 
     public function send(string $countryCode, string $number, string $message): bool
     {
+        $parameters = [];
+        $phone = null;
+        $loggedMessage = $this->sanitizeMessage($message);
         try {
-            $parameters = [];
             // Generates the phone number with the country code and phone number
             $phone = '+'.trim($countryCode, '+').cleanPhone($number);
             // Disables the texts from sending to prevent costs from occurring
             if (!$this->debug) {
-                self::setup();
+                $this->setup();
                 $this->client->publish([
                     'Message' => $message,
                     'PhoneNumber' => $phone,
@@ -62,10 +68,11 @@ class SmsService
             Logs\Text::create([
                 'country_code' => $countryCode,
                 'number' => $number,
-                'message' => $message,
+                'message' => $loggedMessage,
                 'parameters' => [
                     'cleaned_phone' => $phone,
                     'log' => $this->debug,
+                    'redacted' => $loggedMessage !== $message,
                 ]
             ]);
             return true;
@@ -82,8 +89,9 @@ class SmsService
         $parameters['phone'] = [
             'country_code' => $countryCode,
             'number' => $number,
-            'message' => $message,
+            'message' => $loggedMessage,
             'cleaned_phone' => $phone ?? null,
+            'redacted' => $loggedMessage !== $message,
         ];
         Logs\Error::create([
             'message' => $error->getMessage(),
@@ -93,6 +101,21 @@ class SmsService
             'parameters' => $parameters ?? [],
         ]);
         return false;
+    }
+
+    protected function sanitizeMessage(string $message): string
+    {
+        $redact = (bool) config('cuztomisable.account.texts.redact_message', false);
+        if (!$redact) {
+            return $message;
+        }
+        $replacement = (string) config('cuztomisable.account.texts.redact_replacement', '********');
+        $patterns = config('cuztomisable.account.texts.redact_patterns', []);
+        if (empty($patterns)) {
+            return $replacement;
+        }
+        $redacted = preg_replace($patterns, $replacement, $message);
+        return $redacted === null ? $replacement : $redacted;
     }
 
 }

@@ -4,8 +4,8 @@ namespace VanDmade\Cuztomisable\Models\Users;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 
 class Code extends Model
 {
@@ -21,6 +21,7 @@ class Code extends Model
         'sent_at',
         'sent_via',
         'used_at',
+        'attempt_counter',
         'user_id',
         'user_ip_address_id',
         'deleted_at',
@@ -32,16 +33,18 @@ class Code extends Model
         'sent_at' => 'datetime',
         'used_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'attempt_counter' => 'integer',
     ];
 
     protected $hidden = [
         'code',
+        'attempt_counter',
         'user_id',
         'user_ip_address_id',
         'deleted_by',
     ];
 
-    public static function boot()
+    protected static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -54,12 +57,12 @@ class Code extends Model
         });
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
-    public function ipAddress()
+    public function ipAddress(): BelongsTo
     {
         return $this->belongsTo(IpAddress::class, 'user_ip_address_id');
     }

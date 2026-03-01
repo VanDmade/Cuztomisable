@@ -4,13 +4,13 @@ namespace VanDmade\Cuztomisable\Mail\Authentication;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Code;
+use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
-class MFA extends Mailable
+class MFA extends VanDmadeMailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
@@ -25,9 +25,7 @@ class MFA extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: __('cuztomisable/authentication.emails.subjects.mfa'),
-        );
+        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.mfa'));
     }
 
     public function content(): Content
@@ -40,9 +38,10 @@ class MFA extends Mailable
             view: config('cuztomisable.login.notifications.mfa.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset('images/logo.png'),
-                'company' => env('APP_NAME'),
+                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'company' => config('app.name'),
                 'code' => $this->code->code,
+                'expires_in' => $expiresIn,
             ],
         );
     }

@@ -4,7 +4,7 @@ namespace VanDmade\Cuztomisable\Requests\Users;
 
 use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class AccessRequest extends BaseRequest
+class IpAddressSaveRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -15,10 +15,15 @@ class AccessRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'roles' => 'nullable|array',
-            'roles.*' => 'nullable|exists:roles,id',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'nullable|exists:permissions,id',
+            'label' => 'nullable|string|max:255',
         ];
     }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'label' => trim((string) $this->input('label')),
+        ]);
+    }
+
 }

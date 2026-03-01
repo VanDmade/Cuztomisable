@@ -2,19 +2,20 @@
 
 namespace VanDmade\Cuztomisable\Controllers;
 
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Requests\PermissionRequest;
 use VanDmade\Cuztomisable\Requests\TablelifyRequest;
 use VanDmade\Cuztomisable\Models\Permission;
+use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 use VanDmade\Cuztomisable\Helpers\Tablelify;
-use Auth;
-use DB;
-use Exception;
 
 class PermissionController extends Controller
 {
 
-    public function get($id)
+    public function get($id): JsonResponse
     {
         try {
             $permission = Permission::select('id', 'name', 'slug', 'description', 'created_by')
@@ -37,73 +38,88 @@ class PermissionController extends Controller
         }
     }
 
-    public function table(TablelifyRequest $request)
+    public function table(TablelifyRequest $request): JsonResponse
     {
         try {
             $data = $request->validated();
-            $query = Permission::select('id', 'name', 'slug', 'description')
-                ->where(function($query) use ($data) {
-                    $query->orWhere('name', 'LIKE', $data['search'])
-                        ->orWhere('slug', 'LIKE', $data['search']);
-                });
-            return Tablelify::run($query, $data);
+            $query = Permission::select('id', 'name', 'slug', 'description');
+            $parameters = [
+                'allowed_columns' => ['id', 'name', 'slug', 'description'],
+                'search_columns' => ['name', 'slug'],
+                'allowed_filters' => ['id', 'slug', 'name'],
+                'default_columns' => ['id' => 'desc'],
+            ];
+            return Tablelify::run($query, array_merge($data, $parameters));
         } catch (Exception $error) {
             return $this->error($error);
         }
     }
 
-    public function save(PermissionRequest $request, $id = null)
+    public function save(PermissionRequest $request, $id = null): JsonResponse
     {
         try {
-            $data = $request->validated();
-            if (is_null($id)) {
-                $permission = new Permission(); 
-            } else {
-                $permission = Permission::find($id);
+            return DB::transaction(function () use ($request, $id) {
+                $this->rateLimit(
+                    'cuztomisable:permissions:save:'.implode(':', [$this->actorId(), (string) ($id ?? 'new')]),
+                    'cuztomisable/permission.errors.not_found'
+                );
+                $data = $request->validated();
+                if (is_null($id)) {
+                    $permission = new Permission();
+                } else {
+                    $permission = Permission::find($id);
+                    if (!isset($permission->id)) {
+                        throw new Exception(__('cuztomisable/permission.errors.not_found'), 404);
+                    }
+                }
+                $permission->name = $data['name'];
+                $permission->slug = $data['slug'];
+                $permission->description = $data['description'];
+                $permission->save();
+                return $this->success([
+                    'message' => '',
+                ]);
+            });
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function toggleDelete($id): JsonResponse
+    {
+        try {
+            return DB::transaction(function () use ($id) {
+                $this->rateLimit(
+                    'cuztomisable:permissions:toggle_delete:'.implode(':', [$this->actorId(), (string) $id]),
+                    'cuztomisable/permission.errors.not_found'
+                );
+                $permission = Permission::where('id', '=', $id)->withTrashed()->first();
                 if (!isset($permission->id)) {
                     throw new Exception(__('cuztomisable/permission.errors.not_found'), 404);
                 }
-            }
-            $permission->name = $data['name'];
-            $permission->slug = $data['slug'];
-            $permission->description = $data['description'];
-            $permission->save();
-            return $this->success([
-                'message' => '',
-            ]);
+                $deleted = $permission->trashed();
+                if ($deleted) {
+                    $permission->restore();
+                } else {
+                    $permission->delete();
+                }
+                return $this->success([
+                    'message' => '',
+                    'deleted' => $deleted,
+                ]);
+            });
         } catch (Exception $error) {
             return $this->error($error);
         }
     }
 
-    public function toggleDelete($id)
-    {
-        try {
-            $permission = Permission::where('id', '=', $id)->withTrashed()->first();
-            if (!isset($permission->id)) {
-                throw new Exception(__('cuztomisable/permission.errors.not_found'), 404);
-            }
-            $deleted = $permission->trashed();
-            // Resets OR sets the deleted at parameters for soft deletion
-            $permission->deleted_by = $deleted ? null : Auth::user()->id;
-            $permission->deleted_at = $deleted ? null : date('Y-m-d H:i:s');
-            $permission->save();
-            return $this->success([
-                'message' => '',
-                'deleted' => $deleted,
-            ]);
-        } catch (Exception $error) {
-            return $this->error($error);
-        }
-    }
-
-    public function list($role = null)
+    public function list($role = null): JsonResponse
     {
         try {
             $permissions = [];
             if (!is_null($role)) {
                 // Gets the list of permissions that are associated with the role that is given
-                $permissions = Roles\Permission::select('id', 'permission_id')
+                $permissions = RolePermission::select('id', 'permission_id')
                     ->where('role_id', '=', $role)
                     ->get()
                     ->pluck('permission_id');

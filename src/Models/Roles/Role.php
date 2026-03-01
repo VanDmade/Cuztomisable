@@ -5,7 +5,11 @@ namespace VanDmade\Cuztomisable\Models\Roles;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 use Auth;
 
@@ -34,7 +38,7 @@ class Role extends Model
         'deleted_by',
     ];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -42,7 +46,7 @@ class Role extends Model
         });
     }
 
-    public function permissions()
+    public function permissions(): HasManyThrough
     {
         return $this->hasManyThrough(
             PermissionModel::class,
@@ -54,22 +58,22 @@ class Role extends Model
         );
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(config('auth.providers.users.model'), 'user_roles');
     }
 
-    public function permissionLinks()
+    public function permissionLinks(): HasMany
     {
         return $this->hasMany(Permission::class, 'role_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }

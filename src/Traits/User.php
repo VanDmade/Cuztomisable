@@ -3,29 +3,39 @@
 namespace VanDmade\Cuztomisable\Traits;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Cookie;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Image;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 use VanDmade\Cuztomisable\Models\Phone;
 use VanDmade\Cuztomisable\Models\Roles;
 use VanDmade\Cuztomisable\Models\Users;
-use Auth;
 use Exception;
-use Hash;
 
 trait User
 {
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
             $model->created_by = Auth::check() ? Auth::user()->id : null;
-            $model->token = generateCode(8);
+            $length = (int) config('cuztomisable.account.token_length', 16);
+            $length = max(8, min(64, $length));
+            $model->token = generateCode($length);
         });
     }
 
-    public function generateAuthCookie()
+    public function generateAuthCookie(): Cookie
     {
         // Determines the length of time the token will remain active
         $sessionLength = config('cuztomisable.login.session_length');
@@ -37,7 +47,7 @@ trait User
         $token->accessToken->save();
         $token = $token->plainTextToken;
         return cookie(
-            'api_token',
+            config('cuztomisable.login.cookie_name', 'api_token'),
             $token,
             now()->diffInMinutes($expiresAt),
             '/',       // path
@@ -70,13 +80,12 @@ trait User
             if (config('cuztomisable.login.attempts.locked', false)) {
                 $this->locked = true;
             } else {
-                $this->attempt_timer = date(
-                    'Y-m-d H:i:s',
-                    strtotime('+'.config('cuztomisable.login.attempts.timer', 300).' seconds')
+                $this->attempt_timer = now()->addSeconds(
+                    config('cuztomisable.login.attempts.timer', 300)
                 );
             }
         }
-        if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
+        if (!is_null($this->attempt_timer) && now()->lessThan($this->attempt_timer)) {
             $this->attempts = 0;
             $this->save();
             throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
@@ -84,7 +93,7 @@ trait User
         $this->save();
     }
 
-    public function canLogIn(): Bool
+    public function canLogIn(): bool
     {
         if ($this->locked) {
             throw new Exception(__('cuztomisable/authentication.login.errors.locked'), 401);
@@ -97,7 +106,7 @@ trait User
         }
         // Checks to see if the user has verified their phone number and whether it's required
         if (config('cuztomisable.login.verification.phone', false) &&
-            $this->phones()->whereNotNull('verified_at')->count() == 0) {
+            !$this->phones()->whereNotNull('verified_at')->exists()) {
             throw new Exception(__('cuztomisable/authentication.login.errors.verification.phone_required'), 401);
         }
         return true;
@@ -106,12 +115,12 @@ trait User
     public function canChangePassword(): void
     {
         // Checks to see if the attempt timer is waiting for expiration
-        if (!is_null($this->attempt_timer) && strtotime($this->attempt_timer) > time()) {
+        if (!is_null($this->attempt_timer) && now()->lessThan($this->attempt_timer)) {
             throw new Exception(__('cuztomisable/authentication.login.errors.attempts'), 401);
         }
     }
 
-    public function canUsePassword($new): void
+    public function canUsePassword(string $new): void
     {
         // Prevents the user from user previously used passwords
         if (!is_null(config('cuztomisable.account.passwords.reuse_after', 3))) {
@@ -119,7 +128,7 @@ trait User
                 ->orderBy('id', 'desc')
                 ->limit(config('cuztomisable.account.passwords.reuse_after', 3))
                 ->get();
-            foreach ($passwords as $i => $password) {
+            foreach ($passwords as $password) {
                 if (Hash::check($new, $password->password)) {
                     throw new Exception(__('cuztomisable/authentication.passwords.errors.used_recently'), 404);
                 }
@@ -127,7 +136,7 @@ trait User
         }
     }
 
-    public function roles()
+    public function roles(): HasManyThrough
     {
         return $this->hasManyThrough(
             Roles\Role::class,
@@ -139,12 +148,12 @@ trait User
         );
     }
 
-    public function roleLinks()
+    public function roleLinks(): HasMany
     {
         return $this->hasMany(Users\Role::class, 'user_id');
     }
 
-    public function permissions()
+    public function permissions(): HasManyThrough
     {
         return $this->hasManyThrough(
             PermissionModel::class,
@@ -156,17 +165,17 @@ trait User
         );
     }
 
-    public function permissionLinks()
+    public function permissionLinks(): HasMany
     {
         return $this->hasMany(Users\Permission::class, 'user_id');
     }
 
-    public function permissionSlugs()
+    public function permissionSlugs(): Collection
     {
         return $this->permissions->pluck('slug');
     }
 
-    public function getAllPermissions()
+    public function getAllPermissions(): Collection
     {
         // Permissions from roles
         $rolePermissions = $this->roles()->with('permissions')->get()
@@ -175,90 +184,92 @@ trait User
         return $this->permissions->merge($rolePermissions)->unique('id');
     }
 
-    public function hasPermission($slug)
+    public function hasPermission(string $slug): bool
     {
         return $this->getAllPermissions()->contains('slug', $slug);
     }
 
-    public function profile()
+    public function profile(): HasOne
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
 
-    public function phones()
+    public function phones(): HasMany
     {
         return $this->hasMany(Phone::class, 'user_id');
     }
 
-    public function mobilePhone()
+    public function mobilePhone(): HasOne
     {
         return $this->hasOne(Phone::class, 'user_id')
             ->where('mobile', '=', true)
             ->where('default', '=', true);
     }
 
-    public function defaultPhone()
+    public function defaultPhone(): HasOne
     {
         return $this->hasOne(Phone::class, 'user_id')
             ->where('default', '=', true);
     }
 
-    public function addresses()
+    public function addresses(): HasMany
     {
         return $this->hasMany(Address::class, 'user_id');
     }
 
-    public function defaultAddress()
+    public function defaultAddress(): HasOne
     {
         return $this->hasOne(Address::class, 'user_id')
             ->where('default', '=', true);
     }
 
-    public function ipAddresses()
+    public function ipAddresses(): HasMany
     {
         return $this->hasMany(Users\IpAddress::class, 'user_id');
     }
 
-    public function lastIpAddress()
+    public function lastIpAddress(): HasOne
     {
         return $this->hasOne(Users\IpAddress::class, 'user_id')
             ->orderBy('last_used_at', 'desc');
     }
 
-    public function registration()
+    public function registration(): HasOne
     {
         return $this->hasOne(Users\Registration::class, 'user_id');
     }
 
-    public function codes()
+    public function codes(): HasMany
     {
         return $this->hasMany(Users\Code::class, 'user_id')->orderBy('id', 'desc');
     }
 
-    public function passwords()
+    public function passwords(): HasMany
     {
         return $this->hasMany(Users\Passwords\Password::class, 'user_id');
     }
 
-    public function passwordResets()
+    public function passwordResets(): HasMany
     {
         return $this->hasMany(Users\Passwords\Reset::class, 'user_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
-    public static function findUserByType($username, $type)
+    public static function findUserByType(string $username, string $type): ?Model
     {
         // Finds the user based on the email, username, or phone
-        return config('auth.providers.users.model')::where(function($query) use ($type, $username) {
+        /** @var class-string<Authenticatable> $userModel */
+        $userModel = config('auth.providers.users.model');
+        return $userModel::where(function($query) use ($type, $username) {
             $query->orWhere($type, '=', $username);
             // If the username is null than the system will default to email address
             if ($type == 'username') {

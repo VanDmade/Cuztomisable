@@ -2,10 +2,10 @@
 
 namespace VanDmade\Cuztomisable\Requests\Authentication;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 use VanDmade\Cuztomisable\Traits\Validators\Phone as PhoneValidator;
 
-class InviteRequest extends FormRequest
+class InviteRequest extends BaseRequest
 {
 
     use PhoneValidator;
@@ -15,17 +15,13 @@ class InviteRequest extends FormRequest
         return true;
     }
 
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'email' => __('cuztomisable/global.form.email'),
-            'size' => __('cuztomisable/global.form.phone.size'),
-        ];
-    }
-
     public function prepareForValidation(): void
     {
+        $this->merge([
+            'use_phone' => filter_var($this->input('use_phone', false), FILTER_VALIDATE_BOOL),
+            'name' => trim((string) $this->input('name')),
+            'email' => strtolower(trim((string) $this->input('email'))),
+        ]);
         $this->preparePhoneForValidation();
     }
 
@@ -33,6 +29,7 @@ class InviteRequest extends FormRequest
     {
         $params = [
             'name' => 'required',
+            'use_phone' => 'nullable|boolean',
         ];
         return array_merge(
             $params,

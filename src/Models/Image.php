@@ -5,10 +5,11 @@ namespace VanDmade\Cuztomisable\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use VanDmade\Cuztomisable\Models\Users;
-use Auth;
-use Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use Exception;
 
 class Image extends Model
 {
@@ -32,7 +33,7 @@ class Image extends Model
 
     protected $casts = [
         'original' => 'boolean',
-        'removed_from_storage_at' => 'boolean',
+        'removed_from_storage_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
@@ -44,7 +45,7 @@ class Image extends Model
 
     protected $appends = ['full_url'];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -52,7 +53,7 @@ class Image extends Model
         });
     }
 
-    public function output()
+    public function output(): string
     {
         if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
@@ -60,7 +61,7 @@ class Image extends Model
         return Storage::disk($this->disk)->url($this->path);
     }
 
-    public function temporary($length = '+5 seconds')
+    public function temporary(string $length = '+5 seconds'): string
     {
         if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
@@ -76,7 +77,7 @@ class Image extends Model
         );
     }
 
-    public function getFullUrlAttribute()
+    public function getFullUrlAttribute(): string
     {
         if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
@@ -84,17 +85,17 @@ class Image extends Model
         return Storage::disk($this->disk)->url($this->path);
     }
 
-    public function createdFromImage()
+    public function createdFromImage(): BelongsTo
     {
         return $this->belongsTo(Image::class, 'created_from_image_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }

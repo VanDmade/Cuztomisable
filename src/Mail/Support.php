@@ -4,12 +4,12 @@ namespace VanDmade\Cuztomisable\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
-class Support extends Mailable
+class Support extends VanDmadeMailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
@@ -24,9 +24,7 @@ class Support extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: __('cuztomisable/user.emails.subjects.support'),
-        );
+        return $this->defaultEnvelope(__('cuztomisable/user.emails.subjects.support'));
     }
 
     public function content(): Content
@@ -35,8 +33,8 @@ class Support extends Mailable
             view: config('cuztomisable.account.notifications.support.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset('images/logo.png'),
-                'company' => env('APP_NAME'),
+                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'company' => config('app.name'),
                 'text' => $this->text,
             ],
         );

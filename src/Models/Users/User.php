@@ -4,10 +4,15 @@ namespace VanDmade\Cuztomisable\Models\Users;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Cookie;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Image;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
@@ -62,7 +67,7 @@ class UserOLD extends Authenticatable
         'deleted_by',
     ];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -71,7 +76,7 @@ class UserOLD extends Authenticatable
         });
     }
 
-    public function generateAuthCookie()
+    public function generateAuthCookie(): Cookie
     {
         // Determines the length of time the token will remain active
         $sessionLength = config('cuztomisable.login.session_length');
@@ -83,7 +88,7 @@ class UserOLD extends Authenticatable
         $token->accessToken->save();
         $token = $token->plainTextToken;
         return cookie(
-            'api_token',
+            config('cuztomisable.login.cookie_name', 'api_token'),
             $token,
             now()->diffInMinutes($expiresAt),
             '/',       // path
@@ -130,7 +135,7 @@ class UserOLD extends Authenticatable
         $this->save();
     }
 
-    public function canLogIn(): Bool
+    public function canLogIn(): bool
     {
         if ($this->locked) {
             throw new Exception(__('cuztomisable/authentication.login.errors.locked'), 401);
@@ -157,7 +162,7 @@ class UserOLD extends Authenticatable
         }
     }
 
-    public function canUsePassword($new): void
+    public function canUsePassword(string $new): void
     {
         // Prevents the user from user previously used passwords
         if (!is_null(config('cuztomisable.account.passwords.reuse_after', 3))) {
@@ -173,7 +178,7 @@ class UserOLD extends Authenticatable
         }
     }
 
-    public function roles()
+    public function roles(): HasManyThrough
     {
         return $this->hasManyThrough(
             Roles\Role::class,
@@ -185,12 +190,12 @@ class UserOLD extends Authenticatable
         );
     }
 
-    public function roleLinks()
+    public function roleLinks(): HasMany
     {
         return $this->hasMany(Role::class, 'user_id');
     }
 
-    public function permissions()
+    public function permissions(): HasManyThrough
     {
         return $this->hasManyThrough(
             PermissionModel::class,
@@ -202,17 +207,17 @@ class UserOLD extends Authenticatable
         );
     }
 
-    public function permissionLinks()
+    public function permissionLinks(): HasMany
     {
         return $this->hasMany(Permission::class, 'user_id');
     }
 
-    public function permissionSlugs()
+    public function permissionSlugs(): Collection
     {
         return $this->permissions->pluck('slug');
     }
 
-    public function getAllPermissions()
+    public function getAllPermissions(): Collection
     {
         // Permissions from roles
         $rolePermissions = $this->roles()->with('permissions')->get()
@@ -221,87 +226,87 @@ class UserOLD extends Authenticatable
         return $this->permissions->merge($rolePermissions)->unique('id');
     }
 
-    public function hasPermission($slug)
+    public function hasPermission(string $slug): bool
     {
         return $this->getAllPermissions()->contains('slug', $slug);
     }
 
-    public function profile()
+    public function profile(): HasOne
     {
         return $this->hasOne(Image::class, 'id', 'image_id');
     }
 
-    public function phones()
+    public function phones(): HasMany
     {
         return $this->hasMany(Phone::class, 'user_id');
     }
 
-    public function mobilePhone()
+    public function mobilePhone(): HasOne
     {
         return $this->hasOne(Phone::class, 'user_id')
             ->where('mobile', '=', true)
             ->where('default', '=', true);
     }
 
-    public function defaultPhone()
+    public function defaultPhone(): HasOne
     {
         return $this->hasOne(Phone::class, 'user_id')
             ->where('default', '=', true);
     }
 
-    public function addresses()
+    public function addresses(): HasMany
     {
         return $this->hasMany(Address::class, 'user_id');
     }
 
-    public function defaultAddress()
+    public function defaultAddress(): HasOne
     {
         return $this->hasOne(Address::class, 'user_id')
             ->where('default', '=', true);
     }
 
-    public function ipAddresses()
+    public function ipAddresses(): HasMany
     {
         return $this->hasMany(IpAddress::class, 'user_id');
     }
 
-    public function lastIpAddress()
+    public function lastIpAddress(): HasOne
     {
         return $this->hasOne(IpAddress::class, 'user_id')
             ->orderBy('last_used_at', 'desc');
     }
 
-    public function registration()
+    public function registration(): HasOne
     {
         return $this->hasOne(Registration::class, 'user_id');
     }
 
-    public function codes()
+    public function codes(): HasMany
     {
         return $this->hasMany(Code::class, 'user_id')->orderBy('id', 'desc');
     }
 
-    public function passwords()
+    public function passwords(): HasMany
     {
         return $this->hasMany(Passwords\Password::class, 'user_id');
     }
 
-    public function passwordResets()
+    public function passwordResets(): HasMany
     {
         return $this->hasMany(Passwords\Reset::class, 'user_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
-    public static function findUserByType($username, $type)
+    public static function findUserByType($username, $type): ?self
     {
         // Finds the user based on the email, username, or phone
         return config('auth.providers.users.model')::where(function($query) use ($type, $username) {

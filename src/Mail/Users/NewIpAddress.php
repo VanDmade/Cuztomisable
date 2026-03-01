@@ -4,13 +4,13 @@ namespace VanDmade\Cuztomisable\Mail\Users;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\IpAddress;
+use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
-class NewIpAddress extends Mailable
+class NewIpAddress extends VanDmadeMailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
@@ -25,9 +25,7 @@ class NewIpAddress extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: __('cuztomisable/authentication.emails.subjects.new_ip_address'),
-        );
+        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.new_ip_address'));
     }
 
     public function content(): Content
@@ -37,8 +35,8 @@ class NewIpAddress extends Mailable
             with: [
                 'user' => $this->user,
                 'ip' => $this->ip,
-                'logo' => asset('images/logo.png'),
-                'company' => env('APP_NAME'),
+                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'company' => config('app.name'),
             ],
         );
     }

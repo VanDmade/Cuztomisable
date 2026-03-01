@@ -5,15 +5,17 @@ namespace VanDmade\Cuztomisable\Services;
 use VanDmade\Cuztomisable\Models\Image;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Database\Eloquent\Model;
 use Exception;
 
 class ImageService
 {
 
-    protected $disk = 'public';
+    protected string $disk = 'public';
 
-    public function get($id, $includeTrashed = false)
+    public function get(int $id, bool $includeTrashed = false): ?Image
     {
         $query = Image::query();
         if ($includeTrashed) {
@@ -22,48 +24,57 @@ class ImageService
         return $query->find($id);
     }
 
-    public function view($id, $url = false, $temporaryLength = null)
+    public function view(int $id, bool $url = false, ?int $temporaryLength = null): StreamedResponse|string
     {
         $image = $this->get($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
+        $disk = Storage::disk($this->disk);
         $path = $image->path;
         // If a URL is requested
         if ($url) {
             // Generate a temporary signed URL if requested
-            if ($temporaryLength && Storage::disk($this->disk)->getDriver()->getAdapter()->getPathPrefix() === null) {
-                return Storage::disk($this->disk)->temporaryUrl($path, now()->addSeconds($temporaryLength));
+            if ($temporaryLength && $disk->getDriver()->getAdapter()->getPathPrefix() === null) {
+                return $disk->temporaryUrl($path, now()->addSeconds($temporaryLength));
             }
-            return Storage::disk($this->disk)->url($path);
+            return $disk->url($path);
         }
         // Otherwise return a streamed file response
-        if (!Storage::disk($this->disk)->exists($path)) {
+        if (!$disk->exists($path)) {
             throw new Exception('The image file is missing.', 404);
         }
-        $stream = Storage::disk($this->disk)->readStream($path);
+        $stream = $disk->readStream($path);
+        if ($stream === false) {
+            throw new Exception('The image file could not be streamed.', 500);
+        }
         return new StreamedResponse(function() use ($stream) {
-            fpassthru($stream);
+            try {
+                fpassthru($stream);
+            } finally {
+                fclose($stream);
+            }
         }, 200, [
-            'Content-Type' => Storage::disk($this->disk)->mimeType($path),
-            'Content-Length' => Storage::disk($this->disk)->size($path),
+            'Content-Type' => $disk->mimeType($path),
+            'Content-Length' => $disk->size($path),
             'Content-Disposition' => 'inline; filename="'.basename($path).'"',
         ]);
     }
 
-    public function upload($file, $uploadPath='uploads')
+    public function upload(UploadedFile $file, string $uploadPath = 'uploads'): Image|false
     {
         // Checks to see if the image exists and is valid prior to uploading it to the bucket
         if (!$file->isValid()) {
             return false;
         }
-        $uploadPath = trim($uploadPath, '/').'/';
-        $path = $file->store($uploadPath, $this->disk);
-        if (!Storage::disk($this->disk)->exists($path)) {
+        $uploadPath = trim($uploadPath, '/');
+        $disk = Storage::disk($this->disk);
+        $path = $file->store($uploadPath ?: 'uploads', $this->disk);
+        if (!$disk->exists($path)) {
             throw new Exception('Image not stored in S3: '.$path);
         }
         // Makes it so that the uploaded image is visible and can be used within the system
-        Storage::disk($this->disk)->setVisibility($path, 'public');
+        $disk->setVisibility($path, 'public');
         [$width, $height] = getimagesize($file->getRealPath());
         return Image::create([
             'name' => $file->getClientOriginalName(),
@@ -80,32 +91,42 @@ class ImageService
         ]);
     }
 
-    public function delete($id, $removeCompletely = false)
+    public function delete(int $id, bool $removeCompletely = false): bool
     {
         $image = $this->get($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
-        $image->deleted_at = date('Y-m-d H:i:s');
-        $image->deleted_by = Auth::check() ? Auth::user()->id : null;
-        if ($removeCompletely && Storage::disk($this->disk)->exists($path)) {
-            // Removes the image from the bucket
-            Storage::disk($this->disk)->delete($path);
+        $path = $image->path;
+        if ($removeCompletely) {
+            $disk = Storage::disk($this->disk);
+            if ($disk->exists($path)) {
+                // Removes the image from the bucket
+                $disk->delete($path);
+            }
+            $image->removed_from_storage_at = now();
+            $image->save();
+            return (bool) $image->forceDelete();
         }
-        return $image->save();
+        $image->deleted_by = Auth::check() ? Auth::user()->id : null;
+        $image->save();
+        return (bool) $image->delete();
     }
 
-    public function generic($model, array $data)
+    public function generic(Model $model, array $data): bool
     {
         // Sets up the generic upload/management of files
         if (isset($data['image']) && !is_null($data['image'])) {
             if (strpos($data['image']['id'], 'NEW') !== false) {
                 $image = $this->upload($data['image']['file']);
+                if ($image === false) {
+                    return false;
+                }
                 $model->image_id = $image->id;
                 $model->save();
             }
         } elseif (!is_null($model->image_id)) {
-            $this->delete($model->image_id);
+            $this->delete($model->image_id, true);
             // The images was deleted or never set
             $model->image_id = null;
             $model->save();
@@ -113,7 +134,7 @@ class ImageService
         return true;
     }
 
-    public function resize($id, int $width)
+    public function resize(int $id, int $width): void
     {
         $image = $this->get($id);
         if (empty($image)) {
@@ -123,12 +144,12 @@ class ImageService
     }
 
     public function crop(
-        $id,
+        int $id,
         int $width,
         int $height,
         int $x = 0,
         int $y = 0
-    ) {
+    ): void {
         $image = $this->get($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
@@ -136,7 +157,7 @@ class ImageService
         // Checks the sizes to make sure they can be used
     }
 
-    public function optimize($id)
+    public function optimize(int $id): void
     {
         $image = $this->get($id);
         if (empty($image)) {
@@ -145,7 +166,7 @@ class ImageService
 
     }
 
-    public function generatePath()
+    public function generatePath(): string
     {
         if (!Auth::check()) {
             return 'uploads/';

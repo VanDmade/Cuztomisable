@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Requests\Users;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class RefreshRequest extends FormRequest
+class RefreshRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,11 +12,11 @@ class RefreshRequest extends FormRequest
         return true;
     }
 
-    public function messages(): array
+    public function prepareForValidation(): void
     {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-        ];
+        $this->merge([
+            'token' => trim((string) $this->input('token')),
+        ]);
     }
 
     public function rules(): array

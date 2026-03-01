@@ -2,9 +2,10 @@
 
 namespace VanDmade\Cuztomisable\Requests\Users;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
+use Illuminate\Validation\Validator;
 
-class UserRequest extends FormRequest
+class UserRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,26 +13,22 @@ class UserRequest extends FormRequest
         return true;
     }
 
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'email' => __('cuztomisable/global.form.email'),
-            'in' => __('cuztomisable/global.form.in'),
-            'boolean' => __('cuztomisable/global.form.boolean'),
-            'size' => __('cuztomisable/global.form.phone.size'),
-        ];
-    }
-
-    public function withValidator($validator)
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
-            $emailInUse = config('auth.providers.users.model')::where('email', $this->email)
-                ->where(function($query) {
-                    if ($this->route('id')) {
-                        $query->where('id', '!=', $this->route('id'));
-                    }
-                })
+            $currentId = null;
+            if ($this->routeIs('users.update')) {
+                // Admin updating another user
+                $currentId = $this->route('id');
+            }
+            if ($this->routeIs('profile')) {
+                // User updating their own profile (no route id)
+                $currentId = auth()->id();
+            }
+            // Now perform uniqueness check
+            $emailInUse = config('auth.providers.users.model')::query()
+                ->where('email', $this->email)
+                ->when($currentId, fn($query) => $query->where('id', '!=', $currentId))
                 ->exists();
             if ($emailInUse) {
                 $validator->errors()->add('email', __('cuztomisable/user.errors.email_in_use'));
@@ -42,7 +39,18 @@ class UserRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->merge([
+            'name' => trim((string) $this->input('name')),
+            'username' => trim((string) $this->input('username')),
+            'email' => strtolower(trim((string) $this->input('email'))),
+            'timezone' => trim((string) $this->input('timezone')),
             'phone' => strval(cleanPhone($this->input('phone'))),
+            'address' => trim((string) $this->input('address')),
+            'address_two' => trim((string) $this->input('address_two')),
+            'address_three' => trim((string) $this->input('address_three')),
+            'city' => trim((string) $this->input('city')),
+            'state_or_province' => trim((string) $this->input('state_or_province')),
+            'zip_or_postal_code' => trim((string) $this->input('zip_or_postal_code')),
+            'country' => trim((string) $this->input('country')),
         ]);
     }
 
@@ -67,6 +75,8 @@ class UserRequest extends FormRequest
             'phone' => $requirePhone.'|size:'.($size ?? 10),
             'country_code' => $requirePhone,
             'mfa' => 'nullable|in:0,1',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,webp,heic|max:10240',
+            'clear_image' => 'nullable|in:0,1',
         ];
         // Determines if the address should be required, allowed, or straight up rejected
         if (($address = config('cuztomisable.account.address', false)) != false) {

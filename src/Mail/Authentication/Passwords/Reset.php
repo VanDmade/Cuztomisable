@@ -4,13 +4,13 @@ namespace VanDmade\Cuztomisable\Mail\Authentication\Passwords;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Passwords\Reset as ResetModel;
+use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
-class Reset extends Mailable
+class Reset extends VanDmadeMailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
@@ -25,9 +25,7 @@ class Reset extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: __('cuztomisable/authentication.emails.subjects.reset'),
-        );
+        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.reset'));
     }
 
     public function content(): Content
@@ -36,8 +34,8 @@ class Reset extends Mailable
             view: config('cuztomisable.account.notifications.reset.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset('images/logo.png'),
-                'company' => env('APP_NAME'),
+                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'company' => config('app.name'),
                 'lockUrl' => url('/lock/'.implode('/', [
                     $this->user->id,
                     'reset',

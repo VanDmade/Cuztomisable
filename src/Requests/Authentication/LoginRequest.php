@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Requests\Authentication;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class LoginRequest extends FormRequest
+class LoginRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,22 +12,12 @@ class LoginRequest extends FormRequest
         return true;
     }
 
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'email' => __('cuztomisable/global.form.email'),
-            'exists' => __('cuztomisable/global.form.exists'),
-            'in' => __('cuztomisable/global.form.in'),
-        ];
-    }
-
     public function prepareForValidation(): void
     {
         $email = config('cuztomisable.login.login_with.email', false);
         $phone = config('cuztomisable.login.login_with.phone', false);
         $type = $phone && strpos($this->input('username'), '@') == false ? 'phone' : ($email ? 'email' : 'username');
-        $username = $this->input('username');
+        $username = trim((string) $this->input('username'));
         if ($type == 'phone') {
             foreach (['/', '_', '-', '(', ')', ' '] as $i => $key) {
                 $username = str_replace($key, '', $username);
@@ -36,6 +26,8 @@ class LoginRequest extends FormRequest
             if (!is_numeric($username)) {
                 $type = 'email';
             }
+        } elseif ($type === 'email') {
+            $username = strtolower($username);
         }
         $this->merge([
             'type' => $type,

@@ -5,7 +5,8 @@ namespace VanDmade\Cuztomisable\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
@@ -49,7 +50,7 @@ class Phone extends Model
 
     protected $appends = ['full_phone_number']; 
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
@@ -79,17 +80,17 @@ class Phone extends Model
         );
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }

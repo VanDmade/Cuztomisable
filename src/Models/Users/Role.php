@@ -5,7 +5,8 @@ namespace VanDmade\Cuztomisable\Models\Users;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Roles;
 use Auth;
 
@@ -35,34 +36,30 @@ class Role extends Model
         'deleted_by',
     ];
 
-    public static function boot()
+    public static function boot(): void
     {
         parent::boot();
         self::creating(function($model) {
             $model->created_by = Auth::check() ? Auth::user()->id : null;
         });
-        self::deleting(function($model) {
-            $model->deleted_by = Auth::check() ? Auth::user()->id : null;
-            $model->deleted_at = date('Y-m-d H:i:s');
-        });
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
-    public function role()
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Roles\Role::class, 'role_id');
     }
 
-    public function createdBy()
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
     }
 
-    public function deletedBy()
+    public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }

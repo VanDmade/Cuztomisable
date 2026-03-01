@@ -20,6 +20,8 @@ return [
         ],
         // The amount of passwords that need to be iterated through before using the same password again
         'reuse_after' => 3,
+        // Minimum time between password changes in seconds
+        'change_cooldown_seconds' => 0,
         // The requirements for a password
         'requirements' => [
             // Minimum allowed characters
@@ -47,6 +49,10 @@ return [
         'length' => 6,
         // Length of time the registration code will expire
         'expires_in' => 3600,
+        // Maximum allowed verification attempts before invalidation
+        'attempts' => [
+            'max' => 5,
+        ],
         /* Determines whether an email should be sent to an administrator.
          * If the account was created by another user, that user will receive the notification instead.
          * Ensure that CUZTOMISABLE_ADMIN is set in the .env file for fallback notifications. */
@@ -79,6 +85,26 @@ return [
         'hidden_parameters' => [
             'password',
         ],
+        // Default logo path used in email templates.
+        'logo' => 'images/logo.png',
+        // Optional default from address for package emails.
+        'from' => [
+            'address' => null,
+            'name' => null,
+        ],
+        // Optional default reply-to address for package emails.
+        'reply_to' => [
+            'address' => null,
+            'name' => null,
+        ],
+    ],
+    'texts' => [
+        // When enabled, redact the logged message content.
+        'redact_message' => false,
+        // Optional regex patterns to redact in logs; when empty, full message is replaced.
+        'redact_patterns' => [],
+        // Replacement text used for redaction.
+        'redact_replacement' => '********',
     ],
     // Length of the token used within the URL, max length is 64
     'token_length' => 16,

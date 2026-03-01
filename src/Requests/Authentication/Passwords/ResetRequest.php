@@ -2,21 +2,14 @@
 
 namespace VanDmade\Cuztomisable\Requests\Authentication\Passwords;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class ResetRequest extends FormRequest
+class ResetRequest extends BaseRequest
 {
 
     public function authorize(): bool
     {
         return true;
-    }
-
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-        ];
     }
 
     public function rules(): array

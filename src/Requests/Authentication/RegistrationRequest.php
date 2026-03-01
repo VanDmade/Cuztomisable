@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Requests\Authentication;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class RegistrationRequest extends FormRequest
+class RegistrationRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,21 +12,21 @@ class RegistrationRequest extends FormRequest
         return !config('cuztomisable.account.registration.disabled', false) || !empty($this->route('code'));
     }
 
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-            'email' => __('cuztomisable/global.form.email'),
-            'in' => __('cuztomisable/global.form.in'),
-            'boolean' => __('cuztomisable/global.form.boolean'),
-            'size' => __('cuztomisable/global.form.phone.size'),
-        ];
-    }
-
     public function prepareForValidation(): void
     {
         $this->merge([
+            'name' => trim((string) $this->input('name')),
+            'username' => trim((string) $this->input('username')),
+            'email' => strtolower(trim((string) $this->input('email'))),
+            'timezone' => trim((string) $this->input('timezone')),
             'phone' => strval(cleanPhone($this->input('phone'))),
+            'address' => trim((string) $this->input('address')),
+            'address_two' => trim((string) $this->input('address_two')),
+            'address_three' => trim((string) $this->input('address_three')),
+            'city' => trim((string) $this->input('city')),
+            'state_or_province' => trim((string) $this->input('state_or_province')),
+            'zip_or_postal_code' => trim((string) $this->input('zip_or_postal_code')),
+            'country' => trim((string) $this->input('country')),
         ]);
     }
 

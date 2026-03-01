@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Requests\BaseRequest;
 
-class FormoraRequest extends FormRequest
+class FormoraRequest extends BaseRequest
 {
 
     public function authorize(): bool
@@ -12,22 +12,23 @@ class FormoraRequest extends FormRequest
         return true;
     }
 
-    public function messages(): array
-    {
-        return [
-            'required' => __('cuztomisable/global.form.required'),
-        ];
-    }
-
     public function rules(): array
     {
         return [
-            'to' => 'required',
-            'to_params' => 'nullable',
-            'current' => 'required',
-            'current_params' => 'nullable',
-            'form' => 'nullable',
+            'to' => 'required|string|max:255',
+            'to_params' => 'nullable|string|max:65535',
+            'current' => 'required|string|max:255',
+            'current_params' => 'nullable|string|max:65535',
+            'form' => 'nullable|string|max:65535',
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'to' => trim((string) $this->input('to')),
+            'current' => trim((string) $this->input('current')),
+        ]);
     }
 
 }

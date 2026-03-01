@@ -4,12 +4,12 @@ namespace VanDmade\Cuztomisable\Mail\Users\Passwords;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
-class Temporary extends Mailable
+class Temporary extends VanDmadeMailable implements ShouldQueue
 {
 
     use Queueable, SerializesModels;
@@ -24,9 +24,7 @@ class Temporary extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: __('cuztomisable/user.emails.subjects.temporary'),
-        );
+        return $this->defaultEnvelope(__('cuztomisable/user.emails.subjects.temporary'));
     }
 
     public function content(): Content
@@ -36,8 +34,8 @@ class Temporary extends Mailable
             with: [
                 'user' => $this->user,
                 'password' => $this->password,
-                'logo' => asset('images/logo.png'),
-                'company' => env('APP_NAME'),
+                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'company' => config('app.name'),
             ],
         );
     }
