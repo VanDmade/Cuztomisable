@@ -1,4 +1,5 @@
 import * as axiosModule from 'axios';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const axios = axiosModule.default ?? axiosModule;
 window.axios = axios;

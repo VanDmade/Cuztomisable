@@ -1,5 +1,23 @@
 @import "./variables.scss";
 
+$primary: $color-primary;
+$secondary: $color-secondary;
+$success: $color-success;
+$info: $color-info;
+$warning: $color-warning;
+$danger: $color-danger;
+$light: $color-light;
+$dark: $color-text;
+$body-bg: $color-bg;
+$body-color: $color-text;
+$link-color: $color-link;
+$border-color: $color-border;
+$border-radius: $border-radius;
+$btn-padding-y: nth($padding, 1);
+$btn-padding-x: nth($padding, 2);
+
+@import "bootstrap/scss/bootstrap";
+
 :root {
     --color-primary: #{$color-primary};
     --color-secondary: #{$color-secondary};
@@ -44,50 +62,85 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px white inset !important;
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: #000 !important;
+
 }
-.cz-authentication-logo {
-    height: 60px;
-    padding: 8px;
-}
-#portal-layout {
-    .navbar-toggler {
-        border-color: white;
-    }
-    .navbar-toggler:focus {
-        box-shadow: 0 0 6px 0.1rem white;
-    }
-    .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-    }
-    .dropdown-item.active {
-        background-color: $color-secondary !important;
-    }
-    .dropdown-item:focus {
-        background-color: lighten($color-secondary, 5%) !important;
-    }
-    .dropdown-divider {
-        border-top: 1px solid var(--bs-dropdown-divider-bg) !important;
-    }
-    .navbar-brand, .nav-link {
-        color: $color-white !important;
-    }
-    .nav-item {
-        .nav-link.active {
-            color: $color-secondary !important;
-            text-decoration: underline;
-            font-weight: bold;
-        }
-    }
-}
-.d-flex {
-    display: flex;
-    .flex-1 { flex: 1; }
-}
+
 .notes { font-size: 12px; color: #666; margin: 0; }
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
 .layout { min-height: 100%; }
+
+@media (max-width: 991.98px) {
+    #portal-layout .admin-section-title {
+        cursor: default;
+    }
+
+        #portal-layout .admin-section-link {
+            color: #fff !important;
+        }
+    #portal-layout .admin-section-title:hover,
+    #portal-layout .admin-section-title:focus,
+    #portal-layout .admin-section-title:active {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+
+        #portal-layout .admin-section-title {
+            color: #fff !important;
+        }
+    #portal-layout .admin-section-link {
+        padding-left: 0 !important;
+        color: #fff !important;
+        opacity: 1 !important;
+    }
+
+        #portal-layout .admin-section-icon {
+            color: #fff !important;
+        }
+    #portal-layout .admin-section-link:hover,
+    #portal-layout .admin-section-link:focus,
+    #portal-layout .admin-section-link:active,
+    #portal-layout .admin-section-link .material-icons {
+        color: #fff !important;
+    }
+
+    #portal-layout .portal-navbar-collapse {
+        --bs-nav-link-color: #fff;
+        --bs-nav-link-hover-color: #fff;
+        --bs-navbar-color: #fff;
+        --bs-navbar-hover-color: #fff;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+        background: var(--bs-primary);
+        padding: 0.5rem 0.75rem;
+        overflow: visible;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+    }
+
+    #portal-layout .portal-navbar-collapse.show {
+        opacity: 1;
+        transition: opacity 0.2s;
+        height: auto;
+        overflow: visible;
+    }
+
+    #portal-layout .portal-navbar-collapse:not(.show) {
+        opacity: 0;
+        transition: opacity 0.2s;
+        height: 0;
+        overflow: hidden;
+    }
+
+    #portal-layout .navbar,
+    #portal-layout .position-relative {
+        overflow: visible;
+    }
+}
+
 .ma-1 { margin: 0.25rem !important; }
 .ma-2 { margin: 0.5rem !important; }
 .ma-3 { margin: 0.75rem !important; }
@@ -172,17 +225,10 @@ input:-webkit-autofill {
 .form-buttons {
     margin-top: 1.5rem;
 }
-.nav-link {
-    cursor: pointer;
-}
 #navigation {
+    margin-top: 4px;
     .nav-link {
-        .material-icons {
-            color: #fff;
-        }
-    }
-    hr {
-        border: 2px solid #fff;
+        cursor: pointer;
     }
 }
 .collapsed-profile-image {
@@ -196,12 +242,18 @@ input:-webkit-autofill {
     max-height: 36px;
     margin: 2px 0;
     border-radius: 50px;
+    border: 2px solid var(--color-border);
 }
 .profile-image:hover,
-.profile-image:focus {
+.profile-image:focus,
+.profile-image:active {
     cursor: pointer;
     border: 2px solid $color-accent;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.cz-authentication-logo {
+    width: 60px;
+    padding-right: 8px;
 }
 .collapsed-profile-name {
     vertical-align: middle;
@@ -465,4 +517,43 @@ visibility: hidden;
 .tooltip-wrapper:hover .tooltip-text {
     visibility: visible;
     opacity: 1;
+}
+
+@media (max-width: 991.98px) {
+  #portal-layout .admin-section-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.75) !important;
+  }
+  #portal-layout .admin-section-title .material-icons {
+    display: none !important;
+  }
+}
+@media (max-width: 991.98px) {
+  .dropdown-table-mobile {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.75);
+  }
+  .dropdown-table-mobile .material-icons {
+    display: none !important;
+  }
+}
+@media (max-width: 991.98px) {
+  .portal-navbar-collapse {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+  }
+  .portal-navbar-collapse.show {
+    opacity: 1;
+    transition: opacity 0.2s;
+  }
+  .active-nav {
+    background: none !important;
+    border-radius: 0;
+    color: #fff !important;
+    font-weight: bold;
+  }
+  .nav-link.active {
+    font-weight: bold !important;
+  }
 }

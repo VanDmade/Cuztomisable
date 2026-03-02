@@ -196,6 +196,34 @@ function visit(to, replace = false) {
 
 const routeState = reactive(parseRouteFromUrl(window.location.pathname + window.location.search));
 
+let routeTransitionLoading = false;
+
+router.on('start', (event) => {
+    const currentRoute = parseRouteFromUrl(window.location.pathname + window.location.search);
+    const targetUrl = event?.detail?.visit?.url ?? currentRoute.path;
+    const nextRoute = parseRouteFromUrl(targetUrl);
+
+    const isPortalToPortal = !!currentRoute?.meta?.authentication && !!nextRoute?.meta?.authentication;
+    if (!isPortalToPortal) {
+        routeTransitionLoading = false;
+        return;
+    }
+
+    routeTransitionLoading = true;
+    store.commit('SET_LOADING', true);
+});
+
+router.on('finish', () => {
+    if (!routeTransitionLoading) {
+        return;
+    }
+
+    routeTransitionLoading = false;
+    setTimeout(() => {
+        store.commit('SET_LOADING', false);
+    }, 120);
+});
+
 router.on('navigate', (event) => {
     Object.assign(routeState, parseRouteFromUrl(event.detail.page.url));
 });

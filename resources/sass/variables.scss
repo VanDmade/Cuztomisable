@@ -1,0 +1,30 @@
+// Breakpoints
+$xsmall:            576px;
+$small:             768px;
+$medium:            992px;
+$large:             1200px;
+$xlarge:            1400px;
+
+// Brand Colors (Matched to Hexagon Logo)
+$color-primary:     #F47C20;   // Deep burnt orange
+$color-secondary:   #A63A0A;   // Mid orange
+$color-ternary:     #F79A4A;   // Light orange
+$color-accent:      #FF8C2A;   // Bright highlight node
+$color-danger:      #C62828;
+$color-success:     #2E7D32;
+$color-info:        #0277BD;
+$color-warning:     #F9A825;
+$color-light:       #FAF9F6;
+$color-link:        #E65100;
+
+// Base UI Colors
+$color-bg:          #FAF9F6;
+$color-text:        #1C1C1C;
+$color-muted:       #6C757D;
+$color-white:       #FFFFFF;
+$color-border:      #E5D3C5;
+
+// UI Tokens
+$border-radius:     0.5rem;
+$padding:           0.6rem 1.2rem;
+$transition:        all 0.2s ease-in-out;

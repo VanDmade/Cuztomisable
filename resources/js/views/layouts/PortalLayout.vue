@@ -1,8 +1,8 @@
 <template>
     <div id="portal-layout" class="layout">
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
-        <nav class="navbar navbar-expand-lg bg--primary mb-6 shadow" v-if="navbar">
-            <div :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-6 shadow" v-if="$store.state.authenticated">
+            <div class="position-relative" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
                 <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/logo.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
@@ -13,41 +13,61 @@
                     aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navigation">
+                <div class="collapse navbar-collapse portal-navbar-collapse" id="navigation">
                     <div class="navbar-nav me-auto">
                         <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
                             <img class="collapsed-profile-image" :src="$url+'test.png'">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
                         <template v-if="navigation && navigation.length">
-                            <li class="nav-item" v-for="(item, index) in navigation">
-                                <router-link class="nav-link" :class="$route.name == item.route ? 'active' : ''" :to="{ name: item.route }">{{ item.text }}</router-link>
+                            <li class="nav-item" v-for="(item, index) in navigation" :key="`${item.route || item.text || 'nav'}-${index}`">
+                                <router-link class="nav-link d-inline-flex align-items-center" :class="$route.name == item.route ? 'active active-nav' : ''" :to="{ name: item.route }" @click.native="collapseNavbar">
+                                    <span v-if="item.icon" class="material-icons me-1" aria-hidden="true">{{ item.icon }}</span>
+                                    <span>{{ item.text }}</span>
+                                </router-link>
                             </li>
                         </template>
                         <template v-if="$store.getters.hasPermission('view-users|manage-users|invite-users|manage-roles-permissions')">
-                            <hr v-if="screenSize == 'medium'">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Administrator</a>
+                            <hr v-if="screenSize == 'medium'" class="mobile-logout-divider">
+                            <li v-if="screenSize == 'medium'" class="nav-item d-flex flex-column pt-2">
+                                <div class="d-inline-flex align-items-center admin-section-title" style="color: #fff !important; opacity: 1 !important;">
+                                    <span class="material-icons me-1" aria-hidden="true">admin_panel_settings</span>
+                                    <span>Administrator</span>
+                                </div>
+                                <div class="d-flex flex-column mb-2">
+                                    <router-link v-if="$store.getters.hasPermission('view-users|manage-users')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }"><span class="material-icons me-1" aria-hidden="true">group</span><span>Users</span></router-link>
+                                    <router-link v-if="$store.getters.hasPermission('invite-users')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }"><span class="material-icons me-1" aria-hidden="true">mail</span><span>Invitations</span></router-link>
+                                    <router-link v-if="$store.getters.hasPermission('manage-roles-permissions')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }"><span class="material-icons me-1" aria-hidden="true">security</span><span>Roles</span></router-link>
+                                    <router-link v-if="$store.getters.hasPermission('manage-roles-permissions')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }"><span class="material-icons me-1" aria-hidden="true">verified_user</span><span>Permissions</span></router-link>
+                                </div>
+                            </li>
+                            <li v-else class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="material-icons me-1" aria-hidden="true">admin_panel_settings</span>
+                                    <span>Administrator</span>
+                                </a>
                                 <ul class="dropdown-menu bg-white text-dark">
-                                    <li v-if="$store.getters.hasPermission('view-users|manage-users')"><router-link class="dropdown-item" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }">Users</router-link></li>
-                                    <li v-if="$store.getters.hasPermission('invite-users')"><router-link class="dropdown-item" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }">Invitations</router-link></li>
+                                    <li v-if="$store.getters.hasPermission('view-users|manage-users')"><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }"><span class="material-icons me-1" aria-hidden="true">group</span><span>Users</span></router-link></li>
+                                    <li v-if="$store.getters.hasPermission('invite-users')"><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }"><span class="material-icons me-1" aria-hidden="true">mail</span><span>Invitations</span></router-link></li>
                                     <template v-if="$store.getters.hasPermission('manage-roles-permissions')">
                                         <li v-if="$store.getters.hasPermission('view-users|manage-users|invite-users')"><hr class="dropdown-divider"></li>
-                                        <li><router-link class="dropdown-item" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }">Roles</router-link></li>
-                                        <li><router-link class="dropdown-item" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }">Permissions</router-link></li>
+                                        <li><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }"><span class="material-icons me-1" aria-hidden="true">security</span><span>Roles</span></router-link></li>
+                                        <li><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }"><span class="material-icons me-1" aria-hidden="true">verified_user</span><span>Permissions</span></router-link></li>
                                     </template>
                                 </ul>
                             </li>
                         </template>
                     </div>
-                    <div class="navbar-nav ms-auto" >
-                        <span v-if="screenSize == 'large'" class="navbar-text text-white pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
+                    <div class="navbar-nav ms-auto">
+                        <span v-if="screenSize == 'large'" class="navbar-text text-white d-inline-flex align-items-center pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
                             <img class="profile-image" :src="$url+'test.png'" @click="$router.push({ name: 'profile' })">
+                            <span class="pl-2">{{ $store.state.user?.name }}</span>
                         </span>
-                        <span class="nav-link d-inline-flex align-items-center text-white" @click="logout">
-                            <span v-if="screenSize == 'large'" class="material-icons">logout</span>
-                            <span v-else>Logout</span>
-                        </span>
+                        <hr v-if="screenSize == 'medium'" class="mobile-logout-divider">
+                        <a href="#" class="nav-link d-inline-flex align-items-center text-white" role="button" @click.prevent="logout">
+                            <span class="material-icons me-1" aria-hidden="true">logout</span>
+                            <span>Logout</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -67,12 +87,11 @@
 </template>
 <script>
 import ForceChangePasswordForm from '../../components/ChangePassword.vue';
+import loading from '../../utils/loading.js';
 
 export default {
     data: function() {
         return {
-            navbar: this.$store.state.authenticated,
-            navbarToggle: false,
             screenSize: 'large',
             inactivityTimer: null,
             verifyInactivity: null,
@@ -81,6 +100,15 @@ export default {
             countdown: 0,
             events: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
         }
+    },
+    computed: {
+        navigation: function() {
+            const nav = this.$cuztomisable?.navigation;
+            if (Array.isArray(nav) && nav.length) {
+                return nav;
+            }
+            return [];
+        },
     },
     mounted: function() {
         this.onResize();
@@ -94,6 +122,9 @@ export default {
         }
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
+            this.$watch('$route', () => {
+                this.collapseNavbar();
+            });
         })
     },
     beforeDestroy: function() { 
@@ -108,11 +139,17 @@ export default {
                 });
                 return;
             }
-
             this.$refs['changePasswordModal']?.close();
         },
         onResize: function() {
             this.screenSize = window.innerWidth <= 992 ? 'medium' : 'large';
+        },
+        collapseNavbar: function() {
+            // Always collapse immediately on link click
+            const nav = document.getElementById('navigation');
+            if (nav && nav.classList.contains('show')) {
+                nav.classList.remove('show');
+            }
         },
         startInactivityWatcher: function() {
             this.resetInactivityTimer();
@@ -156,11 +193,14 @@ export default {
             this.resetInactivityTimer();
         },
         async logout() {
-            this.$loading.show({ message: 'See you next time!' });
+            loading.show({ message: 'See you next time!' });
             setTimeout(async () => {
                 this.removeActivityListeners();
                 await this.$store.dispatch('logout');
-                this.$router.push({ name: 'login' });
+                setTimeout(() => {
+                  loading.hide();
+                  this.$router.push({ name: 'login' });
+                }, 1000);
             }, 250);
         },
     },
