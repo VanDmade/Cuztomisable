@@ -1,8 +1,8 @@
 <template>
     <div id="portal-layout" class="layout">
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-6 shadow" v-if="$store.state.authenticated">
-            <div class="position-relative" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
+            <div class="position-relative container-fluid">
                 <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/logo.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
@@ -11,10 +11,10 @@
                     aria-controls="navigation"
                     aria-expanded="false"
                     aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse portal-navbar-collapse" id="navigation">
-                    <div class="navbar-nav me-auto">
+                    <div class="navbar-nav me-auto d-lg-none">
                         <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
                             <img class="collapsed-profile-image" :src="$url+'test.png'">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
@@ -72,7 +72,12 @@
                 </div>
             </div>
         </nav>
-        <slot></slot>
+        <div class="portal-wrapper">
+            <app-sidebar v-if="$store.state.authenticated && screenSize === 'large'" :navigation="navigation"></app-sidebar>
+            <div class="portal-content">
+                <slot></slot>
+            </div>
+        </div>
         <fm-modal ref="inactivityModal" modal-width="275px" static>
             <h3 class="card-title mb-4">Are you still here?</h3>
             <h1 class="text-center mb-4">{{ countdown }}</h1>
@@ -87,6 +92,7 @@
 </template>
 <script>
 import ForceChangePasswordForm from '../../components/ChangePassword.vue';
+import AppSidebar from '../../components/navigation/Sidebar.vue';
 import loading from '../../utils/loading.js';
 
 export default {
@@ -232,6 +238,35 @@ export default {
     },
     components: {
         'force-change-password-form': ForceChangePasswordForm,
+        'app-sidebar': AppSidebar,
     }
 }
 </script>
+
+<style scoped>
+#portal-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.portal-navbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.portal-wrapper {
+    display: flex;
+    flex: 1;
+    align-items: stretch;
+    min-height: 0;
+}
+
+.portal-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.portal-content :deep(.page) {
+    padding-top: 1.5rem;
+}
+</style>

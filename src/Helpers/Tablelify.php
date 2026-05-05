@@ -28,7 +28,11 @@ class Tablelify
         $allowedFilters = $parameters['allowed_filters'] ?? [];
         try {
             $table = $query->getModel()->getTable();
-            $query = $query->select($table.'.*')->distinct();
+            // Only apply a default select if the query does not already have one
+            if (empty($query->getQuery()->columns)) {
+                $query = $query->select($table . '.*');
+            }
+            $query = $query->distinct();
         } catch (Exception $error) {}
         // Appends the search information and calculates the totals / filtered totals
         list($total, $filtered, $query) = self::create($query, $parameters, $searchColumns, $allowedFilters);
@@ -71,6 +75,7 @@ class Tablelify
      * @return array The total and filtered total of data within the database.
      *   This array also contains the eloquent query object.
     \**************************************************************************/
+
     public static function create(
         mixed $query,
         array $parameters,
@@ -79,13 +84,19 @@ class Tablelify
     ): array
     {
         $search = $parameters['search'] ?? null;
-        // Total rows prior to the search value being used
-        $total = $query->count();
-        $query = $query->where(function($query) use ($search, $searchColumns) {
-            // Makes 100% sure the request has sent in the search parameters
+        if (isset($parameters['additional']['group_by'])) {
+            $groupBy = $parameters['additional']['group_by'];
+            $query = $query->groupBy($groupBy);
+        }
+        // Clone before modifying so totals remain accurate
+        $totalQuery = clone $query;
+        // Total rows prior to search / filters
+        $total = isset($groupBy)
+            ? $totalQuery->get()->count()
+            : $totalQuery->count();
+        $query = $query->where(function ($query) use ($search, $searchColumns) {
             if (!is_null($search) && $search !== '') {
-                // Iterates through the columns that the developer wants to search through
-                foreach ($searchColumns as $i => $column) {
+                foreach ($searchColumns as $column) {
                     $query->orWhere($column, 'LIKE', $search);
                 }
             }
@@ -109,13 +120,11 @@ class Tablelify
                 }
             }
         }
-        // Total rows after the search value is sued
-        $filteredTotal = $query->count();
-        if (isset($parameters['additional']['group_by'])) {
-            $query = $query->groupBy($parameters['additional']['group_by']);
-        }
-        /* Sets up the query and returns the query for the user to run additional
-         * functionality on it, or execute it themselves */
+        // Clone again after filters for filtered total
+        $filteredQuery = clone $query;
+        $filteredTotal = isset($groupBy)
+            ? $filteredQuery->get()->count()
+            : $filteredQuery->count();
         return [$total, $filteredTotal, $query];
     }
 

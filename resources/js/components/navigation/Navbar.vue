@@ -1,6 +1,6 @@
 <template>
     <nav v-if="show" class="portal-navbar mb-6 shadow">
-        <div :class="containerClasses" class="portal-navbar-shell">
+        <div class="portal-navbar-shell container-fluid">
             <div class="portal-navbar-top">
                 <router-link class="navbar-brand pa-0 portal-navbar-brand" :to="brand.to || { name: 'portal' }" @click="closeMenus">
                     <slot name="brand">
@@ -87,7 +87,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="portal-navbar-mobile" :id="navigationId" :class="{ show: menuOpen }">
                 <slot name="mobile-header" :is-mobile="true"></slot>
                 <div class="portal-navbar-mobile-links">
@@ -192,12 +191,6 @@ export default {
     computed: {
         isMobile: function() {
             return this.width <= this.mobileBreakpoint;
-        },
-        containerClasses: function() {
-            return {
-                container: !this.isMobile,
-                'container-fluid': this.isMobile,
-            };
         },
         visibleLinks: function() {
             return this.links.filter((item) => item && item.visible !== false);

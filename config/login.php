@@ -84,7 +84,7 @@ return [
         'api_key' => null,
         'api_key_header' => 'X-App-Key',
         'apps' => [
-            ['name' => 'Mixing Maverik', 'min_version' => '1.0.0'],
+            ['name' => 'Mixing Maverick', 'min_version' => '1.0.0'],
             ['name' => 'Cuztomisable', 'min_version' => '1.0.0'],
         ],
         'platforms' => ['Android', 'iOS', 'Other'],

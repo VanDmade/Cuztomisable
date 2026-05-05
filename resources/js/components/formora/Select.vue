@@ -1,6 +1,6 @@
 <template>
     <div class="fm-form-input"
-        :class="{ 'fm-no-label': label == null || label == '', 'form-floating': !notFloating }">
+        :class="{ 'fm-no-label': (label == null || label == '') && !dense, 'form-floating': !notFloating }">
         <select
             v-model="value"
             :id="id"
@@ -14,7 +14,7 @@
             <option
                 v-if="!required || isEmpty"
                 value=""
-                :hidden="required && !isEmpty"></option>
+                :hidden="required && (!isEmpty || placeholder === null)">{{ placeholder }}</option>
             <option v-for="(item, itemIndex) in getItems()"
                 :value="yesNo ? item.value : (typeof(item[inputValue]) == 'undefined' ? item : item[inputValue])">{{ yesNo ? item.text : (typeof(item[inputText]) == 'undefined' ? item : item[inputText]) }}</option>
         </select>
@@ -94,6 +94,8 @@ export default {
         newEntryText: { type: String, default: 'New Entry' },
         newEntryValue: { type: [String, Number], default: '0' },
         emptyText: { type: String, default: 'Hmm... Something is missing...' },
+        placeholder: { type: String, default: null },
+        dense: { type: Boolean, default: false },
     }
 }
 </script>

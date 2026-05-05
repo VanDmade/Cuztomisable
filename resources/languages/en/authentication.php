@@ -31,6 +31,7 @@ return [
         'verified' => 'The request has been verified.',
         'phone_message' => '[:company] Your verification code is: :code',
         'errors' => [
+            'invalid_code' => 'The code entered is invalid. Please try again!',
             'not_created' => 'There was an error while creating your MFA code.',
             'not_found' => 'The code was not found.',
             'token_has_expired' => 'This request is no longer valid.',

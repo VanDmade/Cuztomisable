@@ -1,7 +1,7 @@
 <template>
     <div class="form-floating fm-form-input">
         <div v-if="image" class="fm-form-uploader" @click="upload(false)">
-            <img v-show="!multiple || total <= 1" :src="default" :id="id" class="fm-image fm-image-preview" :class="{ 'fm-image-cursor': !selected }">
+            <img v-show="!multiple || total <= 1" :src="previewSrc" :id="id" class="fm-image fm-image-preview" :class="{ 'fm-image-cursor': !selected }">
             <div :id="id + '-container'" class="fm-image-container" :class="{ 'scroll': total > 1 }"></div>
             <div v-if="!selected" class="fm-form-upload-text">
                 Browse for File Upload
@@ -12,7 +12,7 @@
             <div v-else-if="!multiple || total <= 1" class="fm-form-upload-clear" @click="clear"><span class="material-icons">close</span></div>
         </div>
         <div class="d-grid" v-if="selected">
-            <button type="button" class="btn btn-primary btn-sm mt-3" block @click="upload(true)">Upload</button>
+            <button type="button" class="button button--primary button--small mt-3" block @click="upload(true)">Upload</button>
         </div>
         <div v-if="description != null" class="fm-upload-description">{{ description }}</div>
         <input v-show="false" type="file" :ref="'uploader-'+id" :id="'uploader-'+id" @change="change" :multiple="multiple">
@@ -25,6 +25,7 @@ export default {
             id: 'fm-file_'+Math.random().toString(36).slice(2),
             key: 0,
             default: this.$url+'default.png',
+            previewSrc: this.$url+'default.png',
             selected: false,
             details: {},
             total: 0,
@@ -46,9 +47,11 @@ export default {
             }
             setTimeout(() => {
                 var container = document.getElementById(this.id+'-container');
-                var previewImage = document.getElementById(this.id);
+                if (container) {
+                    container.innerHTML = '';
+                }
                 if (this.value.length == 1) {
-                    previewImage.src = this.value[0].path;
+                    this.previewSrc = this.value[0].path;
                 } else {
                     for (let i = 0; i < this.value.length; i++) {
                         let [imageContainer, image, clear] = this.setupImage(this.value[i], i);
@@ -77,20 +80,24 @@ export default {
             this.loading = true;
             let input = event.target;
             var container = document.getElementById(this.id+'-container');
-            var previewImage = document.getElementById(this.id);
+            var existingCount = Array.isArray(this.value) ? this.value.length : 0;
+            if (!this.multiple) {
+                if (container) container.innerHTML = '';
+                this.previewSrc = this.default;
+            }
             var _this = this;
             if (input.files && input.files.length > 0) {
                 this.total = input.files.length;
                 let reader = new FileReader();
                 function readFile(index) {
-                    if (index >= input.files.length) return;
+                    if (index >= input.files.length) {
+                        return;
+                    }
                     reader.onload = function(event) {
                         setTimeout(() => {
                             let [imageContainer, image, clear] = _this.setupImage(event, index);
                             let extension = input.files[index].name.split('.');
-                            // Gets the details for the specific image to do appropraite comparisons
                             try {
-                                // Creates the details object for this specific image, if needed, it can be setup to be used.
                                 let details = {
                                     name: input.files[index].name,
                                     type: input.files[index].type,
@@ -100,31 +107,27 @@ export default {
                                     ratio: _this.reduce((image.naturalWidth / image.naturalHeight * 10), 10),
                                     size: input.files[index].size,
                                 };
-                                // Checks to make sure the type is correctly set
                                 if (_this.accept.split(',').indexOf(details.type) == -1) {
                                     throw new Error(`The file\'s extension must be one of the following types: ${_this.accept}.`);
                                 }
-                                // Checks to make sure the image uploaded is a square
                                 if (_this.square && image.naturalHeight != image.naturalWidth) {
                                     throw new Error('The image selected must be a square.');
                                 }
-                                // Checks to make sure the ratio is correctly uploaded
                                 if (_this.ratio != details.ratio && _this.ratio != null) {
                                     throw new Error(`The image\'s ratio does not match ${_this.ratio}.`);
                                 }
-                                // Determines how the image should be displayed
                                 if (_this.multiple && _this.total > 1) {
                                     imageContainer.appendChild(image);
                                     imageContainer.appendChild(clear);
                                     container.appendChild(imageContainer);
                                 } else {
-                                    previewImage.src = image.src;
+                                    _this.previewSrc = image.src;
                                 }
                             } catch ({ name, message }) {
                                 if (_this.total == 1) {
                                     _this.clear();
                                 } else {
-                                    _this.value.splice(index, 1);
+                                    _this.value.splice(existingCount + index, 1);
                                     _this.total--;
                                 }
                                 _this.errorList = [message];
@@ -162,8 +165,7 @@ export default {
         clear: function() {
             this.errorList = [];
             this.value = '';
-            let image = document.getElementById(this.id);
-            image.src = this.default;
+            this.previewSrc = this.default;
             this.details = {};
             setTimeout(() => {
                 this.selected = false;
@@ -175,10 +177,11 @@ export default {
                 event.target.className.indexOf('material-icons') != -1) {
                 return;
             }
-            let containers = document.querySelectorAll('.fm-form-multiple-image-container');
+            let outerContainer = document.getElementById(this.id + '-container');
+            let containers = outerContainer.querySelectorAll('.fm-form-multiple-image-container');
             const target = event.target.closest('.fm-form-multiple-image-container');
             let index = Array.from(containers).indexOf(target);
-            document.getElementById(this.id+'-container').prepend(target);
+            outerContainer.prepend(target);
             // Removes the current file from it's current location and then adds it to the front
             let thumbnail = this.value.splice(index, 1);
             this.value.unshift(thumbnail[0]);
@@ -216,7 +219,8 @@ export default {
             return [imageContainer, image, clear];
         },
         remove: function(event) {
-            let buttons = document.querySelectorAll('.fm-form-upload-clear');
+            let container = document.getElementById(this.id + '-container');
+            let buttons = container.querySelectorAll('.fm-form-upload-clear');
             const target = event.target.closest('.fm-form-upload-clear');
             let index = Array.from(buttons).indexOf(target);
             // Removes the image
@@ -224,13 +228,11 @@ export default {
             this.value.splice(index, 1);
             this.total--;
             if (this.total == 1) {
-                // Gets the other containers to find the last image
-                let containers = document.getElementsByClassName('fm-form-multiple-image-container');
+                let containers = container.querySelectorAll('.fm-form-multiple-image-container');
                 if (containers.length == 1) {
                     let image = containers[0].querySelector('img');
-                    let previewImage = document.getElementById(this.id);
                     containers[0].remove();
-                    previewImage.src = image.src;
+                    this.previewSrc = image.src;
                 }
             } else if (this.total == 0) {
                 this.selected = false;
@@ -263,14 +265,18 @@ export default {
                 if (value == '') {
                     const container = document.getElementById(this.id + '-container');
                     if (container) container.innerHTML = '';
-                    let image = document.getElementById(this.id);
-                    if (image) image.src = this.default;
+                    this.previewSrc = this.default;
                     this.total = 0;
                     this.selected = false;
                     this.details = {};
                     return;
                 }
-                let image = document.getElementById(this.id);
+                // Skip setup when value contains newly selected local files —
+                // view() is already rendering those from FileReader data URLs.
+                // Running setup() concurrently would append null-src duplicates.
+                if (Array.isArray(value) && value.some(v => String(v.id ?? '').startsWith('NEW-'))) {
+                    return;
+                }
                 this.setup();
             },
             deep: true,

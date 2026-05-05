@@ -7,9 +7,14 @@
     <link rel="icon" type="image/png" href="/cuztomisable/logo.png">
     <title inertia>Cuztomisable</title>
     @inertiaHead
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite([
+        'resources/sass/app.scss',
+        'resources/sass/formora.scss',
+        'resources/sass/tablelify.scss',
+    ])
 </head>
 <body>
     @inertia
 </body>
+@vite(['resources/js/app.js'])
 </html>

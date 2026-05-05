@@ -11,6 +11,7 @@ import Tablelify from './components/Tablelify.vue';
 import Loading from './components/Formora/Loading.vue';
 import Upload from './components/Formora/Upload.vue';
 import Address from './components/Formora/Address.vue';
+import Delete from './components/Formora/Delete.vue';
 import Carousel from './components/Formora/Carousel.vue';
 import Phone from './components/Formora/Phone.vue';
 import Input from './components/Formora/Input.vue';
@@ -255,6 +256,7 @@ export async function loadCuztomisableApp() {
     let settings = {};
 
     try {
+        console.log(axios.defaults.baseURL);
         const res = await axios.get('/cuztomisable/settings');
         settings = res.data ?? {};
     } catch (err) {
@@ -306,6 +308,7 @@ export async function loadCuztomisableApp() {
         'fm-modal': Modal,
         'fm-image': Image,
         'fm-autofill': Autofill,
+        'fm-delete': Delete,
     };
     Object.entries(globalComponents).forEach(([name, comp]) => {
         app.component(name, comp);

@@ -36,6 +36,7 @@ $btn-padding-x: nth($padding, 2);
     --color-border: #{$color-border};
     --color-link: #{$color-link};
     --color-primary-ring: #{rgba($color-primary, 0.2)};
+    --color-secondary-ring: #{rgba($color-secondary, 0.2)};
 }
 
 *, ::after, ::before {
@@ -139,6 +140,10 @@ input:-webkit-autofill {
     #portal-layout .position-relative {
         overflow: visible;
     }
+    #portal-layout .navbar .mobile-logout-divider {
+        margin: 8px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.5);
+    }
 }
 
 .ma-1 { margin: 0.25rem !important; }
@@ -226,7 +231,6 @@ input:-webkit-autofill {
     margin-top: 1.5rem;
 }
 #navigation {
-    margin-top: 4px;
     .nav-link {
         cursor: pointer;
     }
@@ -252,7 +256,7 @@ input:-webkit-autofill {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 .cz-authentication-logo {
-    width: 60px;
+    width: 72px;
     padding-right: 8px;
 }
 .collapsed-profile-name {
@@ -430,7 +434,7 @@ input:-webkit-autofill {
 }
 #portal-layout {
     .page {
-        padding: 0 32px;
+        padding: 24px 32px 0 32px;
         @media (max-width: $xsmall) {
             padding: 0 calc(var(--bs-gutter-x) * 0.5);
             width: 100%;

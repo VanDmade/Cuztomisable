@@ -52,7 +52,14 @@
         </table>
         <div class="row tablelify-pagination">
             <div class="col col-md-2 col-12">
-                <fm-select v-model="size" :disabled="disabled" :items="countOptions" @change="query" class="tablelify-count" not-floating />
+                <fm-select
+                    v-model="size"
+                    :disabled="disabled"
+                    :items="countOptions"
+                    @change="query"
+                    class="tablelify-count"
+                    not-floating
+                    dense />
             </div>
             <div v-if="totalPages > 0" class="col col-md-9 offset-md-1 col-12" :class="{ 'text-right': !breakpoint('sm'), 'text-center mt-4': breakpoint('sm') }">
                 <button type="button"
