@@ -80,7 +80,11 @@ export default {
             this.loading = true;
             let input = event.target;
             var container = document.getElementById(this.id+'-container');
+            // Capture how many items existed before this selection so the splice
+            // index is correct when a new file fails validation.
             var existingCount = Array.isArray(this.value) ? this.value.length : 0;
+            // In single mode clear everything; in multiple mode the existing
+            // thumbnails stay — we only append (or reject) the new ones.
             if (!this.multiple) {
                 if (container) container.innerHTML = '';
                 this.previewSrc = this.default;
@@ -127,6 +131,8 @@ export default {
                                 if (_this.total == 1) {
                                     _this.clear();
                                 } else {
+                                    // Remove the specific failed file using its actual position
+                                    // in the value array (existing items come first).
                                     _this.value.splice(existingCount + index, 1);
                                     _this.total--;
                                 }

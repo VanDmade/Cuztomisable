@@ -10,7 +10,7 @@
             :readonly="readonly"
             @input="errorList = []">
             <option v-if="newEntry" :value="newEntryValue">{{ newEntryText }}</option>
-            <option v-if="getItems().length == ''" value="no no no! You cannot select me!" disabled>{{ emptyText }}</option>
+            <option v-if="!newEntry && getItems().length == 0" value="no no no! You cannot select me!" disabled>{{ emptyText }}</option>
             <option
                 v-if="!required || isEmpty"
                 value=""
@@ -30,11 +30,13 @@ export default {
         return {
             id: 'fm-select_'+Math.random().toString(16).slice(2),
             yesOrNo: [{ value: '1', text: 'Yes'}, { value: '0', text: 'No'}],
+            boolOrNo: [{ value: true, text: 'Yes'}, { value: false, text: 'No'}],
             errorList: [],
         }
     },
     methods: {
         getItems: function() {
+            if (this.boolean) return this.boolOrNo;
             return this.yesNo ? this.yesOrNo : this.items;
         },
         isValueEmpty: function(value) {
@@ -75,6 +77,21 @@ export default {
                 this.errorList = errors;
             },
         },
+        items: {
+            immediate: true,
+            handler: function(items) {
+                if (!this.isEmpty) return;
+                const list = this.yesNo ? this.yesOrNo : (items ?? []);
+                if (this.newEntry && list.length === 0) {
+                    this.$emit('update:modelValue', this.newEntryValue);
+                    return;
+                }
+                if (!this.autoSelectFirst || !list.length) return;
+                const first = list[0];
+                const val = typeof first[this.inputValue] === 'undefined' ? first : first[this.inputValue];
+                this.$emit('update:modelValue', val);
+            },
+        },
     },
     props: {
         modelValue: { type: [String, Number], default: '' },
@@ -89,6 +106,7 @@ export default {
         readonly: { type: Boolean, default: false },
         hideDetails: { type: Boolean, default: false },
         yesNo: { type: Boolean, default: false },
+        boolean: { type: Boolean, default: false },
         notFloating: { type: Boolean, default: false },
         newEntry: { type: Boolean, default: false },
         newEntryText: { type: String, default: 'New Entry' },
@@ -96,6 +114,7 @@ export default {
         emptyText: { type: String, default: 'Hmm... Something is missing...' },
         placeholder: { type: String, default: null },
         dense: { type: Boolean, default: false },
+        autoSelectFirst: { type: Boolean, default: true },
     }
 }
 </script>

@@ -1,12 +1,15 @@
 <template>
     <div class="form-floating fm-form-input"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+        :class="{ 'fm-no-label': label == null || label == '', 'fm-color-input': type == 'color' }">
         <input
             v-model="value"
             :type="type == 'number' ? 'input' : type"
             :id="id"
             class="form-control fm-form-control"
-            :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+            :class="[{
+                'is-invalid': errorList.length > 0,
+                'empty': value === '' || value === null || value === undefined,
+            }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
             :placeholder="placeholder"

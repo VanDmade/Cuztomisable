@@ -47,6 +47,10 @@ export default {
     left: 0;
 }
 
+.fm-loading:not(.fm-loading-full) {
+    padding: 2rem;
+}
+
 .fm-bootstrap-spinner {
     display: inline-block;
     width: 2rem;

@@ -1,5 +1,5 @@
 <template>
-    <div class="form-floating fm-form-input"
+    <div class="form-floating fm-form-input fm-form-textarea"
         :class="{ 'fm-no-label': label == null || label == '' }">
         <textarea
             v-model="value"

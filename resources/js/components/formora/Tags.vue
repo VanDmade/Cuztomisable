@@ -8,16 +8,16 @@
                     :ref="id"
                     :id="id"
                     class="form-control fm-form-control"
-                    :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+                    :class="[{ 'is-invalid': errorList.length > 0, 'empty': item.name === '' || item.name == null }, inputClass]"
                     :disabled="disabled"
                     :readonly="readonly"
                     :placeholder="placeholder"
-                    @input="errorList = []; search = true;"
+                    @input="errorList = []; search = item.name.trim().length > 0"
                     v-on:keyup.enter="add"
                     @keydown.enter.prevent
                     @blur="blur">
                 <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label">{{ label }}</label>
-                <div class="fm-tag-selector shadow" v-show="search && searchList().length > 0 && item.name != ''">
+                <div class="fm-tag-selector shadow" v-show="search && searchList().length > 0">
                     <div class="fm-tags mb-0 mt-0">
                         <div class="fm-tag-container" v-for="(tag, index) in searchList()" :key="id + '_select_' + index">
                             <span class="fm-tag"
@@ -88,6 +88,7 @@ export default {
                 color: this.generateColor(),
                 name: '',
             };
+            this.search = false;
             for (let i = 0; i < this.value.length; i++) {
                 if (this.value[i].name.toLowerCase() == item.name.toLowerCase() || this.value[i].id == item.id) {
                     let previousValue = item.name;
