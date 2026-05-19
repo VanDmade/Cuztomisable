@@ -133,9 +133,10 @@ class RegistrationController extends Controller
                 $user = config('auth.providers.users.model')::create([
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    'username' => $data['username'] ?? null,
+                    'username' => !empty($data['username']) ? $data['username'] : null,
                     'password' => $password = Hash::make($data['password']),
-                    'timezone' => $data['timezone'] ?? 'EST',
+                    'timezone' => !empty($data['timezone']) ? $data['timezone'] : 'America/New_York',
+                    'locked' => config('cuztomisable.account.locked_by_default', true),
                 ]);
                 // Creates the instance of a password so the user cannot use the password again
                 Users\Passwords\Password::create([
