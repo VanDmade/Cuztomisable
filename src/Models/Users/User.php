@@ -214,7 +214,7 @@ class UserOLD extends Authenticatable
 
     public function permissionSlugs(): Collection
     {
-        return $this->permissions->pluck('slug');
+        return $this->getAllPermissions()->pluck('slug');
     }
 
     public function getAllPermissions(): Collection
