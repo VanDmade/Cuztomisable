@@ -22,6 +22,11 @@ class CuztomisableServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermission::class);
         $router->aliasMiddleware('require-admin', RequireAdmin::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../database/seeders' => database_path('seeders'),
+            ], 'cuztomisable-seeders');
+        }
         Route::prefix('api')
             ->middleware([
                 EncryptCookies::class,

@@ -20,7 +20,7 @@ return [
         'recreate_code_on_resend'     => false,
         // Channels the reset code can be delivered through
         'send_via' => [
-            'phone' => true,
+            'phone' => false,
             'email' => true,
         ],
         // Number of previous passwords that must differ before reuse is allowed

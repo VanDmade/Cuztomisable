@@ -11,7 +11,7 @@ return [
     */
     'login_with' => [
         'email' => true,
-        'phone' => true,
+        'phone' => false,
     ],
 
     /*
