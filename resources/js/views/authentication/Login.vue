@@ -5,7 +5,7 @@
                 <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
                 <div class="cz-title">
                     <h3 class="card-title">Login</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">Welcome to Cuztomisable!</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">Welcome to {{ appName }}!</h6>
                 </div>
             </div>
             <fm-form ref="loginForm" class="mt-4" :form="form"
@@ -37,6 +37,7 @@
 export default {
     data: function() {
         return {
+            appName: import.meta.env.VITE_APP_NAME,
             submitting: false,
             errors: [],
             form: {
