@@ -22,7 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VanDmade\\Cuztomisable\\Providers\\RouteServiceProvider"
+                "VanDmade\\Cuztomisable\\CuztomisableServiceProvider"
             ]
         }
     }
