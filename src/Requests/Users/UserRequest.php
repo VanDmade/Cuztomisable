@@ -16,19 +16,13 @@ class UserRequest extends BaseRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
-            $currentId = null;
-            if ($this->routeIs('users.update')) {
-                // Admin updating another user
-                $currentId = $this->route('id');
-            }
-            if ($this->routeIs('profile')) {
-                // User updating their own profile (no route id)
-                $currentId = auth()->id();
-            }
-            // Now perform uniqueness check
+            $excludeIds = array_filter([
+                auth()->id(),
+                $this->routeIs('users.update') ? (int) $this->route('id') : null,
+            ]);
             $emailInUse = config('auth.providers.users.model')::query()
                 ->where('email', $this->email)
-                ->when($currentId, fn($query) => $query->where('id', '!=', $currentId))
+                ->whereNotIn('id', $excludeIds)
                 ->exists();
             if ($emailInUse) {
                 $validator->errors()->add('email', __('cuztomisable/user.errors.email_in_use'));
