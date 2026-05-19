@@ -79,12 +79,12 @@ class ImageService
         $image = $manager->read($file->getRealPath());
         $image->scaleDown(width: 1200);
         $quality = 85;
-        $encoded = $image->toJpeg($quality);
+        $encoded = $image->toWebp($quality);
         while (strlen((string) $encoded) > 300 * 1024 && $quality > 20) {
             $quality -= 5;
-            $encoded = $image->toJpeg($quality);
+            $encoded = $image->toWebp($quality);
         }
-        $filename = $uploadPath . '/' . \Illuminate\Support\Str::random(40) . '.jpg';
+        $filename = $uploadPath . '/' . \Illuminate\Support\Str::random(40) . '.webp';
         try {
             $disk->put($filename, (string) $encoded);
         } catch (\Throwable $e) {
@@ -98,11 +98,11 @@ class ImageService
         [$width, $height] = [$image->width(), $image->height()];
         return Image::create([
             'name' => $file->getClientOriginalName(),
-            'extension' => 'jpg',
+            'extension' => 'webp',
             'path' => $path,
             'disk' => $this->disk,
             'parameters' => json_encode([
-                'mime_type' => 'image/jpeg',
+                'mime_type' => 'image/webp',
                 'size' => strlen((string) $encoded),
                 'width' => $width ?? 0,
                 'height' => $height ?? 0,
