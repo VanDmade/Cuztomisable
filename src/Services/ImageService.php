@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Model;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use Exception;
 
 class ImageService
@@ -73,28 +75,35 @@ class ImageService
         }
         $uploadPath = trim($uploadPath, '/');
         $disk = Storage::disk($this->disk);
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($file->getRealPath());
+        $image->scaleDown(width: 1200);
+        $quality = 85;
+        $encoded = $image->toJpeg($quality);
+        while (strlen((string) $encoded) > 300 * 1024 && $quality > 20) {
+            $quality -= 5;
+            $encoded = $image->toJpeg($quality);
+        }
+        $filename = $uploadPath . '/' . \Illuminate\Support\Str::random(40) . '.jpg';
         try {
-            $path = $file->store($uploadPath ?: 'uploads', $this->disk);
+            $disk->put($filename, (string) $encoded);
         } catch (\Throwable $e) {
             \Log::error('S3 upload failed', [
                 'message' => $e->getMessage(),
                 'previous' => $e->getPrevious()?->getMessage(),
-                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }
-        if (!$disk->exists($path)) {
-            throw new Exception('Image not stored in S3: '.$path);
-        }
-        [$width, $height] = getimagesize($file->getRealPath());
+        $path = $filename;
+        [$width, $height] = [$image->width(), $image->height()];
         return Image::create([
             'name' => $file->getClientOriginalName(),
-            'extension' => $file->getClientOriginalExtension(),
+            'extension' => 'jpg',
             'path' => $path,
             'disk' => $this->disk,
             'parameters' => json_encode([
-                'mime_type' => $file->getClientMimeType(),
-                'size' => $file->getSize(),
+                'mime_type' => 'image/jpeg',
+                'size' => strlen((string) $encoded),
                 'width' => $width ?? 0,
                 'height' => $height ?? 0,
             ]),
