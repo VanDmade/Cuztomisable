@@ -13,7 +13,12 @@ use Exception;
 class ImageService
 {
 
-    protected string $disk = 'public';
+    protected string $disk;
+
+    public function __construct()
+    {
+        $this->disk = config('filesystems.default', 'public');
+    }
 
     public function get(int $id, bool $includeTrashed = false): ?Image
     {
@@ -34,8 +39,7 @@ class ImageService
         $path = $image->path;
         // If a URL is requested
         if ($url) {
-            // Generate a temporary signed URL if requested
-            if ($temporaryLength && $disk->getDriver()->getAdapter()->getPathPrefix() === null) {
+            if ($temporaryLength) {
                 return $disk->temporaryUrl($path, now()->addSeconds($temporaryLength));
             }
             return $disk->url($path);
@@ -69,12 +73,19 @@ class ImageService
         }
         $uploadPath = trim($uploadPath, '/');
         $disk = Storage::disk($this->disk);
-        $path = $file->store($uploadPath ?: 'uploads', $this->disk);
+        try {
+            $path = $file->store($uploadPath ?: 'uploads', $this->disk);
+        } catch (\Throwable $e) {
+            \Log::error('S3 upload failed', [
+                'message' => $e->getMessage(),
+                'previous' => $e->getPrevious()?->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
         if (!$disk->exists($path)) {
             throw new Exception('Image not stored in S3: '.$path);
         }
-        // Makes it so that the uploaded image is visible and can be used within the system
-        $disk->setVisibility($path, 'public');
         [$width, $height] = getimagesize($file->getRealPath());
         return Image::create([
             'name' => $file->getClientOriginalName(),
