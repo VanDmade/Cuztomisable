@@ -29,11 +29,11 @@ class Verification extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.email_verification.view'),
+            view: config('cuztomisable.notifications.email_verification.view'),
             with: [
                 'user' => $this->user,
                 'verificationUrl' => url('/verification/'.$this->user->token.'/email?email='.$this->user->email),
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
             ],
         );

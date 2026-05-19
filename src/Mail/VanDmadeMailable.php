@@ -21,8 +21,8 @@ abstract class VanDmadeMailable extends BaseMailable
 
     protected function defaultEnvelope(string $subject): Envelope
     {
-        $fromConfig = config('cuztomisable.account.emails.from', []);
-        $replyConfig = config('cuztomisable.account.emails.reply_to', []);
+        $fromConfig = config('cuztomisable.notifications.emails.from', []);
+        $replyConfig = config('cuztomisable.notifications.emails.reply_to', []);
         $defaultName = config('app.name');
         $from = (!empty($fromConfig['address']))
             ? new Address($fromConfig['address'], $fromConfig['name'] ?? $defaultName)

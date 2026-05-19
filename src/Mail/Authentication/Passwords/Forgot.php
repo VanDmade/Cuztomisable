@@ -30,11 +30,11 @@ class Forgot extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.forgot.view'),
+            view: config('cuztomisable.notifications.forgot.view'),
             with: [
                 'user' => $this->reset->user,
                 'code' => $this->reset->code,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
             ],
         );

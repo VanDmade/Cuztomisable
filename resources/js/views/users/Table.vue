@@ -1,5 +1,5 @@
 <template>
-    <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
+    <div class="page table-page container-fluid">
         <tablelify :headers="headers" :url="url" ref="userTable">
             <template #phone="{ country_code, phone, phone_verified_at }">
                 <div class="tablelify-data">
@@ -14,16 +14,16 @@
                     {{ last_used_at == null ? 'Never' : formatDate(last_used_at) }}
                 </div>
             </template>
-            <template #name_with_email="{ name, email, email_verified_at }">
-                <div class="tablelify-data d-flex">
-                    <img :src="$url+'cuztomisable/profile.png'" style="text-align: center; border-radius: 50px;">
-                    <div class="ml-2">
-                        <div>{{ name }}</div>
-                        <p class="note mb-0">
-                            <i v-if="email_verified_at != null" class="material-icons mr-1 color--success">verified</i>
-                            <a class="color--link" :href="'mailto:'+email">{{ email }}</a>
-                        </p>
-                    </div>
+            <template v-slot:image="item">
+                <img class="tablelify-image" :src="item.image != null ? $url + item.image.path : defaultImage">
+            </template>
+            <template v-slot:name="item">
+                <div class="tablelify-data">
+                    <div>{{ item.name }}</div>
+                    <p class="note mb-0">
+                        <i v-if="item.email_verified_at != null" class="material-icons mr-1 color--success">verified</i>
+                        <a class="color--link" :href="'mailto:'+item.email">{{ item.email }}</a>
+                    </p>
                 </div>
             </template>
             <template #status="item">
@@ -92,8 +92,10 @@ export default {
             id: null,
             submitting: false,
             url: '/users',
+            defaultImage: '/cuztomisable/profile.png',
             headers: [
-                { name: 'Name', value: 'name_with_email', width: '340px' },
+                { name: '', value: 'image', sortable: false, width: '42px' },
+                { name: 'Name', value: 'name', width: '340px' },
                 { name: 'Phone', value: 'phone', sortable: false, width: '20%' },
                 { name: 'Last Accessed', value: 'last_used_at', width: '20%' },
                 { name: 'Status', value: 'status', sortable: false, width: '140px' },

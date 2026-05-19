@@ -40,8 +40,8 @@ export default {
             submitting: false,
             errors: [],
             form: {
-                username: 'michaelvanderwerkerllc@gmail.com',
-                password: 'Password1!',
+                username: '',
+                password: '',
             },
         }
     },

@@ -31,10 +31,10 @@ class Reset extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.reset.view'),
+            view: config('cuztomisable.notifications.reset.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
                 'lockUrl' => url('/lock/'.implode('/', [
                     $this->user->id,

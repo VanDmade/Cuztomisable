@@ -1,5 +1,5 @@
 <template>
-    <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
+    <div class="page table-page container-fluid">
         <tablelify :headers="headers" :url="url" ref="inviteTable">
             <template #header>
                 <button

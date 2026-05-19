@@ -105,12 +105,12 @@ class SmsService
 
     protected function sanitizeMessage(string $message): string
     {
-        $redact = (bool) config('cuztomisable.account.texts.redact_message', false);
+        $redact = (bool) config('cuztomisable.notifications.texts.redact_message', false);
         if (!$redact) {
             return $message;
         }
-        $replacement = (string) config('cuztomisable.account.texts.redact_replacement', '********');
-        $patterns = config('cuztomisable.account.texts.redact_patterns', []);
+        $replacement = (string) config('cuztomisable.notifications.texts.redact_replacement', '********');
+        $patterns = config('cuztomisable.notifications.texts.redact_patterns', []);
         if (empty($patterns)) {
             return $replacement;
         }

@@ -30,11 +30,11 @@ class Temporary extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.temporary.view'),
+            view: config('cuztomisable.notifications.temporary.view'),
             with: [
                 'user' => $this->user,
                 'password' => $this->password,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
             ],
         );

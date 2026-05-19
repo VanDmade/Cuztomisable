@@ -50,7 +50,7 @@ class LogEmail
         }
         $hidden = array_map('strtolower', array_merge(
             self::DEFAULT_HIDDEN_KEYS,
-            config('cuztomisable.account.emails.hidden_parameters', [])
+            config('cuztomisable.notifications.emails.hidden_parameters', [])
         ));
         foreach ($data as $key => &$value) {
             $keyName = is_string($key) ? strtolower($key) : $key;

@@ -83,7 +83,9 @@ export default {
                 if (!this.isEmpty) return;
                 const list = this.yesNo ? this.yesOrNo : (items ?? []);
                 if (this.newEntry && list.length === 0) {
-                    this.$emit('update:modelValue', this.newEntryValue);
+                    if (this.autoSelectFirst) {
+                        this.$emit('update:modelValue', this.newEntryValue);
+                    }
                     return;
                 }
                 if (!this.autoSelectFirst || !list.length) return;

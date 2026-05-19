@@ -29,10 +29,10 @@ class Registered extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.account.notifications.registered.view'),
+            view: config('cuztomisable.notifications.registered.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
             ],
         );

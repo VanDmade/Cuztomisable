@@ -19,18 +19,18 @@ class IpAddressObserver
 
     public function created(IpAddress $ipAddress): void
     {
-        if (config('cuztomisable.login.notifications.new_ip_address', false) === false) {
+        if (config('cuztomisable.notifications.new_ip_address', false) === false) {
             return;
         }
         $user = $ipAddress->user;
         if (!$user || $user->disable_emails || empty($user->email)) {
             return;
         }
-        $trustedRanges = config('cuztomisable.login.notifications.new_ip_address.trusted_ip_ranges', []);
+        $trustedRanges = config('cuztomisable.notifications.new_ip_address.trusted_ip_ranges', []);
         if (!empty($trustedRanges) && self::ipInRanges($ipAddress->ip_address, $trustedRanges)) {
             return;
         }
-        if (config('cuztomisable.login.notifications.new_ip_address.skip_known_devices', false)) {
+        if (config('cuztomisable.notifications.new_ip_address.skip_known_devices', false)) {
             $known = IpAddress::withTrashed()
                 ->where('user_id', $ipAddress->user_id)
                 ->where('fingerprint', $ipAddress->fingerprint)

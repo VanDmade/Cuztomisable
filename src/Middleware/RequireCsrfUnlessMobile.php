@@ -11,9 +11,9 @@ class RequireCsrfUnlessMobile extends BaseVerifier
     public function handle($request, Closure $next)
     {
         if ($request->header('X-App-Platform') === 'mobile') {
-            $apiKey = config('cuztomisable.login.mobile_agent.api_key');
+            $apiKey = config('cuztomisable.app.mobile_agent.api_key');
             if (!empty($apiKey)) {
-                $headerName = config('cuztomisable.login.mobile_agent.api_key_header', 'X-App-Key');
+                $headerName = config('cuztomisable.app.mobile_agent.api_key_header', 'X-App-Key');
                 $provided = $request->header($headerName);
                 if (!hash_equals((string) $apiKey, (string) $provided)) {
                     abort(403, __('cuztomisable/global.unauthorized'));

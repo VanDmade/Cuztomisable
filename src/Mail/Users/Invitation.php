@@ -31,13 +31,13 @@ class Invitation extends VanDmadeMailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.login.notifications.invitation.view'),
+            view: config('cuztomisable.notifications.invitation.view'),
             with: [
                 'sender' => Auth::check() ? Auth::user()->name : null,
                 'name' => $this->registration->name,
                 'url' => url('/registration/'.$this->registration->code),
                 'expires' => config('cuztomisable.account.registration.expires_in', 300) / 60,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
                 'footer' => false,
             ],

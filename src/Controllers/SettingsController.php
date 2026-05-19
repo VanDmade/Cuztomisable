@@ -16,6 +16,7 @@ class SettingsController extends Controller
         try {
             // All settings used within the frontend will need to be returned here
             return $this->success([
+                'home' => config('cuztomisable.app.home', '/portal'),
                 'note_to_nosey' => __('cuztomisable/global.note_to_nosey'),
                 'unauthorized_note' =>__('cuztomisable/global.unauthorized'),
                 'login_with' => config()->get('cuztomisable.login.login_with', []),

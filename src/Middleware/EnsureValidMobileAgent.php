@@ -15,10 +15,10 @@ class EnsureValidMobileAgent
         $userAgent = (string) $request->header('User-Agent', '');
         // Optional: also check X-App-Platform for layered verification
         $isMobile = $request->header('X-App-Platform') === 'mobile';
-        $enabled = (bool) config('cuztomisable.login.mobile_agent.enabled', true);
-        $apps = (array) config('cuztomisable.login.mobile_agent.apps', []);
-        $platforms = (array) config('cuztomisable.login.mobile_agent.platforms', ['Android', 'iOS', 'Other']);
-        $logInvalid = (bool) config('cuztomisable.login.mobile_agent.log_invalid', false);
+        $enabled = (bool) config('cuztomisable.app.mobile_agent.enabled', true);
+        $apps = (array) config('cuztomisable.app.mobile_agent.apps', []);
+        $platforms = (array) config('cuztomisable.app.mobile_agent.platforms', ['Android', 'iOS', 'Other']);
+        $logInvalid = (bool) config('cuztomisable.app.mobile_agent.log_invalid', false);
         if ($isMobile && $enabled) {
             $platformPattern = implode('|', array_map('preg_quote', $platforms));
             foreach ($apps as $app) {

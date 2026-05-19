@@ -190,12 +190,12 @@ class RegistrationController extends Controller
                     ]);
                 }
                 // Creates the phone entry for the user
-                if (config('cuztomisable.account.notifications.email_verification', false) !== false) {
+                if (config('cuztomisable.notifications.email_verification', false) !== false) {
                     // Sends the email verification message to the user
                     $this->email(new VerificationMail($user), $user->email);
                 }
                 if (isset($phone->id) &&
-                    config('cuztomisable.account.notifications.phone_verification', false) !== false &&
+                    config('cuztomisable.notifications.phone_verification', false) !== false &&
                     isset($registration->code)) {
                     // Sends the phone verification text to the user
                     $message = __('cuztomisable/authentication.registration.sms.verification', [

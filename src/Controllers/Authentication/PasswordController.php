@@ -198,7 +198,7 @@ class PasswordController extends Controller
                     'message' => __('cuztomisable/authentication.passwords.reset'),
                 ]);
             });
-            if (config('cuztomisable.account.notifications.reset', false) !== false) {
+            if (config('cuztomisable.notifications.reset', false) !== false) {
                 // Sends a notification to the user about the password reset occurring
                 $this->email(new ResetMail($user, $reset), $user->email);
             }

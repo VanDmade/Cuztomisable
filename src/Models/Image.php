@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use VanDmade\Cuztomisable\Traits\Concerns\Auditable;
 use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 use Exception;
 
 class Image extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     protected $table = 'images';
 
@@ -45,13 +46,6 @@ class Image extends Model
 
     protected $appends = ['full_url'];
 
-    public static function boot(): void
-    {
-        parent::boot();
-        self::creating(function($model) {
-            $model->created_by = Auth::check() ? Auth::user()->id : null;
-        });
-    }
 
     public function output(): string
     {

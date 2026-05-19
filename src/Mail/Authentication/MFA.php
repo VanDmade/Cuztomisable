@@ -35,10 +35,10 @@ class MFA extends VanDmadeMailable implements ShouldQueue
             $expiresIn = convertToTimeOutput(strtotime($this->code->expires_at) - time());
         }
         return new Content(
-            view: config('cuztomisable.login.notifications.mfa.view'),
+            view: config('cuztomisable.notifications.mfa.view'),
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.account.emails.logo', 'images/logo.png')),
+                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
                 'company' => config('app.name'),
                 'code' => $this->code->code,
                 'expires_in' => $expiresIn,

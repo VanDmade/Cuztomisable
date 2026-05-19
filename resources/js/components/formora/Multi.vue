@@ -13,6 +13,9 @@
             <div v-for="(item, alternativeIndex) in ([mainItem].concat(typeof(mainItem.alternatives) !== 'undefined' ? mainItem.alternatives : []))">
                 <div :class="{ 'input-group': !breakpoint('sm') }">
                     <span v-if="steps && !breakpoint('sm')" class="input-group-text">{{ item.steps == null ? (multiIndex + 1) : item.steps }}</span>
+                    <span v-if="checkboxes && !breakpoint('sm')" class="input-group-text fm-multi-checkbox">
+                        <input type="checkbox" v-model="mainItem[checkboxField]" :disabled="disabled" />
+                    </span>
                     <slot :value="value" :index="multiIndex" :alternativeIndex="alternativeIndex == 0 ? null : (alternativeIndex - 1)" name="entry"></slot>
                     <button
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
@@ -167,6 +170,8 @@ export default {
         removeLabel: { type: String, default: 'Remove' },
         slugs: { type: Boolean, default: false },
         steps: { type: Boolean, default: false },
+        checkboxes: { type: Boolean, default: false },
+        checkboxField: { type: String, default: 'retrieved' },
         reorganize: { type: Boolean, default: true },
         settings: { type: Boolean, default: false },
         template: { type: Object, default: { id: '', value: '', slug: '' } },

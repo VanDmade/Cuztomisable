@@ -1,154 +1,109 @@
 <?php
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Passwords
+    |--------------------------------------------------------------------------
+    */
     'passwords' => [
         'reset_with' => [
             'email' => true,
             'phone' => false,
         ],
-        // Length of time between each allowed reset attempt in seconds
+        // Seconds between each allowed password reset attempt
         'time_between_allowed_resets' => 300,
-        // Specifies the length of time between allowed resends
-        'resend_after' => 15,
-        // The code is going to be recreated when the code is resent
-        'recreate_code_on_resend' => false,
-        /* Specifies that the reset code can be sent via phone and/or email.
-         * If both set to false, the user's email will be used. */
+        // Seconds between allowed resends of the reset code
+        'resend_after'                => 15,
+        // Regenerate the code each time it is resent
+        'recreate_code_on_resend'     => false,
+        // Channels the reset code can be delivered through
         'send_via' => [
             'phone' => true,
             'email' => true,
         ],
-        // The amount of passwords that need to be iterated through before using the same password again
-        'reuse_after' => 3,
-        // Minimum time between password changes in seconds
-        'change_cooldown_seconds' => 0,
-        // The requirements for a password
+        // Number of previous passwords that must differ before reuse is allowed
+        'reuse_after'              => 3,
+        // Minimum seconds required between password changes (0 = no cooldown)
+        'change_cooldown_seconds'  => 0,
+        // Password complexity requirements
         'requirements' => [
-            // Minimum allowed characters
-            'min' => 8,
-            // Maximum allowed characters, if null, then there is no maximum
-            'max' => null,
-            // Total special characters (!@#!#$@) that have to be used
-            'special_characters' => 1,
-            // Total amount of numbers that have to be used
-            'numbers' => 1,
-            // Total amount of uppercase characters that have to be used
+            'min'                  => 8,
+            'max'                  => null,
+            'special_characters'   => 1,
+            'numbers'              => 1,
             'uppercase_characters' => 1,
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verification Codes
+    |--------------------------------------------------------------------------
+    */
     'code' => [
-        // Length of all codes sent to users
-        'length' => 6,
-        // Length of time the code will expire
+        // Number of digits/characters in generated codes
+        'length'     => 6,
+        // Seconds before a code expires
         'expires_in' => 300,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Registration
+    |--------------------------------------------------------------------------
+    */
     'registration' => [
-        // Determines if registration is disabled unless a code is given
-        'disabled' => false,
-        // Length of all codes sent to users
-        'length' => 6,
-        // Length of time the registration code will expire
-        'expires_in' => 3600,
-        // Maximum allowed verification attempts before invalidation
+        // Disable open registration (invite-only when true)
+        'disabled'           => false,
+        // Length of the invitation/registration code
+        'length'             => 6,
+        // Seconds before the registration code expires
+        'expires_in'         => 3600,
+        // Maximum verification attempts before the code is invalidated
         'attempts' => [
             'max' => 5,
         ],
-        /* Determines whether an email should be sent to an administrator.
-         * If the account was created by another user, that user will receive the notification instead.
-         * Ensure that CUZTOMISABLE_ADMIN is set in the .env file for fallback notifications. */
-        'send_notification' => true,
-        // Specifies the length of time between allowed resends
-        'resend_after' => 300,
+        // Send a notification to the administrator when a new user registers
+        'send_notification'  => true,
+        // Seconds before the user can request another registration code
+        'resend_after'       => 300,
     ],
-    /* Sets up the fields to be used within the user form. Keep in mind that this is purely for the main
-     * Cuztomisable view and if you need more fields you should extend the Registration controller and create your
-     * own view. If set to false it will not show within the default form. You can ignore these fields
-     * if you are creating your own frontend. */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Address
+    |--------------------------------------------------------------------------
+    | Controls address fields in the user registration/profile form.
+    | Set to false to hide address fields entirely.
+    */
     'address' => [
-        // If required is set to false, then the address field will not be required to submit but will be displayed
-        'required' => false,
-        // Determines whether or not the Address Two line should be displayed
-        'address_two' => true,
-        // Determines whether or not the Address Three line should be displayed
+        'required'      => false,
+        'address_two'   => true,
         'address_three' => false,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administrator
+    |--------------------------------------------------------------------------
+    */
     'administrator' => [
         'temporary_password' => [
-            // Length of time the temporary password will last before it expires
-            'expires_in' => 300,
-            // How often an administrator can send a new temporary password
+            // Seconds before a temporary password expires
+            'expires_in'   => 300,
+            // Seconds before an admin can issue another temporary password
             'resend_after' => 300,
         ],
     ],
-    'emails' => [
-        // List of all parameters hidden within the email log.
-        'hidden_parameters' => [
-            'password',
-        ],
-        // Default logo path used in email templates.
-        'logo' => 'images/logo.png',
-        // Optional default from address for package emails.
-        'from' => [
-            'address' => null,
-            'name' => null,
-        ],
-        // Optional default reply-to address for package emails.
-        'reply_to' => [
-            'address' => null,
-            'name' => null,
-        ],
-    ],
-    'texts' => [
-        // When enabled, redact the logged message content.
-        'redact_message' => false,
-        // Optional regex patterns to redact in logs; when empty, full message is replaced.
-        'redact_patterns' => [],
-        // Replacement text used for redaction.
-        'redact_replacement' => '********',
-    ],
-    // Length of the token used within the URL, max length is 64
+
+    /*
+    |--------------------------------------------------------------------------
+    | Token Length
+    |--------------------------------------------------------------------------
+    | Length of URL tokens (max 64).
+    */
     'token_length' => 16,
-    'notifications' => [
-        /* Sets up the notifications within the system and how they are sent
-         * type  email|phone, this value can be set to email, phone, or email|phone.
-                  If email|phone, then the user shall have the ability to choose
-                  whether the email/text is used to send the notfication
-         * view  Content for the email|text */
-        'reset' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.reset',
-        ],
-        'forgot' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.forgot',
-        ],
-        'email_verification' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.verifications.email',
-        ],
-        'phone_verification' => [
-            'type' => 'phone',
-            'view' => 'emails.authentication.verifications.phone',
-        ],
-        'registration' => [
-            'type' => 'email|phone',
-            'view' => 'emails.authentication.registration',
-        ],
-        'registered' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.registered',
-        ],
-        'support' => [
-            'type' => 'email',
-            'view' => 'emails.support',
-        ],
-        'changed' => [
-            'type' => 'email',
-            'view' => 'emails.passwords.changed',
-        ],
-        'temporary' => [
-            'type' => 'email',
-            'view' => 'emails.passwords.temporary',
-        ],
-    ],
+
 ];
