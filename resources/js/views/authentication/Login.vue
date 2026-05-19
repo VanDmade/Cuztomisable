@@ -13,13 +13,15 @@
                 <fm-input
                     :label="usernameLabel()"
                     v-model="form.username"
-                    type="input"
+                    type="text"
+                    autocomplete="username"
                     :errors="errors.username"
                     :disabled="submitting" />
                 <fm-input
                     label="Password"
                     v-model="form.password"
                     type="password"
+                    autocomplete="current-password"
                     :errors="errors.password"
                     :disabled="submitting" />
                 <router-link :to="{ name: 'forgot' }" class="button--link">Forgot password?</router-link>
