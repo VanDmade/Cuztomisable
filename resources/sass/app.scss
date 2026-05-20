@@ -436,7 +436,7 @@ input:-webkit-autofill {
     .page {
         padding: 24px 32px 0 32px;
         @media (max-width: $xsmall) {
-            padding: 0 calc(var(--bs-gutter-x) * 0.5);
+            padding: 12px calc(var(--bs-gutter-x) * 0.5);
             width: 100%;
         }
     }

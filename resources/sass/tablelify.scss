@@ -41,6 +41,10 @@
         cursor: pointer;
     }
     .tablelify-row {
+        .tablelify-color-column {
+            margin-left: 12px;
+            margin-right: 12px;
+        }
         .tablelify-column.pa-0 {
             padding: 0 !important
         }
@@ -50,6 +54,10 @@
             vertical-align: middle;
             img.tablelify-image {
                 height: 42px;
+                @media (max-width: 768px) {
+                    margin: 12px;
+                    height: 64px;
+                }
             }
         }
     }
