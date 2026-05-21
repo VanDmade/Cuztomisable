@@ -51,7 +51,6 @@
         </nav>
     </aside>
 </template>
-
 <script>
 export default {
     props: {
@@ -62,85 +61,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-.app-sidebar {
-    width: 56px;
-    background: #fff;
-    border-right: 1px solid #e8e8e8;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 0;
-}
-
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 2px;
-    padding: 0 8px;
-}
-
-.sidebar-link {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    margin: 4px 0;
-    color: #6b7280;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-    flex-shrink: 0;
-}
-
-.sidebar-link:hover {
-    background: var(--color-primary-ring);
-    color: var(--color-primary);
-}
-
-.sidebar-link--active {
-    background: var(--color-primary-ring);
-    color: var(--color-primary);
-}
-
-.sidebar-link .material-icons {
-    font-size: 22px;
-}
-
-/* Tooltip */
-.sidebar-link::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: calc(100% + 10px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: #111827;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    z-index: 9999;
-}
-
-.sidebar-link:hover::after {
-    opacity: 1;
-}
-
-.sidebar-divider {
-    width: 32px;
-    height: 1px;
-    background: #e5e7eb;
-    margin: 4px 0;
-}
-</style>

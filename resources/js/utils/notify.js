@@ -24,18 +24,15 @@ function normalizeNotification(input = {}, options = {}) {
     const payload = typeof input === 'string' ? { text: input } : (input ?? {});
     const merged = { ...payload, ...options };
     const text = String(merged.text ?? '').trim();
-
     if (!text) {
         return null;
     }
-
     const persistent = Boolean(merged.persistent ?? false);
     const hasExplicitDuration = typeof merged.duration !== 'undefined' || typeof merged.timeout_length !== 'undefined';
     const duration = hasExplicitDuration
         ? Number(merged.duration ?? merged.timeout_length)
         : calculateReadDuration(text);
     const color = String(merged.color ?? (merged.error ? 'danger' : 'success')).toLowerCase();
-
     return {
         id: state.nextId++,
         text,
@@ -52,7 +49,6 @@ function remove(id) {
         clearTimeout(timers.get(id));
         timers.delete(id);
     }
-
     const index = state.items.findIndex((item) => item.id === id);
     if (index !== -1) {
         state.items.splice(index, 1);
@@ -61,20 +57,16 @@ function remove(id) {
 
 function push(input, options = {}) {
     const normalized = normalizeNotification(input, options);
-
     if (!normalized) {
         return null;
     }
-
     state.items.unshift(normalized);
-
     if (!normalized.persistent) {
         const timer = setTimeout(() => {
             remove(normalized.id);
         }, normalized.duration);
         timers.set(normalized.id, timer);
     }
-
     return normalized.id;
 }
 
@@ -87,7 +79,6 @@ function configure(settings = {}) {
     if (typeof settings.minWidth !== 'undefined') {
         state.settings.minWidth = settings.minWidth || DEFAULT_MIN_WIDTH;
     }
-
     if (typeof settings.maxWidth !== 'undefined') {
         state.settings.maxWidth = settings.maxWidth || DEFAULT_MAX_WIDTH;
     }

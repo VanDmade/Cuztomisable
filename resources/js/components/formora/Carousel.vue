@@ -25,10 +25,14 @@ export default {
     },
     methods: {
         prevImage: function() {
-            if (this.hasPrev) this.activeIndex--;
+            if (this.hasPrev) {
+                this.activeIndex--;
+            }
         },
         nextImage: function() {
-            if (this.hasNext) this.activeIndex++;
+            if (this.hasNext) {
+                this.activeIndex++;
+            }
         },
     },
     computed: {
@@ -40,7 +44,7 @@ export default {
         }
     },
     props: {
-        images: { type: [Array, Object], default: [] },
+        images: { type: [Array, Object], default: function() { return []; } },
         width: { type: String, default: '100%' },
     },
 }

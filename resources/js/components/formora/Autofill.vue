@@ -33,7 +33,9 @@ export default {
     },
     methods: {
         handleEnter: function() {
-            if (!this.value || !this.list || this.list.length === 0) return;
+            if (!this.value || !this.list || this.list.length === 0) {
+                return;
+            }
             const match = this.list.find(item =>
                 item[this.listText].toLowerCase().includes(this.value.toLowerCase())
             );

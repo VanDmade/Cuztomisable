@@ -25,7 +25,9 @@ export default createStore({
             return state.permissions;
         },
         hasPermission: (state) => (slug) => {
-            if (!slug) return false;
+            if (!slug) {
+                return false;
+            }
             if (slug.includes('|')) {
                 // OR logic
                 return slug.split('|').some(p => state.permissions.includes(p.trim()));
@@ -109,7 +111,7 @@ export default createStore({
                 commit('SET_LOADING', true);
                 await axios.post('/logout');
             } catch (e) {
-                // silently fail if already logged out
+                // Silently fail if already logged out
             } finally {
                 dispatch('clearTokenRefresh');
                 commit('CLEAR_USER');

@@ -3,7 +3,7 @@
         <fm-loading :loading="verifying" :full="true" :large="true" message="Loading..."></fm-loading>
         <div class="card ma-2 pa-6">
             <div class="d-flex">
-                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <img :src="$url+'logo.png'" class="cz-authentication-logo">
                 <div class="cz-title">
                     <h3 class="card-title">Multi-Factor Authentication</h3>
                     <h6 class="card-subtitle mb-2 text-muted">
@@ -60,17 +60,6 @@
 </template>
 <script>
 export default {
-    computed: {
-        formattedExpiresIn: function() {
-            if (this.expiresIn === null) {
-                return '';
-            }
-            const totalSeconds = Math.max(0, Number(this.expiresIn) || 0);
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        },
-    },
     data: function() {
         return {
             verifying: true,
@@ -314,6 +303,17 @@ export default {
                 this.expiresIn = null;
                 this.clearExpiryCountdown();
             });
+        },
+    },
+    computed: {
+        formattedExpiresIn: function() {
+            if (this.expiresIn === null) {
+                return '';
+            }
+            const totalSeconds = Math.max(0, Number(this.expiresIn) || 0);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         },
     },
     watch: {

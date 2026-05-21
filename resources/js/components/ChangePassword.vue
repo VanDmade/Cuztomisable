@@ -5,13 +5,13 @@
             autocomplete="username"
             tabindex="-1"
             aria-hidden="true"
-            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none;">
+            class="autocomplete-hidden">
         <input
             type="password"
             autocomplete="current-password"
             tabindex="-1"
             aria-hidden="true"
-            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;opacity:0;pointer-events:none;">
+            class="autocomplete-hidden">
         <h3 class="card-title">Password Change Required</h3>
         <h6 class="card-subtitle mb-4 text-muted">You must update your password before you can continue.</h6>
         <fm-input

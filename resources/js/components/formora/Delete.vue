@@ -27,7 +27,7 @@ export default {
                 return false;
             }
             this.disabled = true;
-            axios.delete(this.url + this.id, { params: this.params }).then(({ data }) => {
+            axios.delete(this.url+this.id, { params: this.params }).then(({ data }) => {
                 notify.success(data.message);
                 this.$emit('redraw');
                 this.$emit('close');

@@ -63,9 +63,6 @@ export default {
             errorList: [],
         }
     },
-    mounted: function() {
-
-    },
     methods: {
         add: function() {
             this.errorList = [];

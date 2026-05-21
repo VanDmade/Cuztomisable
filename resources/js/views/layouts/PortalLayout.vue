@@ -107,15 +107,6 @@ export default {
             events: ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'],
         }
     },
-    computed: {
-        navigation: function() {
-            const nav = this.$cuztomisable?.navigation;
-            if (Array.isArray(nav) && nav.length) {
-                return nav;
-            }
-            return [];
-        },
-    },
     mounted: function() {
         this.onResize();
         if (this.$route.meta.authentication && !this.$store.state.authenticated) {
@@ -210,6 +201,15 @@ export default {
             }, 250);
         },
     },
+    computed: {
+        navigation: function() {
+            const nav = this.$cuztomisable?.navigation;
+            if (Array.isArray(nav) && nav.length) {
+                return nav;
+            }
+            return [];
+        },
+    },
     watch: {
         '$store.state.authenticated': {
             immediate: true,
@@ -249,23 +249,19 @@ export default {
     flex-direction: column;
     min-height: 100vh;
 }
-
 .portal-navbar {
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
-
 .portal-wrapper {
     display: flex;
     flex: 1;
     align-items: stretch;
     min-height: 0;
 }
-
 .portal-content {
     flex: 1;
     min-width: 0;
 }
-
 .portal-content :deep(.page) {
     padding-top: 1.5rem;
 }

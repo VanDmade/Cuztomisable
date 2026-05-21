@@ -2,7 +2,7 @@
     <div id="registration-page" class="page">
         <div class="card ma-2 pa-6">
             <div class="d-flex">
-                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <img :src="$url+'logo.png'" class="cz-authentication-logo">
                 <div class="cz-title">
                     <h3 class="card-title">Sign Up!</h3>
                     <h6 class="card-subtitle mb-2 text-muted">We are always welcoming to new users!</h6>

@@ -36,7 +36,9 @@ export default {
     },
     methods: {
         getItems: function() {
-            if (this.boolean) return this.boolOrNo;
+            if (this.boolean) {
+                return this.boolOrNo;
+            }
             return this.yesNo ? this.yesOrNo : this.items;
         },
         isValueEmpty: function(value) {
@@ -80,7 +82,9 @@ export default {
         items: {
             immediate: true,
             handler: function(items) {
-                if (!this.isEmpty) return;
+                if (!this.isEmpty) {
+                    return;
+                }
                 const list = this.yesNo ? this.yesOrNo : (items ?? []);
                 if (this.newEntry && list.length === 0) {
                     if (this.autoSelectFirst) {
@@ -88,7 +92,9 @@ export default {
                     }
                     return;
                 }
-                if (!this.autoSelectFirst || !list.length) return;
+                if (!this.autoSelectFirst || !list.length) {
+                    return;
+                }
                 const first = list[0];
                 const val = typeof first[this.inputValue] === 'undefined' ? first : first[this.inputValue];
                 this.$emit('update:modelValue', val);

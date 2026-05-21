@@ -93,7 +93,7 @@ export default {
             error: null,
             headersList: [],
             data: [],
-            searchTImeout: null,
+            searchTimeout: null,
             column: this.initialSortColumn,
             direction: this.initialSortDirection,
             size: 10,
@@ -166,7 +166,7 @@ export default {
                  number >= this.page - totalAround - (this.page == this.totalPages ? 1 : (this.page == this.totalPages - 1 ? 1 : 0)));
         },
         changePage: function(page) {
-            // MAkes sure the user doesn't constantly reload the same data over and over
+            // Makes sure the user doesn't constantly reload the same data over and over
             if (page != this.page) {
                 this.page = page;
                 this.query();
@@ -186,8 +186,8 @@ export default {
         },
         search: {
             handler: function(search) {
-                clearTimeout(this.searchTImeout);
-                this.searchTImeout = setTimeout(() => {
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
                     this.query();
                 }, 500);
             },

@@ -68,7 +68,9 @@ export default {
         onFileChange: function(event) {
             this.errorList = [];
             const file = event.target.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
+            if (!file || !file.type.startsWith('image/')) {
+                return;
+            }
             const imageUrl = URL.createObjectURL(file);
             const tempImg = new Image();
             tempImg.onload = () => {
@@ -103,8 +105,12 @@ export default {
     },
     computed: {
         formatedSize: function() {
-            if (this.size < 1024) return `${this.size} bytes`;
-            if (this.size < 1024 * 1024) return `${(this.size / 1024).toFixed(2)} KB`;
+            if (this.size < 1024) {
+                return `${this.size} bytes`;
+            }
+            if (this.size < 1024 * 1024) {
+                return `${(this.size / 1024).toFixed(2)} KB`;
+            }
             return `${(this.size / (1024 * 1024)).toFixed(2)} MB`;
         },
     },

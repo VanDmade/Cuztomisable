@@ -159,22 +159,3 @@ export default {
     }
 }
 </script>
-<style lang="scss">
-    #profile-page {
-        .card {
-            border-radius: 8px;
-        }
-        .form-control:focus {
-            border-color: #30D5C8;
-            box-shadow: 0 0 0 0.2rem rgba(48, 213, 200, 0.25);
-        }
-        .btn-primary {
-            background-color: #30D5C8;
-            border-color: #30D5C8;
-            &:hover {
-                background-color: darken(#30D5C8, 5%);
-                border-color: darken(#30D5C8, 5%);
-            }
-        }
-    }
-</style>

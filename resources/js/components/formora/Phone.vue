@@ -64,6 +64,25 @@ export default {
     mounted: function() {
         this.ensureDefaultCountryCode();
     },
+    methods: {
+        defaultCountryCode: function() {
+            return this.$cuztomisable?.locations?.default_country_code ?? '';
+        },
+        ensureDefaultCountryCode: function() {
+            const value = this.modelValue;
+            if (!value || typeof value !== 'object') {
+                return;
+            }
+            if (!value.country_code) {
+                this.$emit('update:modelValue', {
+                    ...value,
+                    country_code: this.defaultCountryCode(),
+                    mobile: this.isMobile,
+                    default: this.isDefault,
+                });
+            }
+        },
+    },
     computed: {
         value: {
             get: function () {
@@ -113,7 +132,6 @@ export default {
                     });
                     return;
                 }
-
                 if (!value.country_code) {
                     this.$emit('update:modelValue', {
                         ...value,
@@ -141,25 +159,6 @@ export default {
                 }
             },
             deep: true,
-        },
-    },
-    methods: {
-        defaultCountryCode: function() {
-            return this.$cuztomisable?.locations?.default_country_code ?? '';
-        },
-        ensureDefaultCountryCode: function() {
-            const value = this.modelValue;
-            if (!value || typeof value !== 'object') {
-                return;
-            }
-            if (!value.country_code) {
-                this.$emit('update:modelValue', {
-                    ...value,
-                    country_code: this.defaultCountryCode(),
-                    mobile: this.isMobile,
-                    default: this.isDefault,
-                });
-            }
         },
     },
     props: {

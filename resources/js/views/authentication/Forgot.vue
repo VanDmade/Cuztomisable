@@ -2,7 +2,7 @@
     <div id="forgot-page" class="page">
         <div class="card ma-2 pa-6">
             <div class="d-flex">
-                <img :src="$url+'cuztomisable/logo.png'" class="cz-authentication-logo">
+                <img :src="$url+'logo.png'" class="cz-authentication-logo">
                 <div class="cz-title">
                     <h3 class="card-title">Forgot Password</h3>
                     <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
@@ -31,7 +31,7 @@ export default {
             submitting: false,
             errors: [],
             form: {
-                username: 'michaelvanderwerkerllc@gmail.com',
+                username: '',
             },
         }
     },
@@ -45,15 +45,12 @@ export default {
                 const payload = data?.data ?? data ?? {};
                 const token = payload.token ?? payload.reset_token ?? payload.password_reset_token ?? null;
                 const message = payload.message ?? data?.message ?? 'Reset code sent successfully.';
-
                 this.$notify.success(message);
-
                 if (!token) {
                     this.$notify.error('Unable to continue to password reset. Please try again.');
                     this.submitting = false;
                     return;
                 }
-
                 setTimeout(() => {
                     this.$router.push({ path: `/reset/${encodeURIComponent(String(token))}` });
                 }, 1500);

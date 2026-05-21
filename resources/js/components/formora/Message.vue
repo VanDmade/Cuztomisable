@@ -18,6 +18,19 @@
 import notify from '../../utils/notify';
 
 export default {
+    methods: {
+        messageClasses: function(item) {
+            const color = String(item?.color ?? 'success').toLowerCase();
+            const classes = [`fm-message-${color}`];
+            if (color === 'danger') {
+                classes.push('fm-message-error');
+            }
+            return classes;
+        },
+        close: function(id) {
+            notify.remove(id);
+        },
+    },
     computed: {
         messages() {
             return notify.state.items;
@@ -29,21 +42,6 @@ export default {
             };
         },
     },
-    methods: {
-        messageClasses(item) {
-            const color = String(item?.color ?? 'success').toLowerCase();
-            const classes = [`fm-message-${color}`];
-
-            if (color === 'danger') {
-                classes.push('fm-message-error');
-            }
-
-            return classes;
-        },
-        close(id) {
-            notify.remove(id);
-        },
-    },
     watch: {
         message: {
             handler: function(value) {
@@ -53,7 +51,6 @@ export default {
                 const totalWords = value.text.split(' ').length;
                 const averageReadSpeed = Math.ceil(totalWords / 5) * 2000;
                 const duration = this.length > averageReadSpeed ? this.length : averageReadSpeed;
-
                 notify.push(value, {
                     duration,
                     color: value.color,

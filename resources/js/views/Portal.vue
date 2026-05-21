@@ -5,7 +5,6 @@
                 <h2 class="portal-hero__title">Welcome to <span class="color--primary">Cuztomisable</span></h2>
                 <p class="portal-hero__sub">A production-ready Laravel + Vue application framework — engineered to eliminate repetitive scaffolding so you ship what actually matters.</p>
             </div>
-
             <div class="portal-features mb-6">
                 <div class="portal-feature">
                     <span class="material-icons portal-feature__icon">lock</span>
@@ -50,11 +49,9 @@
                     </div>
                 </div>
             </div>
-
             <div class="portal-footer">
                 <p class="portal-footer__text">Built by <strong>Michael VanDerwerker</strong> — designed for agencies, freelancers, and product teams who want a secure, scalable foundation without the setup overhead. The scaffolding is done. Build the thing.</p>
             </div>
-
         </div>
     </div>
 </template>
@@ -66,66 +63,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-.portal-hero {
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1.5rem;
-}
-
-.portal-hero__title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.portal-hero__sub {
-    font-size: 1rem;
-    color: var(--color-muted);
-    margin: 0;
-    line-height: 1.6;
-}
-
-.portal-features {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 1.5rem;
-}
-
-.portal-feature {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.portal-feature__icon {
-    color: var(--color-primary);
-    font-size: 24px;
-    margin-top: 2px;
-    flex-shrink: 0;
-}
-
-.portal-feature__title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: var(--color-text);
-}
-
-.portal-feature__desc {
-    font-size: 0.875rem;
-    color: var(--color-muted);
-    line-height: 1.6;
-    margin: 0;
-}
-
-.portal-footer {
-    border-top: 1px solid var(--color-border);
-    padding-top: 1.25rem;
-}
-
-.portal-footer__text {
-    font-size: 0.875rem;
-    color: var(--color-muted);
-    margin: 0;
-}
-</style>
