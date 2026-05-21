@@ -3,7 +3,7 @@
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
             <div class="position-relative container-fluid">
-                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'cuztomisable/logo.png'" style="height: 32px;"></router-link>
+                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'logo.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"

@@ -47,6 +47,7 @@ class SettingsController extends Controller
                     'disable_message' => __('cuztomisable/authentication.registration.disabled', ['email' => env('CUZTOMISABLE_ADMIN')]),
                     'address' => config()->get('cuztomisable.account.address', false),
                 ],
+                'navigation' => config()->get('cuztomisable.app.navigation', []),
             ]);
         } catch (Exception $error) {
             return $this->error($error);

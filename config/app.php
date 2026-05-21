@@ -35,4 +35,16 @@ return [
         'log_invalid'      => false,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Navigation
+    |--------------------------------------------------------------------------
+    | Sidebar/navbar links shown to authenticated users. Each entry supports:
+    |   route — Vue Router route name
+    |   path  — Fallback href
+    |   text  — Tooltip / label
+    |   icon  — Material Icons ligature
+    */
+    'navigation' => [],
+
 ];
