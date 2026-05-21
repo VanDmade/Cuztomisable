@@ -19,14 +19,16 @@ class ImageService
 {
 
     protected string $disk;
-
-    const DEFAULT_WIDTH = config('cuztomisable.global.images.default_width', 1200);
-    const DEFAULT_QUALITY = config('cuztomisable.global.images.default_quality', 80);
-    const DEFAULT_SIZE = config('cuztomisable.global.images.default_size', 300 * 1024); // 300KB
+    protected int $defaultWidth;
+    protected int $defaultQuality;
+    protected int $defaultSize;
 
     public function __construct()
     {
         $this->disk = config('filesystems.default', 'public');
+        $this->defaultWidth = config('cuztomisable.global.images.default_width', 1200);
+        $this->defaultQuality = config('cuztomisable.global.images.default_quality', 80);
+        $this->defaultSize = config('cuztomisable.global.images.default_size', 300 * 1024);
     }
 
     public function get(int $id, bool $includeTrashed = false): ?Image
@@ -84,10 +86,10 @@ class ImageService
         $disk = Storage::disk($this->disk);
         $manager = new ImageManager(new Driver());
         $image = $manager->read($file->getRealPath());
-        $image->scaleDown(width: self::DEFAULT_WIDTH);
-        $quality = self::DEFAULT_QUALITY;
+        $image->scaleDown(width: $this->defaultWidth);
+        $quality = $this->defaultQuality;
         $encoded = $image->toWebp($quality);
-        while (strlen((string) $encoded) > self::DEFAULT_SIZE && $quality > 20) {
+        while (strlen((string) $encoded) > $this->defaultSize && $quality > 20) {
             $quality -= 5;
             $encoded = $image->toWebp($quality);
         }
