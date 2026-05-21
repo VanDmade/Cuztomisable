@@ -33,8 +33,7 @@ trait Phone
         }
         $requirePhone = (!config('cuztomisable.login.login_with.email', false)
             || config('cuztomisable.login.login_with.phone', false))
-            ? 'required'
-            : 'required_without:email';
+            ? 'required' : 'required_without:email';
         if (!empty($phoneInput)) {
             $requirePhone = 'required';
         }

@@ -10,12 +10,19 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Model;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Str;
 use Exception;
+use Log;
+use Throwable;
 
 class ImageService
 {
 
     protected string $disk;
+
+    const DEFAULT_WIDTH = config('cuztomisable.global.images.default_width', 1200);
+    const DEFAULT_QUALITY = config('cuztomisable.global.images.default_quality', 80);
+    const DEFAULT_SIZE = config('cuztomisable.global.images.default_size', 300 * 1024); // 300KB
 
     public function __construct()
     {
@@ -77,22 +84,23 @@ class ImageService
         $disk = Storage::disk($this->disk);
         $manager = new ImageManager(new Driver());
         $image = $manager->read($file->getRealPath());
-        $image->scaleDown(width: 1200);
-        $quality = 85;
+        $image->scaleDown(width: self::DEFAULT_WIDTH);
+        $quality = self::DEFAULT_QUALITY;
         $encoded = $image->toWebp($quality);
-        while (strlen((string) $encoded) > 300 * 1024 && $quality > 20) {
+        while (strlen((string) $encoded) > self::DEFAULT_SIZE && $quality > 20) {
             $quality -= 5;
             $encoded = $image->toWebp($quality);
         }
-        $filename = $uploadPath . '/' . \Illuminate\Support\Str::random(40) . '.webp';
+        $randomString = Str::random(40);
+        $filename = $uploadPath.'/'.$randomString.'.webp';
         try {
             $disk->put($filename, (string) $encoded);
-        } catch (\Throwable $e) {
-            \Log::error('S3 upload failed', [
-                'message' => $e->getMessage(),
-                'previous' => $e->getPrevious()?->getMessage(),
+        } catch (Throwable $error) {
+            Log::error('S3 upload failed', [
+                'message' => $error->getMessage(),
+                'previous' => $error->getPrevious()?->getMessage(),
             ]);
-            throw $e;
+            throw $error;
         }
         $path = $filename;
         [$width, $height] = [$image->width(), $image->height()];
@@ -160,7 +168,6 @@ class ImageService
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
-        // Checks the sizes to make sure they can be used
     }
 
     public function crop(
@@ -174,7 +181,6 @@ class ImageService
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
-        // Checks the sizes to make sure they can be used
     }
 
     public function optimize(int $id): void
@@ -183,7 +189,6 @@ class ImageService
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
-
     }
 
     public function generatePath(): string

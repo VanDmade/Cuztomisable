@@ -50,12 +50,12 @@ trait User
             config('cuztomisable.login.cookie_name', 'api_token'),
             $token,
             now()->diffInMinutes($expiresAt),
-            '/',       // path
-            null,      // domain
-            true,      // secure
-            true,      // httpOnly
-            false,     // raw
-            'Strict'   // sameSite
+            '/',     // path
+            null,    // domain
+            true,    // secure
+            true,    // httpOnly
+            false,   // raw
+            'Strict' // sameSite
         );
     }
 

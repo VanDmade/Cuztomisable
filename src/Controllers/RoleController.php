@@ -123,7 +123,7 @@ class RoleController extends Controller
                     $role->delete();
                 }
                 return $this->success([
-                    'message' => '',
+                    'message' =>  __('cuztomisable/role.'.($deleted ? 'restored' : 'deleted')),
                     'deleted' => $deleted,
                 ]);
             });

@@ -16,4 +16,9 @@ return [
             'size' => 'Please enter a valid phone number.',
         ],
     ],
+    'images' => [
+        'default_width' => 1200,
+        'default_quality' => 80,
+        'default_size' => 300 * 1024, // 300KB
+    ],
 ];

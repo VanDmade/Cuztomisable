@@ -77,7 +77,7 @@ class PermissionController extends Controller
                 $permission->description = $data['description'];
                 $permission->save();
                 return $this->success([
-                    'message' => '',
+                    'message' =>  __('cuztomisable/permission.'.(is_null($id) ? 'created' : 'saved')),
                 ]);
             });
         } catch (Exception $error) {
@@ -104,7 +104,7 @@ class PermissionController extends Controller
                     $permission->delete();
                 }
                 return $this->success([
-                    'message' => '',
+                    'message' =>  __('cuztomisable/permission.'.($deleted ? 'restored' : 'deleted')),
                     'deleted' => $deleted,
                 ]);
             });

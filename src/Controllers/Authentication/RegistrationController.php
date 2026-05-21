@@ -83,12 +83,6 @@ class RegistrationController extends Controller
                     $query->orWhereNull('used_at')
                         ->orWhere('used_at', '>=', now()->subDay());
                 });
-            /*$data['columns'] = [
-                'name' => 'user_registrations.name',
-                'creator' => 'u.name',
-                'expires_at' => 'user_registrations.exdpires_at',
-                'used' => DB::raw('IF(user_registrations.used_at IS NULL, true, false)'),
-            ];*/
             $parameters = [
                 'allowed_columns' => [
                     'user_registrations.id',

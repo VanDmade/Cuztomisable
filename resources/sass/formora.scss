@@ -17,7 +17,6 @@
         z-index: 2;
     }
 }
-
 .form-floating > .fm-form-select.empty ~ label,
 .form-floating > .fm-form-control.empty ~ label {
     color: rgb(33, 37, 41);
@@ -28,7 +27,6 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-
 .form-floating > .fm-form-select.empty.is-invalid ~ label,
 .form-floating > .fm-form-control.empty.is-invalid ~ label,
 .form-floating > .form-select.empty.is-invalid ~ label,
@@ -40,7 +38,6 @@
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-
 .form-floating > .fm-form-select.empty,
 .form-floating > .form-select.empty {
     height: calc(3.5rem + 2px) !important;
@@ -49,7 +46,6 @@
     padding-top: 0.625rem !important;
     padding-bottom: 0.625rem !important;
 }
-
 .form-floating > .fm-form-select:focus ~ label,
 .form-floating > .fm-form-select:not(.empty) ~ label,
 .form-floating > .fm-form-control:focus ~ label,
@@ -369,7 +365,6 @@
     select.fm-form-control {
         min-height: unset;
     }
-
     .form-control:focus,
     .form-check-input:focus {
         border: 1px solid $color-secondary !important;
@@ -526,7 +521,6 @@
         padding-bottom: 0.5rem;
         line-height: 1.5;
     }
-
     select.fm-form-control {
         height: calc(1.5em + 2rem + 2px) !important;
         min-height: calc(1.5em + 2rem + 2px);
@@ -606,7 +600,6 @@
         min-height: calc(3.5rem + 2px) !important;
         box-sizing: border-box;
     }
-
     .fm-form-phone-country-code-input,
     .fm-form-phone-extension-input {
         width: 120px;

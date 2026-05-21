@@ -34,7 +34,8 @@ class UserController extends Controller
     public function get($id = null): JsonResponse
     {
         try {
-            $user = is_null($id) || !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
+            $user = is_null($id) || !Auth::user()->admin ?
+                Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->first();
             if (!isset($user->id)) {
                 throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
             }
@@ -77,10 +78,6 @@ class UserController extends Controller
                 ->where(function ($query) {
                     $query->whereNotNull('users.id');
                 });
-            /*$data['columns'] = [
-                'name_with_email' => 'users.name',
-                'last_used_at' => 'ip.last_used_at',
-            ];*/
             $parameters = [
                 'allowed_columns' => [
                     'users.id',
@@ -219,7 +216,8 @@ class UserController extends Controller
                     'cuztomisable:users:toggle_delete:'.implode(':', [$this->actorId(), (string) ($id ?? 'self')]),
                     'cuztomisable/user.errors.not_found'
                 );
-                $user = !Auth::user()->admin ? Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->withTrashed()->first();
+                $user = !Auth::user()->admin ?
+                    Auth::user() : config('auth.providers.users.model')::where('id', '=', $id)->withTrashed()->first();
                 if (!isset($user->id)) {
                     throw new Exception(__('cuztomisable/user.errors.not_found'), 404);
                 }
