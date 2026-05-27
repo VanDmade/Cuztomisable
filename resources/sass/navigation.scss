@@ -45,7 +45,8 @@
             background: var(--bs-primary);
             padding: 0.5rem 0.75rem;
             overflow: visible;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+            box-shadow: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
         }
         .portal-navbar-collapse.show {
             opacity: 1;
@@ -77,7 +78,6 @@
         }
     }
     .portal-navbar-collapse {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
         &.show {
             opacity: 1;
             transition: opacity 0.2s;
@@ -101,6 +101,7 @@
     overflow: hidden !important;
 }
 #navigation {
+    margin-top: 0 !important;
     .nav-link {
         cursor: pointer;
     }
@@ -131,6 +132,12 @@
     max-height: 48px;
     border-radius: 50px;
     border: 2px solid transparent;
+    &:hover,
+    &:focus,
+    &:active {
+        border-color: $color-accent;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
     &--active {
         border-color: $color-accent;
     }

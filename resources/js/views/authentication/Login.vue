@@ -40,6 +40,7 @@ export default {
     data: function() {
         return {
             appName: import.meta.env.VITE_APP_NAME,
+            appHome: import.meta.env.VITE_APP_HOME,
             submitting: false,
             errors: [],
             form: {
@@ -72,7 +73,7 @@ export default {
                             this.$router.push({ path: `/mfa/${encodeURIComponent(String(mfaToken))}` });
                         }, 150);
                     } else {
-                        this.$router.push({ name: 'portal' });
+                        this.$router.push({ path: this.appHome });
                     }
                 }, 500);
             } catch (error) {

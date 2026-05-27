@@ -62,6 +62,7 @@
 export default {
     data: function() {
         return {
+            appHome: import.meta.env.VITE_APP_HOME ?? '/portal',
             verifying: true,
             autoSending: false,
             submitting: false,
@@ -219,7 +220,7 @@ export default {
                 await this.$store.dispatch('checkAuth');
                 this.$notify.success(data.message);
                 setTimeout(() => {
-                    this.$router.push({ name: 'portal' });
+                    this.$router.push({ path: this.appHome });
                 }, 150);
             } catch (error) {
                 const response = error.response;

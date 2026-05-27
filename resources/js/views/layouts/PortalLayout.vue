@@ -3,7 +3,7 @@
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
             <div class="position-relative container-fluid">
-                <router-link class="navbar-brand pa-0" :to="{ name: 'portal' }"><img :src="$url+'logo.png'" style="height: 32px;"></router-link>
+                <router-link class="navbar-brand pa-0" :to="{ path: appHome }"><img :src="$url+'logo.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
@@ -16,12 +16,12 @@
                 <div class="collapse navbar-collapse portal-navbar-collapse" id="navigation">
                     <div class="navbar-nav me-auto d-lg-none">
                         <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
-                            <img class="collapsed-profile-image" :src="$url+'test.png'">
+                            <img class="collapsed-profile-image" style="cursor: pointer;" :src="$url+'test.png'" @click="collapseNavbar(); $router.push({ name: 'profile' })">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
                         <template v-if="navigation && navigation.length">
                             <li class="nav-item" v-for="(item, index) in navigation" :key="`${item.route || item.text || 'nav'}-${index}`">
-                                <router-link class="nav-link d-inline-flex align-items-center" :class="$route.name == item.route ? 'active active-nav' : ''" :to="{ name: item.route }" @click.native="collapseNavbar">
+                                <router-link class="nav-link d-inline-flex align-items-center" :class="$route.name == item.route ? 'active active-nav' : ''" :to="item.path || { name: item.route }" @click.native="collapseNavbar">
                                     <span v-if="item.icon" class="material-icons me-1" aria-hidden="true">{{ item.icon }}</span>
                                     <span>{{ item.text }}</span>
                                 </router-link>
@@ -98,6 +98,7 @@ import loading from '../../utils/loading.js';
 export default {
     data: function() {
         return {
+            appHome: import.meta.env.VITE_APP_HOME ?? '/portal',
             screenSize: 'large',
             inactivityTimer: null,
             verifyInactivity: null,
