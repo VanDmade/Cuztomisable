@@ -76,14 +76,15 @@ class ImageService
         ]);
     }
 
-    public function upload(UploadedFile $file, string $uploadPath = 'uploads'): Image|false
+    public function upload(UploadedFile $file, string $uploadPath = 'uploads', ?string $diskName = null, array $extra = []): Image|false
     {
-        // Checks to see if the image exists and is valid prior to uploading it to the bucket
+        ini_set('memory_limit', '512M');
         if (!$file->isValid()) {
             return false;
         }
         $uploadPath = trim($uploadPath, '/');
-        $disk = Storage::disk($this->disk);
+        $diskName = $diskName ?? $this->disk;
+        $disk = Storage::disk($diskName);
         $manager = new ImageManager(new Driver());
         $image = $manager->read($file->getRealPath());
         $image->scaleDown(width: $this->defaultWidth);
@@ -110,13 +111,13 @@ class ImageService
             'name' => $file->getClientOriginalName(),
             'extension' => 'webp',
             'path' => $path,
-            'disk' => $this->disk,
-            'parameters' => json_encode([
+            'disk' => $diskName,
+            'parameters' => json_encode(array_merge([
                 'mime_type' => 'image/webp',
                 'size' => strlen((string) $encoded),
                 'width' => $width ?? 0,
                 'height' => $height ?? 0,
-            ]),
+            ], $extra)),
             'original' => true,
         ]);
     }
@@ -162,6 +163,81 @@ class ImageService
             $model->save();
         }
         return true;
+    }
+
+    public function storeEncoded(
+        string $contents,
+        string $name,
+        string $uploadPath = 'uploads',
+        ?string $diskName = null,
+        array $extra = []
+    ): Image {
+        $uploadPath = trim($uploadPath, '/');
+        $diskName = $diskName ?? $this->disk;
+        $disk = Storage::disk($diskName);
+        $filename = $uploadPath.'/'.Str::random(40).'.webp';
+        $disk->put($filename, $contents);
+        $img = (new ImageManager(new Driver()))->read($contents);
+        return Image::create([
+            'name' => $name,
+            'extension' => 'webp',
+            'path' => $filename,
+            'disk' => $diskName,
+            'parameters' => json_encode(array_merge([
+                'mime_type' => 'image/webp',
+                'size' => strlen($contents),
+                'width' => $img->width(),
+                'height' => $img->height(),
+            ], $extra)),
+            'original' => true,
+        ]);
+    }
+
+    public function combine(
+        array $images,
+        ?string $borderColor = null,
+        int $borderWidth = 4
+    ): string {
+        ini_set('memory_limit', '512M');
+        $manager = new ImageManager(new Driver());
+        $count = count($images);
+        if ($count === 0) {
+            throw new Exception('No images provided.', 422);
+        }
+        $sliceWidth = (int) ($this->defaultWidth / $count);
+        $loaded = [];
+        foreach ($images as $item) {
+            if ($item instanceof UploadedFile) {
+                $img = $manager->read($item->getRealPath());
+            } elseif (is_string($item)) {
+                $img = $manager->read($item);
+            } else {
+                continue;
+            }
+            $img->scaleDown(width: $sliceWidth);
+            $loaded[] = $img;
+        }
+        if (empty($loaded)) {
+            throw new Exception('No images provided.', 422);
+        }
+        $hasBorder = $borderColor !== null && count($loaded) > 1;
+        $gaps = $hasBorder ? (count($loaded) - 1) * $borderWidth : 0;
+        $totalWidth = (int) array_sum(array_map(fn($img) => $img->width(), $loaded)) + $gaps;
+        $maxHeight  = (int) max(array_map(fn($img) => $img->height(), $loaded));
+        $canvas = $manager->create($totalWidth, $maxHeight);
+        $x = 0;
+        foreach ($loaded as $i => $img) {
+            $canvas->place($img, 'top-left', $x, 0);
+            $x += $img->width();
+            if ($hasBorder && $i < count($loaded) - 1) {
+                $canvas->drawRectangle($x, 0, function ($draw) use ($borderColor, $borderWidth, $maxHeight) {
+                    $draw->size($borderWidth, $maxHeight);
+                    $draw->background($borderColor);
+                });
+                $x += $borderWidth;
+            }
+        }
+        return (string) $canvas->toWebp(80);
     }
 
     public function resize(int $id, int $width): void
