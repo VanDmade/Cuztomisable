@@ -76,9 +76,6 @@ class Image extends Model
         if (!is_null($this->removed_from_storage_at)) {
             throw new Exception(__('cuztomisable/user.image.errors.not_found'), 404);
         }
-        if (env('APP_ENV') === 'local') {
-            return 'http://192.168.10.147:8000/storage/'.trim(Storage::disk($this->disk)->url($this->path), '/');
-        }
         return Storage::disk($this->disk)->url($this->path);
     }
 

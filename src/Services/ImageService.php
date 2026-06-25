@@ -26,9 +26,9 @@ class ImageService
     public function __construct()
     {
         $this->disk = config('filesystems.default', 'public');
-        $this->defaultWidth = config('cuztomisable.global.images.default_width', 1200);
-        $this->defaultQuality = config('cuztomisable.global.images.default_quality', 80);
-        $this->defaultSize = config('cuztomisable.global.images.default_size', 300 * 1024);
+        $this->defaultWidth = config('cuztomisable.images.default_width', 1200);
+        $this->defaultQuality = config('cuztomisable.images.default_quality', 80);
+        $this->defaultSize = config('cuztomisable.images.default_size', 300 * 1024);
     }
 
     public function get(int $id, bool $includeTrashed = false): ?Image
@@ -88,11 +88,28 @@ class ImageService
         $manager = new ImageManager(new Driver());
         $image = $manager->read($file->getRealPath());
         $image->scaleDown(width: $this->defaultWidth);
+        // Rotated images carry a transparent alpha channel that GD's WebP
+        // encoder fails to write ("gd-webp encoding failed"); flatten it.
+        $image->blendTransparency();
         $quality = $this->defaultQuality;
-        $encoded = $image->toWebp($quality);
-        while (strlen((string) $encoded) > $this->defaultSize && $quality > 20) {
-            $quality -= 5;
+        try {
             $encoded = $image->toWebp($quality);
+            while (strlen((string) $encoded) > $this->defaultSize && $quality > 20) {
+                $quality -= 5;
+                $encoded = $image->toWebp($quality);
+            }
+        } catch (Throwable $error) {
+            Log::error('WebP encoding failed', [
+                'message' => $error->getMessage(),
+                'original_name' => $file->getClientOriginalName(),
+                'original_mime' => $file->getMimeType(),
+                'width' => $image->width(),
+                'height' => $image->height(),
+                'quality' => $quality,
+                'memory_usage' => memory_get_usage(true),
+                'memory_peak' => memory_get_peak_usage(true),
+            ]);
+            throw $error;
         }
         $randomString = Str::random(40);
         $filename = $uploadPath.'/'.$randomString.'.webp';
@@ -196,7 +213,7 @@ class ImageService
     public function combine(
         array $images,
         ?string $borderColor = null,
-        int $borderWidth = 4
+        int $borderWidth = 6
     ): string {
         ini_set('memory_limit', '512M');
         $manager = new ImageManager(new Driver());
@@ -204,7 +221,6 @@ class ImageService
         if ($count === 0) {
             throw new Exception('No images provided.', 422);
         }
-        $sliceWidth = (int) ($this->defaultWidth / $count);
         $loaded = [];
         foreach ($images as $item) {
             if ($item instanceof UploadedFile) {
@@ -214,7 +230,7 @@ class ImageService
             } else {
                 continue;
             }
-            $img->scaleDown(width: $sliceWidth);
+            $img->scaleDown(width: $this->defaultWidth);
             $loaded[] = $img;
         }
         if (empty($loaded)) {
@@ -222,22 +238,48 @@ class ImageService
         }
         $hasBorder = $borderColor !== null && count($loaded) > 1;
         $gaps = $hasBorder ? (count($loaded) - 1) * $borderWidth : 0;
-        $totalWidth = (int) array_sum(array_map(fn($img) => $img->width(), $loaded)) + $gaps;
-        $maxHeight  = (int) max(array_map(fn($img) => $img->height(), $loaded));
-        $canvas = $manager->create($totalWidth, $maxHeight);
-        $x = 0;
-        foreach ($loaded as $i => $img) {
-            $canvas->place($img, 'top-left', $x, 0);
-            $x += $img->width();
-            if ($hasBorder && $i < count($loaded) - 1) {
-                $canvas->drawRectangle($x, 0, function ($draw) use ($borderColor, $borderWidth, $maxHeight) {
-                    $draw->size($borderWidth, $maxHeight);
-                    $draw->background($borderColor);
-                });
-                $x += $borderWidth;
+        // WebP can't encode canvases taller than 16383px ("gd-webp encoding
+        // failed"); shrink proportionally so the stacked height fits.
+        $maxCanvasDimension = 16383;
+        $sumHeights = array_sum(array_map(fn($img) => $img->height(), $loaded));
+        if ($sumHeights + $gaps > $maxCanvasDimension) {
+            $scale = ($maxCanvasDimension - $gaps) / $sumHeights;
+            foreach ($loaded as $img) {
+                $img->scale(width: (int) floor($img->width() * $scale));
             }
         }
-        return (string) $canvas->toWebp(80);
+        $maxWidth = (int) max(array_map(fn($img) => $img->width(), $loaded));
+        $totalHeight = (int) array_sum(array_map(fn($img) => $img->height(), $loaded)) + $gaps;
+        $canvas = $manager->create($maxWidth, $totalHeight);
+        $y = 0;
+        foreach ($loaded as $i => $img) {
+            $canvas->place($img, 'top-left', 0, $y);
+            $y += $img->height();
+            if ($hasBorder && $i < count($loaded) - 1) {
+                $canvas->drawRectangle(0, $y, function ($draw) use ($borderColor, $borderWidth, $maxWidth) {
+                    $draw->size($maxWidth, $borderWidth);
+                    $draw->background($borderColor);
+                });
+                $y += $borderWidth;
+            }
+        }
+        // The freshly created canvas carries a transparent alpha channel that
+        // GD's WebP encoder fails to write ("gd-webp encoding failed"); flatten it.
+        $canvas->blendTransparency();
+        try {
+            return (string) $canvas->toWebp(50);
+        } catch (Throwable $error) {
+            Log::error('Combine WebP encoding failed', [
+                'message' => $error->getMessage(),
+                'image_count' => count($loaded),
+                'sources' => array_map(fn($img) => $img->width().'x'.$img->height(), $loaded),
+                'canvas_width' => $canvas->width(),
+                'canvas_height' => $canvas->height(),
+                'memory_usage' => memory_get_usage(true),
+                'memory_peak' => memory_get_peak_usage(true),
+            ]);
+            throw $error;
+        }
     }
 
     public function resize(int $id, int $width): void

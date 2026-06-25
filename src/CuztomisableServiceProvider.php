@@ -48,6 +48,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/account.php', 'cuztomisable.account');
         $this->mergeConfigFrom(__DIR__.'/../config/notifications.php', 'cuztomisable.notifications');
         $this->mergeConfigFrom(__DIR__.'/../config/locations.php', 'cuztomisable.locations');
+        $this->mergeConfigFrom(__DIR__.'/../config/images.php', 'cuztomisable.images');
         $this->mergeConfigFrom(__DIR__.'/../config/rate_limits.php', 'cuztomisable.rate_limits');
         $this->mergeConfigFrom(__DIR__.'/../config/respondify.php', 'cuztomisable.respondify');
         $this->mergeConfigFrom(__DIR__.'/../config/tablelify.php', 'cuztomisable.tablelify');
@@ -57,6 +58,7 @@ class CuztomisableServiceProvider extends ServiceProvider
             __DIR__.'/../config/account.php' => config_path('cuztomisable/account.php'),
             __DIR__.'/../config/notifications.php' => config_path('cuztomisable/notifications.php'),
             __DIR__.'/../config/locations.php' => config_path('cuztomisable/locations.php'),
+            __DIR__.'/../config/images.php' => config_path('cuztomisable/images.php'),
             __DIR__.'/../config/rate_limits.php' => config_path('cuztomisable/rate_limits.php'),
             __DIR__.'/../config/respondify.php' => config_path('cuztomisable/respondify.php'),
             __DIR__.'/../config/tablelify.php' => config_path('cuztomisable/tablelify.php'),
@@ -73,6 +75,7 @@ class CuztomisableServiceProvider extends ServiceProvider
             __DIR__.'/../config/account.php' => config_path('cuztomisable/account.php'),
             __DIR__.'/../config/notifications.php' => config_path('cuztomisable/notifications.php'),
             __DIR__.'/../config/locations.php' => config_path('cuztomisable/locations.php'),
+            __DIR__.'/../config/images.php' => config_path('cuztomisable/images.php'),
             __DIR__.'/../config/rate_limits.php' => config_path('cuztomisable/rate_limits.php'),
             __DIR__.'/../config/respondify.php' => config_path('cuztomisable/respondify.php'),
             __DIR__.'/../config/tablelify.php' => config_path('cuztomisable/tablelify.php'),
