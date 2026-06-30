@@ -9,7 +9,8 @@ class RegistrationRequest extends BaseRequest
 
     public function authorize(): bool
     {
-        return !config('cuztomisable.account.registration.disabled', false) || !empty($this->route('code'));
+        $platform = $this->header('X-App-Platform') === 'mobile' ? 'mobile' : 'web';
+        return !config("cuztomisable.account.registration.disabled.{$platform}", false) || !empty($this->route('code'));
     }
 
     public function prepareForValidation(): void
