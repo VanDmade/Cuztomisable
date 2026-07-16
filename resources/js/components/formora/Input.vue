@@ -1,6 +1,6 @@
 <template>
-    <div class="form-floating fm-form-input"
-        :class="{ 'fm-no-label': label == null || label == '', 'fm-color-input': type == 'color' }">
+    <div class="fm-form-input"
+        :class="{ 'form-floating': label != null && label != '', 'fm-no-label': label == null || label == '', 'fm-color-input': type == 'color' }">
         <input
             v-model="value"
             :type="type == 'number' ? 'input' : type"
