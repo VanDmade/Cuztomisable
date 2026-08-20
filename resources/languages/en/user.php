@@ -1,13 +1,6 @@
 <?php
 
 return [
-    'emails' => [
-        'subjects' => [
-            'support' => 'Support Message',
-            'changed' => 'Changed Password',
-            'temporary' => 'Your Temporary Password Has Been Issued',
-        ],
-    ],
     'access' => [
         'saved' => 'You have saved this user\'s access.',
     ],

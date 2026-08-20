@@ -5,17 +5,18 @@ namespace VanDmade\Cuztomisable\Models\Logs;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use VanDmade\Cuztomisable\Models\Users;
-use Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use VanDmade\Cuztomisable\Concerns\Auditable;
 
 class Email extends Model
 {
 
-    use HasFactory;
+    use HasFactory, Auditable;
 
     protected $table = 'email_logs';
 
     protected $fillable = [
+        'user_id',
         'to',
         'cc',
         'bcc',
@@ -27,19 +28,7 @@ class Email extends Model
 
     protected $casts = [];
 
-    protected $hidden = [
-        'created_by',
-    ];
-
-    public static function boot()
-    {
-        parent::boot();
-        self::creating(function($model) {
-            if (Auth::check()) {
-                $model->created_by = Auth::user()->id;
-            }
-        });
-    }
+    protected $hidden = [];
 
     public function to(): Attribute
     {
@@ -73,9 +62,9 @@ class Email extends Model
         );
     }
 
-    public function createdBy()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
 }

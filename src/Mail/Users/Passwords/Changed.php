@@ -23,17 +23,15 @@ class Changed extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/user.emails.subjects.changed'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.changed'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.changed.view'),
+            view: 'cuztomisable::passwords.changed',
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
             ],
         );
     }

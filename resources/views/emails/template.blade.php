@@ -84,7 +84,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ $logo ?? 'https://via.placeholder.com/140x40?text=Cuztomisable' }}" alt="{{ $company ?? 'Cuztomisable' }} Logo">
+            <img src="{{ asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')) }}" alt="{{ config('app.name', 'Cuztomisable') }} Logo">
             <h1>@yield('header', 'Cuztomisable')</h1>
         </div>
         <div class="content">
@@ -92,7 +92,7 @@
         </div>
         <div class="footer">
             @if (!isset($footer) || $footer)
-                <p>You're receiving this email because you're a registered user of {{ $company ?? 'Cuztomisable' }}.</p>
+                <p>You're receiving this email because you're a registered user of {{ config('app.name', 'Cuztomisable') }}.</p>
                 @if (isset($unsubscribe))
                     <p><a href="{{ $unsubscribe ?? '#' }}">Unsubscribe</a>
                     @if (isset($support))

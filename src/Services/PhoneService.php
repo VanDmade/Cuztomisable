@@ -26,4 +26,11 @@ class PhoneService
         return $phone;
     }
 
+    public function findByNumber(mixed $countryCode, string $number): ?Phone
+    {
+        return Phone::where('country_code', '=', $countryCode)
+            ->where('number', '=', cleanPhone($number))
+            ->first();
+    }
+
 }

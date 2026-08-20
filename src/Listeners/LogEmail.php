@@ -5,37 +5,31 @@ namespace VanDmade\Cuztomisable\Listeners;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\InteractsWithQueue;
-use VanDmade\Cuztomisable\Models\Logs;
+use VanDmade\Cuztomisable\Services\Logs\EmailLogService;
 
 class LogEmail
 {
 
-    private const DEFAULT_HIDDEN_KEYS = [
-        'password',
-        'token',
-        'secret',
-        'code',
-        'authorization',
-        'api_key',
-        'api-key',
-        'access_token',
-        'refresh_token',
-        'client_secret',
-        'session',
-        'cookie',
-        'otp',
-    ];
+    public function __construct(
+        protected readonly EmailLogService $emailLogService
+    ) {
+    }
 
     public function handle(MessageSent $event): void
     {
+        // Creates a gate to prevent emails from being logged within Cuztomisable
+        if (!config('cuztomisable.notifications.emails.log', true)) {
+            return;
+        }
         $sanitizedData = self::sanitizeSensitiveData($event->data ?? []);
         // Logs the email
-        Logs\Email::create([
+        $this->emailLogService->create([
             'to' => self::getEmails($event->message->getTo()),
             'cc' => self::getEmails($event->message->getCc()),
             'bcc' => self::getEmails($event->message->getBcc()),
             'from' => self::getEmails($event->message->getFrom(), true),
             'subject' => $event->message->getSubject(),
+            'created_by' => $event->message->createdBy ?? null,
             'parameters' => [
                 'data' => $sanitizedData ?? null,
                 'template' => $event->message->template ?? null,
@@ -48,10 +42,7 @@ class LogEmail
         if ($depth > 5) {
             return ['__truncated__' => true];
         }
-        $hidden = array_map('strtolower', array_merge(
-            self::DEFAULT_HIDDEN_KEYS,
-            config('cuztomisable.notifications.emails.hidden_parameters', [])
-        ));
+        $hidden = array_map('strtolower', config('cuztomisable.notifications.emails.hidden_parameters', []));
         foreach ($data as $key => &$value) {
             $keyName = is_string($key) ? strtolower($key) : $key;
             if (is_string($keyName) && in_array($keyName, $hidden, true)) {

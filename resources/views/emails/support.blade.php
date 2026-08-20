@@ -1,4 +1,4 @@
-@extends('emails.template')
+@extends('cuztomisable::template')
 
 @section('title', 'New Support Request')
 @section('header', 'New Support Ticket Submitted')
@@ -6,7 +6,7 @@
 @section('content')
 
     <p>Hello Support Team,</p>
-    <p>A new support request has been submitted on {{ $company ?? 'Cuztomisable' }}.</p>
+    <p>A new support request has been submitted on {{ config('app.name', 'Cuztomisable') }}.</p>
     <p><strong>Submitted By:</strong></p>
     <ul>
         <li><strong>Name:</strong> {{ $user->name }}</li>

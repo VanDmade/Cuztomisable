@@ -25,17 +25,15 @@ class Reset extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.reset'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.reset'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.reset.view'),
+            view: 'cuztomisable::authentication.reset',
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
                 'lockUrl' => url('/lock/'.implode('/', [
                     $this->user->id,
                     'reset',

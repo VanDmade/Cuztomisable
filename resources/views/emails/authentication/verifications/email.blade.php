@@ -1,4 +1,4 @@
-@extends('emails.template')
+@extends('cuztomisable::template')
 
 @section('title', 'Verify Your Email')
 @section('header', 'Verify Your Email Address')
@@ -6,7 +6,7 @@
 @section('content')
 
     <p>Hello {{ $user->name ?? 'there' }},</p>
-    <p>Thanks for signing up with {{ $company ?? 'Cuztomisable' }}! Please verify your email address by clicking the button below:</p>
+    <p>Thanks for signing up with {{ config('app.name', 'Cuztomisable') }}! Please verify your email address by clicking the button below:</p>
     <p style="text-align: center;">
         <a href="{{ $verificationUrl }}" class="button">Verify Email</a>
     </p>

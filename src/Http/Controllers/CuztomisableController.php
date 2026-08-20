@@ -13,13 +13,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Throwable;
 use VanDmade\Cuztomisable\Http\Resources\UserResource;
 
-/**
- * Base controller every Cuztomisable controller extends - success()/error()/debug() response
- * shaping lives here directly (the former Helpers/Respondify.php's job), since nothing outside
- * a controller ever calls it. Outbound mail/SMS is now each service's own responsibility
- * (injecting Mail/SmsProviderInterface directly) rather than a controller convenience method,
- * so this base class no longer carries an SmsService dependency at all.
- */
 class CuztomisableController extends BaseController
 {
 
@@ -107,12 +100,6 @@ class CuztomisableController extends BaseController
         return (string) (Auth::id() ?? 0);
     }
 
-    /**
-     * Shared "authenticated session established" response envelope for both a completed
-     * login and a completed MFA save - the two produce the same shape (user, permissions,
-     * change_password, then either mobile tokens or a cookie), so this collapses what used
-     * to be two independently hand-built, drifting versions of the same response.
-     */
     protected function authResponse(
         Model $user,
         array $result,

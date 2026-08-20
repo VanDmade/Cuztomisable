@@ -25,20 +25,18 @@ class Invitation extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.invitation'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.invitation'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.invitation.view'),
+            view: 'cuztomisable::authentication.invitation',
             with: [
                 'sender' => Auth::check() ? Auth::user()->name : null,
                 'name' => $this->registration->name,
                 'url' => url('/registration/'.$this->registration->code),
                 'expires' => config('cuztomisable.account.registration.expires_in', 300) / 60,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
                 'footer' => false,
             ],
         );

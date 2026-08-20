@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use VanDmade\Cuztomisable\Events\UserInvited;
 use VanDmade\Cuztomisable\Events\UserRegistered;
+use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Users\Invitation as InvitationMail;
 use VanDmade\Cuztomisable\Mail\Users\Registered as RegisteredMail;
 use VanDmade\Cuztomisable\Mail\Users\Verification as VerificationMail;
@@ -17,13 +18,11 @@ use VanDmade\Cuztomisable\Models\Users;
 use VanDmade\Cuztomisable\Services\AddressService;
 use VanDmade\Cuztomisable\Services\PhoneService;
 use VanDmade\Cuztomisable\Services\TableService;
-use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
 class RegistrationService
 {
 
     public function __construct(
-        protected readonly SmsProviderInterface $smsService,
         protected readonly PhoneService $phoneService,
         protected readonly AddressService $addressService
     ) {
@@ -160,11 +159,11 @@ class RegistrationService
                 isset($registration->code)) {
                 // Sends the phone verification text to the user - kept distinct from any
                 // response-facing message, unlike the old controller which reused $message for both.
-                $smsMessage = __('cuztomisable/authentication.registration.sms.verification', [
+                $smsMessage = __('cuztomisable/text.registration.verification', [
                     'company' => env('APP_NAME'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
-                $this->smsService->send($phone->country_code, $phone->number, $smsMessage);
+                SendText::dispatch($phone->country_code, $phone->number, $smsMessage);
             }
             // Determines if the admin or creator should be notified about the recent registration
             if (!is_null($sendRegisteredTo) && config('cuztomisable.account.registration.send_notification', false)) {
@@ -232,11 +231,11 @@ class RegistrationService
             if (!is_null($registration->email)) {
                 Mail::to($registration->email)->send(new InvitationMail($registration));
             } else {
-                $smsMessage = __('cuztomisable/authentication.registration.sms.invited', [
+                $smsMessage = __('cuztomisable/text.registration.invited', [
                     'company' => env('APP_NAME'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
-                $this->smsService->send($data['country_code'], $data['phone'], $smsMessage);
+                SendText::dispatch($data['country_code'], $data['phone'], $smsMessage);
             }
             UserInvited::dispatch($registration);
             return $registration;
@@ -264,12 +263,12 @@ class RegistrationService
             if (!is_null($registration->email)) {
                 Mail::to($registration->email)->send(new InvitationMail($registration));
             } else {
-                $smsMessage = __('cuztomisable/authentication.registration.sms.invited', [
+                $smsMessage = __('cuztomisable/text.registration.invited', [
                     'company' => env('APP_NAME'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
                 [$countryCode, $number] = splitPhoneNumber($registration->phone);
-                $this->smsService->send($countryCode ?? '', $number ?? '', $smsMessage);
+                SendText::dispatch($countryCode ?? '', $number ?? '', $smsMessage);
             }
             return $registration;
         });

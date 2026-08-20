@@ -25,7 +25,7 @@ class MFA extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.mfa'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.mfa'));
     }
 
     public function content(): Content
@@ -35,11 +35,9 @@ class MFA extends VanDmadeMailable implements ShouldQueue
             $expiresIn = convertToTimeOutput(strtotime($this->code->expires_at) - time());
         }
         return new Content(
-            view: config('cuztomisable.notifications.mfa.view'),
+            view: 'cuztomisable::authentication.mfa',
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
                 'code' => $this->code->code,
                 'expires_in' => $expiresIn,
             ],

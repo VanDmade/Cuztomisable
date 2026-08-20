@@ -3,6 +3,7 @@
 namespace VanDmade\Cuztomisable\Observers\Users;
 
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Models\Users\IpAddress;
 use VanDmade\Cuztomisable\Models\Logs;
 use VanDmade\Cuztomisable\Mail\Users\NewIpAddress as NewIpAddressMail;
@@ -19,11 +20,11 @@ class IpAddressObserver
 
     public function created(IpAddress $ipAddress): void
     {
-        if (config('cuztomisable.notifications.new_ip_address', false) === false) {
+        if (config('cuztomisable.notifications.new_ip_address.enabled', true) === false) {
             return;
         }
         $user = $ipAddress->user;
-        if (!$user || $user->disable_emails || empty($user->email)) {
+        if (!$user) {
             return;
         }
         $trustedRanges = config('cuztomisable.notifications.new_ip_address.trusted_ip_ranges', []);
@@ -40,9 +41,20 @@ class IpAddressObserver
                 return;
             }
         }
-        // Sends a notification to the user about the device
-        Mail::to($user->email)
-            ->send(new NewIpAddressMail($user, $ipAddress));
+        // Each channel is its own independent toggle - both can fire for the same alert
+        $sendVia = config('cuztomisable.notifications.new_ip_address.send_via', ['email' => true, 'phone' => false]);
+        if (!empty($sendVia['email']) && !$user->disable_emails && !empty($user->email)) {
+            Mail::to($user->email)->send(new NewIpAddressMail($user, $ipAddress));
+        }
+        if (!empty($sendVia['phone'])) {
+            $phone = $user->mobilePhone;
+            if (isset($phone->id) && !$phone->disable_messages) {
+                $message = __('cuztomisable/text.new_ip_address', [
+                    'company' => env('APP_NAME'),
+                ]);
+                SendText::dispatch($phone->country_code, $phone->number, $message);
+            }
+        }
     }
 
     public function saved(IpAddress $ipAddress): void

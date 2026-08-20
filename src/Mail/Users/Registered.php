@@ -23,17 +23,15 @@ class Registered extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.registered'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.registered'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.registered.view'),
+            view: 'cuztomisable::authentication.registered',
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
             ],
         );
     }

@@ -25,18 +25,16 @@ class NewIpAddress extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.new_ip_address'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.new_ip_address'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.new_ip_address.view'),
+            view: 'cuztomisable::authentication.new_ip_address',
             with: [
                 'user' => $this->user,
                 'ip' => $this->ip,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
             ],
         );
     }

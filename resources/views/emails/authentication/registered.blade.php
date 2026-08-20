@@ -1,4 +1,4 @@
-@extends('emails.template')
+@extends('cuztomisable::template')
 
 @section('title', 'New User Registered')
 @section('header', 'A New User Has Signed Up')
@@ -6,7 +6,7 @@
 @section('content')
 
     <p>Hello,</p>
-    <p>A new user has just created an account on {{ $company ?? 'Cuztomisable' }}.</p>
+    <p>A new user has just created an account on {{ config('app.name', 'Cuztomisable') }}.</p>
     <p><strong>User Details:</strong></p>
     <ul>
         <li><strong>Name:</strong> {{ $user->name }}</li>

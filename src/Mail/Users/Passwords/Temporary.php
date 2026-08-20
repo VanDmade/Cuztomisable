@@ -24,18 +24,16 @@ class Temporary extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/user.emails.subjects.temporary'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.temporary'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.temporary.view'),
+            view: 'cuztomisable::passwords.temporary',
             with: [
                 'user' => $this->user,
                 'password' => $this->password,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
             ],
         );
     }

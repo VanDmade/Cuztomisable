@@ -6,19 +6,14 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Forgot as ForgotMail;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Reset as ResetMail;
 use VanDmade\Cuztomisable\Mail\Support as SupportMail;
 use VanDmade\Cuztomisable\Models\Users;
-use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
 class PasswordService
 {
-
-    public function __construct(
-        protected readonly SmsProviderInterface $smsService
-    ) {
-    }
 
     public function forgot(array $data): ?Users\Passwords\Reset
     {
@@ -125,7 +120,7 @@ class PasswordService
             $user->password = $password;
             $user->save();
         });
-        if (config('cuztomisable.notifications.reset', false) !== false) {
+        if (config('cuztomisable.notifications.reset.enabled', true)) {
             // Notifies the user their password was reset
             Mail::to($user->email)->send(new ResetMail($user, $reset));
         }
@@ -163,11 +158,11 @@ class PasswordService
         if ($reset->sent_via == 'phone' && $sendVia['phone']) {
             $phone = $reset->user->mobilePhone;
             if (isset($phone->id)) {
-                $message = __('cuztomisable/authentication.passwords.sms.reset', [
+                $message = __('cuztomisable/text.passwords.reset', [
                     'company' => env('APP_NAME'),
                     'url' => url('/password/forgot/'.$reset->token),
                 ]);
-                $this->smsService->send($phone->country_code, $phone->number, $message);
+                SendText::dispatch($phone->country_code, $phone->number, $message);
             }
         } else {
             Mail::to($reset->user->email)->send(new ForgotMail($reset));

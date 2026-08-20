@@ -24,17 +24,15 @@ class Support extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/user.emails.subjects.support'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.support'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.support.view'),
+            view: 'cuztomisable::support',
             with: [
                 'user' => $this->user,
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
                 'text' => $this->text,
             ],
         );

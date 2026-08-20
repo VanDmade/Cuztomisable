@@ -23,18 +23,16 @@ class Verification extends VanDmadeMailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return $this->defaultEnvelope(__('cuztomisable/authentication.emails.subjects.verification'));
+        return $this->defaultEnvelope(__('cuztomisable/email.subjects.email_verification'));
     }
 
     public function content(): Content
     {
         return new Content(
-            view: config('cuztomisable.notifications.email_verification.view'),
+            view: 'cuztomisable::authentication.verifications.email',
             with: [
                 'user' => $this->user,
                 'verificationUrl' => url('/verification/'.$this->user->token.'/email?email='.$this->user->email),
-                'logo' => asset(config('cuztomisable.notifications.emails.logo', 'images/logo.png')),
-                'company' => config('app.name'),
             ],
         );
     }

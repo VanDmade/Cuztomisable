@@ -319,126 +319,46 @@ return [
 
         /*
         |----------------------------------------------------------------------
-        | Email Settings
-        |----------------------------------------------------------------------
-        */
-        'emails' => [
-            // List of all parameters hidden within the email log.
-            'hidden_parameters' => [
-                'password',
-            ],
-            // Default logo path used in email templates.
-            'logo' => 'images/logo.png',
-            // Optional default from address for package emails.
-            'from' => [
-                'address' => null,
-                'name'    => null,
-            ],
-            // Optional default reply-to address for package emails.
-            'reply_to' => [
-                'address' => null,
-                'name'    => null,
-            ],
-        ],
-
-        /*
-        |----------------------------------------------------------------------
-        | SMS / Text Settings
-        |----------------------------------------------------------------------
-        */
-        'texts' => [
-            // When enabled, redact the logged message content.
-            'redact_message'     => false,
-            // Optional regex patterns to redact in logs; when empty, full message is replaced.
-            'redact_patterns'    => [],
-            // Replacement text used for redaction.
-            'redact_replacement' => '********',
-        ],
-
-        /*
-        |----------------------------------------------------------------------
         | Notification Templates
         |----------------------------------------------------------------------
-        | type: email | phone | email|phone
-        | view: the view/template path used to render the notification
+        | Email and text delivery settings (logging, redaction, from/reply-to,
+        | etc.) live in config/email.php and config/text.php, merged in here as
+        | notifications.emails / notifications.texts by the service provider.
+        | The actual view each notification renders is hardcoded on its Mailable
+        | (view: 'cuztomisable::...') - to customize a template, publish it with
+        | `php artisan vendor:publish --tag=cuztomisable-views` and edit the copy
+        | under resources/views/vendor/cuztomisable, rather than repointing a
+        | config path. This section only holds delivery settings.
         */
 
         // Sent when a user logs in from an unrecognised IP address
         'new_ip_address' => [
-            'type'                => 'email',
-            'view'                => 'emails.authentication.new_ip_address',
+            'enabled' => true,
+            // Which channel(s) this alert goes out on - independent toggles (not either/or),
+            // since a security alert may legitimately warrant both at once.
+            'send_via' => [
+                'email' => true,
+                'phone' => false,
+            ],
             // Skip notification for recognised device fingerprints
             'skip_known_devices'  => false,
             // CIDR ranges that skip new IP notifications
             'trusted_ip_ranges'   => [],
         ],
 
-        // Multi-factor authentication code (requires login.multi_factor_authentication.allowed = true)
-        'mfa' => [
-            'type' => 'email|phone',
-            'view' => 'emails.authentication.mfa',
-        ],
-
-        // User invitation
-        'invitation' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.invitation',
-        ],
-
-        // Password reset link
-        'reset' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.reset',
-        ],
-
-        // Forgot password request
-        'forgot' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.forgot',
-        ],
-
         // Email address verification
         'email_verification' => [
             'enabled' => true,
-            'type' => 'email',
-            'view' => 'emails.authentication.verifications.email',
         ],
 
         // Phone number verification
         'phone_verification' => [
             'enabled' => true,
-            'type'  => 'phone',
-            'view'  => 'emails.authentication.verifications.phone',
         ],
 
-        // Registration confirmation sent to the new user
-        'registration' => [
-            'type' => 'email|phone',
-            'view' => 'emails.authentication.registration',
-        ],
-
-        // Notification sent to the admin/inviter when a new user registers
-        'registered' => [
-            'type' => 'email',
-            'view' => 'emails.authentication.registered',
-        ],
-
-        // Support message
-        'support' => [
-            'type' => 'email',
-            'view' => 'emails.support',
-        ],
-
-        // Password changed confirmation
-        'changed' => [
-            'type' => 'email',
-            'view' => 'emails.passwords.changed',
-        ],
-
-        // Temporary password sent by an administrator
-        'temporary' => [
-            'type' => 'email',
-            'view' => 'emails.passwords.temporary',
+        // Confirmation sent to the user after their password is reset
+        'reset' => [
+            'enabled' => true,
         ],
 
     ],

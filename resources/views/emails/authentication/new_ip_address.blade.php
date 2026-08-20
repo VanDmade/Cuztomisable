@@ -1,4 +1,4 @@
-@extends('emails.template')
+@extends('cuztomisable::template')
 
 @section('title', 'New Login Detected')
 @section('header', 'New Login to Your Account')
@@ -6,7 +6,7 @@
 @section('content')
 
     <p>Hello {{ $user->name ?? 'there' }},</p>
-    <p>We noticed a new login to your {{ $company ?? 'Cutomisable' }} account from an unfamiliar IP address.</p>
+    <p>We noticed a new login to your {{ config('app.name', 'Cuztomisable') }} account from an unfamiliar IP address.</p>
     <p><strong>Login Details:</strong></p>
     <ul>
         <li><strong>IP Address:</strong> {{ $ip->ip_address ?? 'Unknown' }}</li>

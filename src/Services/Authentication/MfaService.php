@@ -7,16 +7,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
 use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use VanDmade\Cuztomisable\Services\Users\CodeService;
-use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
 class MfaService
 {
 
     public function __construct(
-        protected readonly SmsProviderInterface $smsService,
         protected readonly CodeService $codeService
     ) {
     }
@@ -52,11 +51,11 @@ class MfaService
                     throw new Exception(__('cuztomisable/authentication.mfa.errors.no_mobile_phone'), 404);
                 }
                 $code->sent_via = 'phone';
-                $message = __('cuztomisable/authentication.mfa.phone_message', [
+                $message = __('cuztomisable/text.mfa', [
                     'company' => env('APP_NAME'),
                     'code' => $code->code,
                 ]);
-                $this->smsService->send($phone->country_code, $phone->number, $message);
+                SendText::dispatch($phone->country_code, $phone->number, $message);
             } else {
                 $code->sent_via = 'email';
                 Mail::to($code->user->email)->send(new MFAMail($code->user, $code));

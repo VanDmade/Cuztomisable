@@ -8,10 +8,6 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use VanDmade\Cuztomisable\Models\Logs;
 
-/**
- * Default SmsProviderInterface implementation, sending via AWS SNS - ported from the former
- * Services/SmsService.php, unchanged behavior.
- */
 class AwsSnsSmsProvider implements SmsProviderInterface
 {
 
@@ -48,7 +44,6 @@ class AwsSnsSmsProvider implements SmsProviderInterface
     {
         $parameters = [];
         $phone = null;
-        $loggedMessage = $this->sanitizeMessage($message);
         try {
             // Generates the phone number with the country code and phone number
             $phone = '+'.trim($countryCode, '+').cleanPhone($number);
@@ -68,17 +63,6 @@ class AwsSnsSmsProvider implements SmsProviderInterface
             } else {
                 Log::debug($phone.': '.$message);
             }
-            // Logs the text message for verification and traceability
-            Logs\Text::create([
-                'country_code' => $countryCode,
-                'number' => $number,
-                'message' => $loggedMessage,
-                'parameters' => [
-                    'cleaned_phone' => $phone,
-                    'log' => $this->debug,
-                    'redacted' => $loggedMessage !== $message,
-                ]
-            ]);
             return true;
         } catch (AwsException $error) {
             $parameters = [
@@ -93,9 +77,8 @@ class AwsSnsSmsProvider implements SmsProviderInterface
         $parameters['phone'] = [
             'country_code' => $countryCode,
             'number' => $number,
-            'message' => $loggedMessage,
+            'message' => $message,
             'cleaned_phone' => $phone ?? null,
-            'redacted' => $loggedMessage !== $message,
         ];
         Logs\Error::create([
             'message' => $error->getMessage(),
@@ -105,21 +88,6 @@ class AwsSnsSmsProvider implements SmsProviderInterface
             'parameters' => $parameters ?? [],
         ]);
         return false;
-    }
-
-    protected function sanitizeMessage(string $message): string
-    {
-        $redact = (bool) config('cuztomisable.notifications.texts.redact_message', false);
-        if (!$redact) {
-            return $message;
-        }
-        $replacement = (string) config('cuztomisable.notifications.texts.redact_replacement', '********');
-        $patterns = config('cuztomisable.notifications.texts.redact_patterns', []);
-        if (empty($patterns)) {
-            return $replacement;
-        }
-        $redacted = preg_replace($patterns, $replacement, $message);
-        return $redacted === null ? $replacement : $redacted;
     }
 
 }

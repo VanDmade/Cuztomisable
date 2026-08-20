@@ -24,6 +24,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermission::class);
         $router->aliasMiddleware('require-admin', RequireAdmin::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadViewsFrom(__DIR__.'/../resources/views/emails', 'cuztomisable');
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../database/seeders' => database_path('seeders'),
@@ -46,12 +47,17 @@ class CuztomisableServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->mergeConfigFrom(__DIR__.'/../config/cuztomisable.php', 'cuztomisable');
+        // email.php/text.php are source-organization only, not separately published - they merge
+        // into the same nested paths the single published cuztomisable.php already exposes.
+        $this->mergeConfigFrom(__DIR__.'/../config/email.php', 'cuztomisable.notifications.emails');
+        $this->mergeConfigFrom(__DIR__.'/../config/text.php', 'cuztomisable.notifications.texts');
         $this->app->bind(SmsProviderInterface::class, config('cuztomisable.sms_provider', AwsSnsSmsProvider::class));
         $this->publishes([
             __DIR__.'/../config/cuztomisable.php' => config_path('cuztomisable.php'),
             __DIR__.'/../resources/js' => resource_path('js'),
             __DIR__.'/../resources/sass' => resource_path('sass'),
             __DIR__.'/../resources/views/' => resource_path('views'),
+            __DIR__.'/../resources/views/emails' => resource_path('views/vendor/cuztomisable'),
             __DIR__.'/../resources/languages/en' => resource_path('lang/en/cuztomisable'),
             __DIR__.'/../images' => public_path('cuztomisable'),
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
@@ -69,6 +75,12 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ], 'cuztomisable-migrations');
+        // Override just the emails, without pulling in JS/sass/config/etc - publishes into the
+        // vendor-namespaced path loadViewsFrom() checks first, so unpublished views keep using
+        // the package's bundled default and this only ever needs to contain what's customized.
+        $this->publishes([
+            __DIR__.'/../resources/views/emails' => resource_path('views/vendor/cuztomisable'),
+        ], 'cuztomisable-views');
     }
 
 }

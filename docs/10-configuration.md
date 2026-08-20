@@ -2,16 +2,31 @@
 
 See the [README](../README.md#configuration) for the full file/key reference table - this doc is for the gotchas and the planned consolidation, not a duplicate listing.
 
-## Known issues in the current (pre-refactor) config
+## Current shape
 
-- **`config/mobile.php` is never merged.** `CuztomisableServiceProvider::register()` merges nine config files but not this one - `config('cuztomisable.mobile.*')` always falls back to hardcoded defaults today, regardless of what `mobile.php` actually contains. Confirmed live at `UserController::refreshToken()`. Fix target: Step 3 of the refactor plan, folded into the ten-files-to-one consolidation.
-- **`config('cuztomisable.notifications.email_verification', false) !== false`** (and the equivalent `reset`/`registered` checks) are always true today, because the config value is an array, and an array is never `===` to the boolean `false` regardless of content. Not a bug exactly - just means "verification email sending" isn't actually toggleable via that key the way the name implies.
-- **`Helpers/Respondify.php` reads `config('respondify.errors.*')`** (bare `respondify` namespace) but the app only ever merges these files under `cuztomisable.respondify` - so DB error-logging via Respondify is permanently off unless a host app separately publishes a bare `respondify.php`. Worth deciding whether this gets fixed when `Respondify` becomes `Support\ResponseService` (Step 5), or left as-is.
+The old ten-files-to-one consolidation (Step 3) is done: `config/cuztomisable.php` is the single
+file a host app publishes and edits (`php artisan vendor:publish --tag=cuztomisable-config`). The
+`mobile.php` merge bug is fixed - `cuztomisable.mobile.*` resolves normally.
 
-## Planned: ten files → one
+`config/email.php` and `config/text.php` are a deliberate exception, added when email/text
+settings were split out of the `notifications` array for readability - they're merged into
+`cuztomisable.notifications.emails`/`.texts` by the service provider and are never published
+separately; see [Emailing and Texting](12-emailing-and-texting.md#config).
 
-Step 3 of the refactor plan consolidates `app.php`/`login.php`/`account.php`/`mobile.php`/`notifications.php`/`locations.php`/`images.php`/`rate_limits.php`/`respondify.php`/`tablelify.php` into a single `config/cuztomisable.php`, fixing the `mobile.php` merge bug on the way. Document the final key shape here once that phase actually lands - don't pre-write it, the shape may shift during consolidation.
+The email/phone verification "always true" truthy-array bug (`!== false` against an array that's
+never `=== false`) is also fixed - `email_verification`/`phone_verification`/`reset` now use a
+real `enabled` boolean.
+
+## Known issue
+
+- **`Helpers/Respondify.php` reads `config('respondify.errors.*')`** (bare `respondify`
+  namespace) but the app only ever merges config under `cuztomisable.respondify` - so DB
+  error-logging via Respondify is permanently off unless a host app separately publishes a bare
+  `respondify.php`. The response-shaping logic itself already moved into
+  `CuztomisableController` (`success()`/`error()`/`debug()`), but the config section is still
+  named `respondify` - worth renaming (`response`/`errors`) while this gets fixed.
 
 ## See also
 
 - [README - Configuration](../README.md#configuration)
+- [Emailing and Texting](12-emailing-and-texting.md)
