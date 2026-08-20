@@ -1,0 +1,102 @@
+<?php
+
+namespace VanDmade\Cuztomisable\Http\Controllers;
+
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use VanDmade\Cuztomisable\Http\Requests\RoleRequest;
+use VanDmade\Cuztomisable\Http\Requests\TableRequest;
+use VanDmade\Cuztomisable\Services\RoleService;
+
+class RoleController extends CuztomisableController
+{
+
+    public function __construct(
+        protected readonly RoleService $roleService
+    ) {
+    }
+
+    public function get($id): JsonResponse
+    {
+        try {
+            $role = $this->roleService->get($id);
+            return $this->success([
+                'role' => $role,
+                'deleted' => $role->trashed(),
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function table(TableRequest $request): JsonResponse
+    {
+        try {
+            return $this->roleService->table($request->validated());
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function save(RoleRequest $request, $id = null): JsonResponse
+    {
+        try {
+            $this->rateLimit(
+                'cuztomisable:roles:save:'.implode(':', [$this->actorId(), (string) ($id ?? 'new')]),
+                'cuztomisable/role.errors.not_found'
+            );
+            $created = $this->roleService->save($request->validated(), $id, $this->actorId());
+            return $this->success([
+                'message' => __('cuztomisable/role.'.($created ? 'created' : 'saved')),
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function toggleDelete($id): JsonResponse
+    {
+        try {
+            $this->rateLimit(
+                'cuztomisable:roles:toggle_delete:'.implode(':', [$this->actorId(), (string) $id]),
+                'cuztomisable/role.errors.not_found'
+            );
+            $deleted = $this->roleService->toggleDelete($id);
+            return $this->success([
+                'message' => __('cuztomisable/role.'.($deleted ? 'restored' : 'deleted')),
+                'deleted' => $deleted,
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function removePermission($id, $permission): JsonResponse
+    {
+        try {
+            $this->rateLimit(
+                'cuztomisable:roles:remove_permission:'.implode(':', [$this->actorId(), (string) $id, (string) $permission]),
+                'cuztomisable/role.errors.permission_not_found'
+            );
+            $this->roleService->removePermission($id, $permission);
+            return $this->success([
+                'message' => __('cuztomisable/role.permission_removed'),
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function list(Request $request): JsonResponse
+    {
+        try {
+            return $this->success([
+                'list' => $this->roleService->list($request),
+            ]);
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+}

@@ -48,6 +48,9 @@ return [
             'are still able to reset your password, but will not be able to login.',
         'verified' => 'The reset token has been verified.',
         'code_verified' => 'The reset code has been verified.',
+        'sms' => [
+            'reset' => '[:company] Here\'s your password reset link: :url',
+        ],
         'errors' => [
             'user_not_found' => 'The user was not found.',
             'not_found' => 'The code was not found.',

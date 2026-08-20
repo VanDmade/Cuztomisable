@@ -2,17 +2,19 @@
 
 namespace VanDmade\Cuztomisable\Models\Users;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Concerns\Auditable;
+use VanDmade\Cuztomisable\Concerns\HasOrganization;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 
 class Registration extends Model
 {
 
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable, HasOrganization;
 
     protected $table = 'user_registrations';
 
@@ -23,10 +25,11 @@ class Registration extends Model
         'code',
         'used_at',
         'sent_at',
-        'user_id',
         'expires_at',
-        'created_by',
         'attempt_counter',
+        'user_id',
+        'organization_id',
+        'created_by',
         'deleted_at',
         'deleted_by',
     ];
@@ -51,7 +54,6 @@ class Registration extends Model
     {
         parent::boot();
         self::creating(function($model) {
-            $model->created_by = Auth::id();
             if (is_null($model->expires_at)) {
                 $seconds = config('cuztomisable.account.registration.expires_in', 300);
                 $model->expires_at = now()->addSeconds($seconds);
@@ -68,36 +70,34 @@ class Registration extends Model
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
     }
 
-    public function createdBy(): BelongsTo
+    public function expiredAgo(): Attribute
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return Attribute::make(
+            get: function () {
+                $expiresAt = Carbon::parse($this->expires_at)->setTimezone('UTC');
+                $difference = Carbon::now('UTC')->diffInSeconds($expiresAt, false);
+                if (!$this->expires_at || $difference > 0) {
+                    return null;
+                }
+                return Carbon::parse($expiresAt)->diffForHumans();
+            },
+        );
     }
 
-    public function deletedBy(): BelongsTo
+    public function resendIn(): Attribute
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
-    }
-
-    public function getExpiredAgoAttribute(): ?string
-    {
-        $expiresAt = Carbon::parse($this->expires_at)->setTimezone('UTC');
-        $difference = Carbon::now('UTC')->diffInSeconds($expiresAt, false);
-        if (!$this->expires_at || $difference > 0) {
-            return null;
-        }
-        return Carbon::parse($expiresAt)->diffForHumans();
-    }
-
-    public function getResendInAttribute($value): int
-    {
-        $resendAfter = config('cuztomisable.account.registration.resend_after', 300);
-        $sentAt = Carbon::parse($value)->setTimezone('UTC');
-        $difference = round(Carbon::now('UTC')->diffInSeconds($sentAt, false));
-        if ($difference >= 0) {
-            return 0;
-        }
-        $timeLeft = $resendAfter + $difference;
-        return $timeLeft > 0 ? ceil($timeLeft) : 0;
+        return Attribute::make(
+            get: function ($value) {
+                $resendAfter = config('cuztomisable.account.registration.resend_after', 300);
+                $sentAt = Carbon::parse($value)->setTimezone('UTC');
+                $difference = round(Carbon::now('UTC')->diffInSeconds($sentAt, false));
+                if ($difference >= 0) {
+                    return 0;
+                }
+                $timeLeft = $resendAfter + $difference;
+                return $timeLeft > 0 ? ceil($timeLeft) : 0;
+            },
+        );
     }
 
 }

@@ -60,7 +60,7 @@ class Reset extends Model
         });
     }
 
-    protected static function generateNumericCode(int $length): string
+    public static function generateNumericCode(int $length): string
     {
         $code = '';
         for ($i = 0; $i < $length; $i++) {

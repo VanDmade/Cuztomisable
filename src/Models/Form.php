@@ -1,0 +1,65 @@
+<?php
+
+namespace VanDmade\Cuztomisable\Models;
+
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
+
+/**
+ * A user's in-progress multi-step form/wizard state - renamed from Formora, the table stays
+ * "formora" for now since renaming a live table is a data migration, not a naming decision.
+ */
+class Form extends Model
+{
+
+    use HasFactory;
+
+    protected $table = 'formora';
+
+    protected $fillable = [
+        'to',
+        'to_params',
+        'current',
+        'current_params',
+        'form',
+        'user_id',
+    ];
+
+    protected $casts = [];
+
+    protected $hidden = [
+        'user_id',
+    ];
+
+    public static function boot(): void
+    {
+        parent::boot();
+        self::creating(function($model) {
+            $model->user_id = Auth::check() ? Auth::user()->id : null;
+        });
+    }
+
+    public function toParams(): Attribute
+    {
+        return Attribute::make(get: fn () => json_decode($this->attributes['to_params'] ?? null, true));
+    }
+
+    public function currentParams(): Attribute
+    {
+        return Attribute::make(get: fn () => json_decode($this->attributes['current_params'] ?? null, true));
+    }
+
+    public function form(): Attribute
+    {
+        return Attribute::make(get: fn () => json_decode($this->attributes['form'] ?? null, true));
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
+    }
+
+}

@@ -1,47 +1,50 @@
 <?php
 
-use VanDmade\Cuztomisable\Controllers\SettingsController;
-use VanDmade\Cuztomisable\Controllers\Authentication;
-use VanDmade\Cuztomisable\Controllers\PermissionController;
-use VanDmade\Cuztomisable\Controllers\RoleController;
-use VanDmade\Cuztomisable\Controllers\Users\AccessController;
-use VanDmade\Cuztomisable\Controllers\Users\UserController;
-use VanDmade\Cuztomisable\Controllers\Users\PasswordController;
-use VanDmade\Cuztomisable\Controllers\Users\IpAddressController;
-use VanDmade\Cuztomisable\Controllers\FormoraController;
+use VanDmade\Cuztomisable\Http\Controllers\SettingsController;
+use VanDmade\Cuztomisable\Http\Controllers\PermissionController;
+use VanDmade\Cuztomisable\Http\Controllers\RoleController;
+use VanDmade\Cuztomisable\Http\Controllers\FormController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\AccessController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\PasswordController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\IpAddressController;
+use VanDmade\Cuztomisable\Http\Controllers\Authentication\RegistrationController;
+use VanDmade\Cuztomisable\Http\Controllers\Authentication\LoginController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\UserController;
+use VanDmade\Cuztomisable\Http\Controllers\Authentication\MFAController;
+use VanDmade\Cuztomisable\Http\Controllers\Authentication\PasswordController as RegistrationPasswordController;
 
 Route::controller(SettingsController::class)->group(function() {
     Route::get('/cuztomisable/settings', 'all');
 });
-Route::controller(Authentication\LoginController::class)->group(function() {
+Route::controller(LoginController::class)->group(function() {
     Route::post('/login', 'login');
     Route::post('/logout', 'logout');
 });
-Route::controller(Authentication\MFAController::class)->group(function() {
+Route::controller(MFAController::class)->group(function() {
     Route::post('/login/mfa/{token}/send', 'send');
     Route::get('/login/mfa/{token}/verify', 'verify');
     Route::post('/login/mfa/{token}', 'save');
 });
-Route::controller(Authentication\PasswordController::class)->group(function() {
+Route::controller(RegistrationPasswordController::class)->group(function() {
     Route::post('/password/forgot', 'forgot');
     Route::get('/password/forgot/{token}/send', 'send');
     Route::post('/password/forgot/{token}', 'save');
     Route::get('/password/forgot/{token}/verify/{code?}', 'verify');
 });
-Route::controller(Authentication\RegistrationController::class)->group(function() {
+Route::controller(RegistrationController::class)->group(function() {
     Route::get('/register/verify/{code}', 'verify');
     Route::post('/register/{code?}', 'save');
 });
-Route::controller(Authentication\PasswordController::class)->group(function() {
+Route::controller(RegistrationPasswordController::class)->group(function() {
     Route::get('/lock/{user}/reset/{id}/{token}', 'lock');
 });
 Route::controller(UserController::class)->group(function() {
     Route::post('/refresh/token', 'refreshToken');
 });
 Route::group(['middleware' => ['auth:sanctum']], function() {
-    Route::controller(FormoraController::class)->group(function() {
-        Route::get('/formora/{page}', 'get');
-        Route::post('/formora/{page}', 'save');
+    Route::controller(FormController::class)->group(function() {
+        Route::get('/form/{page}', 'get');
+        Route::post('/form/{page}', 'save');
     });
     Route::controller(AccessController::class)->group(function() {
         Route::get('/user/{id}/access', 'get')
@@ -69,11 +72,12 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             ->middleware('permission:toggle-user-mfa');
     });
     Route::middleware(['permission:invite-users'])->group(function() {
-        Route::controller(Authentication\RegistrationController::class)->group(function() {
+        Route::controller(RegistrationController::class)->group(function() {
             Route::get('/invites', 'table');
             Route::post('/invite', 'invite');
-            Route::delete('/invite/{id}', 'toggleDelete');
-            Route::post('/invite/{id}/send', 'send');
+            // withTrashed() - toggleDelete needs to find already-deleted registrations too, to restore them
+            Route::delete('/invite/{registration}', 'toggleDelete')->withTrashed();
+            Route::post('/invite/{registration}/send', 'send');
         });
     });
     Route::controller(PasswordController::class)->group(function() {

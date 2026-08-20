@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 3
+    paths:
+        - src
+        - database
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            identifiers:
+                - generics.lessTypes
+                - return.type
+            path: src/Models
+        -
+            identifier: property.notFound

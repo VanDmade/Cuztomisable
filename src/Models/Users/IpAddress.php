@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Observers\Users\IpAddressObserver;
-use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 
 #[ObservedBy([IpAddressObserver::class])]
 class IpAddress extends Model
@@ -71,11 +71,6 @@ class IpAddress extends Model
     public function codes(): HasMany
     {
         return $this->hasMany(Code::class, 'user_ip_address_id');
-    }
-
-    public function deletedBy(): BelongsTo
-    {
-        return $this->belongsTo(config('auth.providers.users.model'), 'deleted_by');
     }
 
 }

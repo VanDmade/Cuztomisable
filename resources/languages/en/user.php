@@ -23,6 +23,7 @@ return [
         'temporary_password' => 'You have sent a temporary password to this user.',
     ],
     'refresh' => [
+        'refreshed' => 'Token refreshed.',
         'errors' => [
             'not_found' => 'Your session has expired. Please log in again.',
             'user_not_found' => 'We could not verify your account. Please log in again.',
