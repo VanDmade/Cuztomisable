@@ -157,8 +157,7 @@ class RegistrationService
             if (isset($phone->id) &&
                 config('cuztomisable.notifications.phone_verification.enabled', true) &&
                 isset($registration->code)) {
-                // Sends the phone verification text to the user - kept distinct from any
-                // response-facing message, unlike the old controller which reused $message for both.
+                // Sends the phone verification text to the user
                 $smsMessage = __('cuztomisable/text.registration.verification', [
                     'company' => env('APP_NAME'),
                     'url' => url('/registration/'.$registration->code),

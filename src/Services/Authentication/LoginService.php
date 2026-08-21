@@ -5,15 +5,18 @@ namespace VanDmade\Cuztomisable\Services\Authentication;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use VanDmade\Cuztomisable\Models\Users;
+use VanDmade\Cuztomisable\Services\RefreshTokenService;
 
 class LoginService
 {
 
-    public function login(array $data, bool $isMobile): array
+    public function __construct(
+        protected readonly RefreshTokenService $refreshTokenService
+    ) {
+    }
+
+    public function login(array $data, bool $isMobile = false): array
     {
         return DB::transaction(function() use ($data, $isMobile) {
             // Finds the user based on the email, username, or phone
@@ -67,14 +70,8 @@ class LoginService
             ];
             // Determines if a mobile app is calling the authentication or not
             if ($isMobile && !$requiresMfa) {
-                $plainRefreshToken = Str::random(64);
-                RefreshToken::create([
-                    'user_id' => $user->id,
-                    'token' => Hash::make($plainRefreshToken),
-                    'expires_at' => now()->addDays(30),
-                ]);
                 $result['access_token'] = $user->createToken('mobile')->plainTextToken;
-                $result['refresh_token'] = $plainRefreshToken;
+                $result['refresh_token'] = $this->refreshTokenService->issue($user);
             } elseif (!$requiresMfa) {
                 $result['cookie'] = $user->generateAuthCookie();
             }

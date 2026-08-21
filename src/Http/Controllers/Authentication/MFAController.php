@@ -43,9 +43,13 @@ class MFAController extends CuztomisableController
     public function verify(Request $request, $token): JsonResponse
     {
         try {
+            $response = $this->mfaService->verify($token);
             return $this->success(array_merge(
-                ['message' => __('cuztomisable/authentication.mfa.verified'), 'verified' => true],
-                $this->mfaService->verify($token)
+                [
+                    'message' => __('cuztomisable/authentication.mfa.verified'),
+                    'verified' => true,
+                ],
+                $response
             ));
         } catch (Exception $error) {
             return $this->error($error);

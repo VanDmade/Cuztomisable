@@ -8,12 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 use VanDmade\Cuztomisable\Services\AddressService;
 use VanDmade\Cuztomisable\Services\ImageService;
 use VanDmade\Cuztomisable\Services\PhoneService;
+use VanDmade\Cuztomisable\Services\RefreshTokenService;
 use VanDmade\Cuztomisable\Services\TableService;
 
 /**
@@ -29,7 +27,8 @@ class UserService
     public function __construct(
         protected readonly ImageService $imageService,
         protected readonly PhoneService $phoneService,
-        protected readonly AddressService $addressService
+        protected readonly AddressService $addressService,
+        protected readonly RefreshTokenService $refreshTokenService
     ) {
     }
 
@@ -180,12 +179,7 @@ class UserService
     public function refreshToken(string $plainToken): array
     {
         return DB::transaction(function () use ($plainToken) {
-            $newToken = null;
-            // Find refresh token in DB
-            $candidates = RefreshToken::where('expires_at', '>=', now())
-                ->where('revoked', false)
-                ->get();
-            $token = $candidates->first(fn ($item) => Hash::check($plainToken, $item->token));
+            $token = $this->refreshTokenService->findValid($plainToken);
             if (!$token) {
                 throw new Exception(__('cuztomisable/user.refresh.errors.not_found'), 401);
             }
@@ -197,14 +191,7 @@ class UserService
             if ($token->revoked) {
                 throw new Exception(__('cuztomisable/user.refresh.errors.revoked'), 403);
             }
-            // Determines if they want tokens to refresh or just the expiration date
-            if (config('cuztomisable.mobile.refresh.reset_token', false)) {
-                $newToken = Str::random(64);
-                $token->token = Hash::make($newToken);
-            }
-            $token->used_at = now();
-            $token->expires_at = now()->addDays(config('cuztomisable.mobile.refresh.expires_in', 30));
-            $token->save();
+            $newToken = $this->refreshTokenService->renew($token);
             // Issue a new access token
             return [
                 'access_token' => $token->user->createToken('mobile')->plainTextToken,

@@ -4,19 +4,18 @@ namespace VanDmade\Cuztomisable\Services\Authentication;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
-use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
+use VanDmade\Cuztomisable\Services\RefreshTokenService;
 use VanDmade\Cuztomisable\Services\Users\CodeService;
 
 class MfaService
 {
 
     public function __construct(
-        protected readonly CodeService $codeService
+        protected readonly CodeService $codeService,
+        protected readonly RefreshTokenService $refreshTokenService
     ) {
     }
 
@@ -109,8 +108,8 @@ class MfaService
                 throw new Exception(__('cuztomisable/authentication.mfa.errors.invalid_code'), 404);
             }
             // Determines the length of time the token will remain active
-            $rememberFor = $remember || is_null(config('cuztomisable.login.session_length', null))
-                ? now()->addDays(60) : now()->addSeconds(config('cuztomisable.login.session_length', null));
+            $rememberFor = $remember || is_null(config('cuztomisable.login.session_length', null)) ?
+                now()->addDays(60) : now()->addSeconds(config('cuztomisable.login.session_length', null));
             if ($remember) {
                 $ipAddress = $code->ipAddress;
                 if (!isset($ipAddress->id)) {
@@ -130,14 +129,8 @@ class MfaService
                 ->delete();
             $result = ['user' => $code->user];
             if ($isMobile) {
-                $plainRefreshToken = Str::random(64);
-                RefreshToken::create([
-                    'user_id' => $code->user->id,
-                    'token' => Hash::make($plainRefreshToken),
-                    'expires_at' => now()->addDays(30),
-                ]);
                 $result['access_token'] = $code->user->createToken('mobile')->plainTextToken;
-                $result['refresh_token'] = $plainRefreshToken;
+                $result['refresh_token'] = $this->refreshTokenService->issue($code->user);
             } else {
                 $result['cookie'] = $code->user->generateAuthCookie();
             }
