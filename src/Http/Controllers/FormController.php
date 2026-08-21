@@ -25,10 +25,6 @@ class FormController extends CuztomisableController
             if (!Auth::check()) {
                 throw new Exception(__('cuztomisable/global.unauthenticated'), 401);
             }
-            $this->rateLimit(
-                'cuztomisable:form:get:'.implode(':', [request()->ip(), $this->actorId(), $page]),
-                'cuztomisable/global.server_broken'
-            );
             return $this->success([
                 'form' => $this->formService->get(Auth::id(), $page),
             ]);
@@ -44,10 +40,6 @@ class FormController extends CuztomisableController
                 throw new Exception(__('cuztomisable/global.unauthenticated'), 401);
             }
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:form:save:'.implode(':', [$request->ip(), $this->actorId(), (string) ($data['current'] ?? $page)]),
-                'cuztomisable/global.server_broken'
-            );
             return $this->success([
                 'form' => $this->formService->save(Auth::id(), $page, $data),
             ]);

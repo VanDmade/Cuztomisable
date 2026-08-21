@@ -25,10 +25,6 @@ class MFAController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:mfa:send:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.mfa.errors.sent_recently'
-            );
             $result = $this->mfaService->send($token, $data['type']);
             $code = $result['code'];
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
@@ -47,10 +43,6 @@ class MFAController extends CuztomisableController
     public function verify(Request $request, $token): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:mfa:verify:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.mfa.errors.not_found'
-            );
             return $this->success(array_merge(
                 ['message' => __('cuztomisable/authentication.mfa.verified'), 'verified' => true],
                 $this->mfaService->verify($token)
@@ -64,10 +56,6 @@ class MFAController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:mfa:save:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.mfa.errors.not_found'
-            );
             $isMobile = $request->header('X-App-Platform') === 'mobile';
             $remember = filter_var($data['remember'] ?? false, FILTER_VALIDATE_BOOL);
             $result = $this->mfaService->save($token, $data['code'], $remember, $isMobile);

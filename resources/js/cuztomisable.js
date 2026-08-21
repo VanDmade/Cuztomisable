@@ -233,6 +233,23 @@ const axios = Axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
 });
+const TIMEZONE_SYNC_STORAGE_KEY = 'cuztomisable_timezone_synced_at';
+const TIMEZONE_SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000;
+async function syncTimezoneIfStale() {
+    const lastSynced = Number(localStorage.getItem(TIMEZONE_SYNC_STORAGE_KEY) ?? 0);
+    if (Date.now() - lastSynced < TIMEZONE_SYNC_INTERVAL_MS) {
+        return;
+    }
+    try {
+        await axios.patch('/settings/timezone', {
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+        localStorage.setItem(TIMEZONE_SYNC_STORAGE_KEY, String(Date.now()));
+    } catch (err) {
+        // Not critical to app boot - just try again next load
+        console.warn('[Cuztomisable] Failed to sync timezone:', err);
+    }
+}
 export async function loadCuztomisableApp() {
     let settings = {};
     try {
@@ -408,6 +425,10 @@ export async function loadCuztomisableApp() {
             await store.dispatch('checkAuth');
             if (store.state.authenticated && AUTH_GUEST_ROUTE_NAMES.has(routeState.name)) {
                 await visit('/portal', true);
+            }
+            if (store.state.authenticated) {
+                // Fire-and-forget - a stale timezone shouldn't block the app from mounting
+                syncTimezoneIfStale();
             }
             app.mount(el);
             return { app, store };

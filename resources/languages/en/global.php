@@ -6,6 +6,11 @@ return [
     'invalid_user_agent' => 'Your browser is being a bit shy. Please try again with a more cooperative one.',
     'note_to_nosey' => 'All of these fields are validated in the server, these fields are just for ease of use within the GUI...',
     'server_broken' => 'Hang tight — we hit a snag. Try again shortly, and we\'ll be back on track.',
+    'rate_limited' => 'Too many attempts. Please wait a bit before trying again.',
+    'timezone' => [
+        'updated' => 'Your timezone was updated.',
+        'unchanged' => 'Your timezone is already up to date.',
+    ],
     'form' => [
         'required' => 'This field is required.',
         'email' => 'This field must be an email address.',

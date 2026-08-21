@@ -40,10 +40,6 @@ class IpAddressController extends CuztomisableController
     public function forget($id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:ip_addresses:forget:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/user.ip_address.errors.not_found'
-            );
             $this->ipAddressService->forget($id);
             return $this->success([
                 'message' => __('cuztomisable/user.ip_address.forgotten'),
@@ -56,10 +52,6 @@ class IpAddressController extends CuztomisableController
     public function toggleDelete($id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:ip_addresses:toggle_delete:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/user.ip_address.errors.not_found'
-            );
             $deleted = $this->ipAddressService->toggleDelete($id);
             return $this->success([
                 'message' => __('cuztomisable/user.ip_address.'.($deleted ? 'undo' : 'deleted')),
@@ -73,10 +65,6 @@ class IpAddressController extends CuztomisableController
     public function save(IpAddressSaveRequest $request, $id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:ip_addresses:save:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/user.ip_address.errors.not_found'
-            );
             $ip = $this->ipAddressService->save($request->validated(), $id);
             return $this->success([
                 'message' => __('cuztomisable/user.ip_address.saved'),

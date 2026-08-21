@@ -47,10 +47,6 @@ class UserController extends CuztomisableController
     public function save(UserRequest $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:save:'.implode(':', [$request->ip(), $this->actorId(), (string) ($id ?? 'self')]),
-                'cuztomisable/user.errors.not_found'
-            );
             $data = $request->validated();
             $clearImage = !empty($data['clear_image']) && $data['clear_image'] == '1';
             $image = $request->hasFile('image') ? $request->file('image') : null;
@@ -73,10 +69,6 @@ class UserController extends CuztomisableController
     public function toggleLocked(Request $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:toggle_locked:'.implode(':', [$this->actorId(), (string) ($id ?? 'self')]),
-                'cuztomisable/user.errors.not_found'
-            );
             $wasLocked = $this->userService->toggleLocked($request->user(), $id !== null ? (int) $id : null);
             return $this->success([
                 'message' => __('cuztomisable/user.'.($wasLocked ? 'unlocked' : 'locked')),
@@ -90,10 +82,6 @@ class UserController extends CuztomisableController
     public function toggleDelete(Request $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:toggle_delete:'.implode(':', [$this->actorId(), (string) ($id ?? 'self')]),
-                'cuztomisable/user.errors.not_found'
-            );
             $deleted = $this->userService->toggleDelete($request->user(), $id !== null ? (int) $id : null);
             return $this->success([
                 'message' => __('cuztomisable/user.'.($deleted ? 'undo' : 'deleted')),
@@ -107,10 +95,6 @@ class UserController extends CuztomisableController
     public function toggleMfa(Request $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:toggle_mfa:'.implode(':', [$this->actorId(), (string) ($id ?? 'self')]),
-                'cuztomisable/user.errors.not_found'
-            );
             $enabled = $this->userService->toggleMfa($request->user(), $id !== null ? (int) $id : null);
             return $this->success([
                 'message' => __('cuztomisable/user.mfa.'.($enabled ? 'enabled' : 'disabled')),
@@ -138,11 +122,6 @@ class UserController extends CuztomisableController
             if (!$request->user()) {
                 throw new Exception(__('cuztomisable/global.unauthenticated'), 401);
             }
-            $this->rateLimit(
-                'cuztomisable:users:refresh:'.implode(':', [$request->ip(), $this->actorId()]),
-                'cuztomisable/global.unauthenticated',
-                401
-            );
             $result = $this->userService->refresh($request->user());
             return $this->success([
                 'message' => __('cuztomisable/user.refresh.refreshed'),
@@ -157,10 +136,6 @@ class UserController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:users:refresh_token:'.implode(':', [$request->ip()]),
-                'cuztomisable/user.refresh.errors.not_found'
-            );
             $result = $this->userService->refreshToken($data['token']);
             return $this->success([
                 'access_token' => $result['access_token'],
@@ -177,10 +152,6 @@ class UserController extends CuztomisableController
     public function verification(Request $request, $token, $type): JsonResponse|RedirectResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:verification:'.implode(':', [$request->ip(), $token, $type]),
-                'cuztomisable/user.errors.not_found'
-            );
             $verified = $this->userService->verification(
                 $token,
                 $type,
@@ -197,10 +168,6 @@ class UserController extends CuztomisableController
     public function unsubscribe(Request $request, $token, $type): JsonResponse|RedirectResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:users:unsubscribe:'.implode(':', [$request->ip(), $token, $type]),
-                'cuztomisable/user.errors.not_found'
-            );
             $unsubscribed = $this->userService->unsubscribe(
                 $token,
                 $type,

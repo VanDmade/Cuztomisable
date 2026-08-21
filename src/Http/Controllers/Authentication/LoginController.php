@@ -9,6 +9,9 @@ use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\LoginRequest;
 use VanDmade\Cuztomisable\Services\Authentication\LoginService;
 
+/**
+ * Handles user login and logout operations.
+ */
 class LoginController extends CuztomisableController
 {
 

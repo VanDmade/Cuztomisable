@@ -42,10 +42,6 @@ class RoleController extends CuztomisableController
     public function save(RoleRequest $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:roles:save:'.implode(':', [$this->actorId(), (string) ($id ?? 'new')]),
-                'cuztomisable/role.errors.not_found'
-            );
             $created = $this->roleService->save($request->validated(), $id, $this->actorId());
             return $this->success([
                 'message' => __('cuztomisable/role.'.($created ? 'created' : 'saved')),
@@ -58,10 +54,6 @@ class RoleController extends CuztomisableController
     public function toggleDelete($id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:roles:toggle_delete:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/role.errors.not_found'
-            );
             $deleted = $this->roleService->toggleDelete($id);
             return $this->success([
                 'message' => __('cuztomisable/role.'.($deleted ? 'restored' : 'deleted')),
@@ -75,10 +67,6 @@ class RoleController extends CuztomisableController
     public function removePermission($id, $permission): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:roles:remove_permission:'.implode(':', [$this->actorId(), (string) $id, (string) $permission]),
-                'cuztomisable/role.errors.permission_not_found'
-            );
             $this->roleService->removePermission($id, $permission);
             return $this->success([
                 'message' => __('cuztomisable/role.permission_removed'),

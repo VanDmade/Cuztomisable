@@ -2,14 +2,12 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Throwable;
 use VanDmade\Cuztomisable\Http\Resources\UserResource;
 
@@ -126,26 +124,6 @@ class CuztomisableController extends BaseController
         }
         $response = $this->success($response);
         return isset($result['cookie']) ? $response->withCookie($result['cookie']) : $response;
-    }
-
-    protected function rateLimit(
-        string $key,
-        string $messageKey,
-        int $status = 429,
-        ?int $maxAttempts = null,
-        ?int $decaySeconds = null,
-        ?string $configKey = null
-    ): void {
-        if ($configKey !== null) {
-            $maxAttempts = $maxAttempts ?? (int) config("cuztomisable.rate_limits.$configKey.attempts", 5);
-            $decaySeconds = $decaySeconds ?? (int) config("cuztomisable.rate_limits.$configKey.decay_seconds", 60);
-        }
-        $maxAttempts = $maxAttempts ?? (int) config('cuztomisable.rate_limits.default.attempts', 5);
-        $decaySeconds = $decaySeconds ?? (int) config('cuztomisable.rate_limits.default.decay_seconds', 60);
-        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
-            throw new Exception(__($messageKey), $status);
-        }
-        RateLimiter::hit($key, $decaySeconds);
     }
 
 }

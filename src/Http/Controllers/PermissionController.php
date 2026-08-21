@@ -41,10 +41,6 @@ class PermissionController extends CuztomisableController
     public function save(PermissionRequest $request, $id = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:permissions:save:'.implode(':', [$this->actorId(), (string) ($id ?? 'new')]),
-                'cuztomisable/permission.errors.not_found'
-            );
             $created = $this->permissionService->save($request->validated(), $id);
             return $this->success([
                 'message' => __('cuztomisable/permission.'.($created ? 'created' : 'saved')),
@@ -57,10 +53,6 @@ class PermissionController extends CuztomisableController
     public function toggleDelete($id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:permissions:toggle_delete:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/permission.errors.not_found'
-            );
             $deleted = $this->permissionService->toggleDelete($id);
             return $this->success([
                 'message' => __('cuztomisable/permission.'.($deleted ? 'restored' : 'deleted')),

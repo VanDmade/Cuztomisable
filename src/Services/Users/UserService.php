@@ -38,6 +38,16 @@ class UserService
         return $this->resolveTarget($actor, $id);
     }
 
+    public function updateTimezone(Model $user, string $timezone): bool
+    {
+        if ($user->timezone === $timezone) {
+            return false;
+        }
+        $user->timezone = $timezone;
+        $user->save();
+        return true;
+    }
+
     public function table(array $data): JsonResponse
     {
         $query = config('auth.providers.users.model')::select('users.id', 'users.name', 'users.email',

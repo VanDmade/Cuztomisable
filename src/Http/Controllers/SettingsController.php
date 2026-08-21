@@ -4,13 +4,17 @@ namespace VanDmade\Cuztomisable\Http\Controllers;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use VanDmade\Cuztomisable\Http\Requests\TimezoneRequest;
 use VanDmade\Cuztomisable\Services\SettingsService;
+use VanDmade\Cuztomisable\Services\Users\UserService;
 
 class SettingsController extends CuztomisableController
 {
 
     public function __construct(
-        protected readonly SettingsService $settingsService
+        protected readonly SettingsService $settingsService,
+        protected readonly UserService $userService
     ) {
     }
 
@@ -18,6 +22,20 @@ class SettingsController extends CuztomisableController
     {
         try {
             return $this->success($this->settingsService->get());
+        } catch (Exception $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function updateTimezone(TimezoneRequest $request): JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $updated = $this->userService->updateTimezone(Auth::user(), $data['timezone']);
+            return $this->success([
+                'message' => __('cuztomisable/global.timezone.'.($updated ? 'updated' : 'unchanged')),
+                'updated' => $updated,
+            ]);
         } catch (Exception $error) {
             return $this->error($error);
         }

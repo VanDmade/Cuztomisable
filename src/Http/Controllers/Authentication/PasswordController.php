@@ -12,7 +12,7 @@ use VanDmade\Cuztomisable\Http\Requests\Authentication\Passwords\ResetRequest;
 use VanDmade\Cuztomisable\Services\Authentication\PasswordService;
 
 /**
- * Handles forgot-password and password-reset flows.
+ * Handles forgot password and password reset work flows.
  */
 class PasswordController extends CuztomisableController
 {
@@ -26,10 +26,6 @@ class PasswordController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:passwords:forgot:'.implode(':', [$request->ip(), strtolower($data['username'])]),
-                'cuztomisable/authentication.passwords.errors.already_sent'
-            );
             $reset = $this->passwordService->forgot($data);
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.sent'),
@@ -43,10 +39,6 @@ class PasswordController extends CuztomisableController
     public function verify(Request $request, $token, $code = null): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:passwords:verify:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.passwords.errors.attempt_counter'
-            );
             $result = $this->passwordService->verify($token, $code);
             $messageKey = $result['locked'] ? 'locked' : (is_null($code) ? 'verified' : 'code_verified');
             return $this->success([
@@ -60,10 +52,6 @@ class PasswordController extends CuztomisableController
     public function send(Request $request, $token): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:passwords:send:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.passwords.errors.sent_recently'
-            );
             $result = $this->passwordService->send($token);
             $reset = $result['reset'];
             $sendVia = config('cuztomisable.account.passwords.send_via');
@@ -83,10 +71,6 @@ class PasswordController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:passwords:reset:'.implode(':', [$request->ip(), $token]),
-                'cuztomisable/authentication.passwords.errors.attempt_counter'
-            );
             $this->passwordService->save($data, $token);
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.reset'),

@@ -21,10 +21,6 @@ class PasswordController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $this->rateLimit(
-                'cuztomisable:user_passwords:change:'.implode(':', [$request->ip(), $this->actorId()]),
-                'cuztomisable/user.errors.incorrect_password'
-            );
             $this->passwordService->change(Auth::user(), $data);
             return $this->success([
                 'message' => __('cuztomisable/user.password.changed'),
@@ -37,10 +33,6 @@ class PasswordController extends CuztomisableController
     public function send($id): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:user_passwords:send:'.implode(':', [$this->actorId(), (string) $id]),
-                'cuztomisable/user.errors.password_changed_recently'
-            );
             $this->passwordService->send($id);
             return $this->success([
                 'message' => __('cuztomisable/user.account.temporary_password'),

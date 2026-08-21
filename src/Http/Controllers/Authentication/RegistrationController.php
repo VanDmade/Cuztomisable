@@ -12,6 +12,9 @@ use VanDmade\Cuztomisable\Http\Requests\Authentication\RegistrationRequest;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Services\Authentication\RegistrationService;
 
+/**
+ * Handles user registration work flows.
+ */
 class RegistrationController extends CuztomisableController
 {
 
@@ -23,10 +26,6 @@ class RegistrationController extends CuztomisableController
     public function verify(Request $request, string $code): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:registration:verify:'.implode(':', [$request->ip(), $code]),
-                'cuztomisable/authentication.registration.errors.not_found'
-            );
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.verified'),
                 'user' => $this->registrationService->verify($code),
@@ -49,11 +48,6 @@ class RegistrationController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $identifier = strtolower($data['email'] ?? ($data['phone'] ?? ''));
-            $this->rateLimit(
-                'cuztomisable:registration:save:'.implode(':', [$request->ip(), $identifier]),
-                'cuztomisable/authentication.registration.errors.not_found'
-            );
             $this->registrationService->save($data, $code);
             $verifyEmail = config('cuztomisable.login.verification.email', false);
             $verifyPhone = config('cuztomisable.login.verification.phone', false);
@@ -62,7 +56,13 @@ class RegistrationController extends CuztomisableController
             $message = ($verifyEmail || $verifyPhone) ?
                 __('cuztomisable/authentication.registration.verification', ['type' => $type]) :
                 __('cuztomisable/authentication.registration.created');
-            return $this->success(['message' => $message]);
+            return $this->success([
+                'message' => $message,
+                'verify' => [
+                    'email' => $verifyEmail,
+                    'phone' => $verifyPhone,
+                ],
+            ]);
         } catch (Exception $error) {
             return $this->error($error);
         }
@@ -72,12 +72,6 @@ class RegistrationController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $phone = generatePhoneNumber($data['country_code'] ?? null, $data['phone'] ?? null);
-            $identifier = strtolower($data['email'] ?? $phone ?? '');
-            $this->rateLimit(
-                'cuztomisable:registration:invite:'.implode(':', [$request->ip(), $identifier]),
-                'cuztomisable/authentication.registration.errors.recently_invited'
-            );
             $this->registrationService->invite($data);
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.invite'),
@@ -90,10 +84,6 @@ class RegistrationController extends CuztomisableController
     public function send(Request $request, Users\Registration $registration): JsonResponse
     {
         try {
-            $this->rateLimit(
-                'cuztomisable:registration:send:'.implode(':', [$request->ip(), (string) $registration->id]),
-                'cuztomisable/authentication.registration.errors.sent_recently'
-            );
             $this->registrationService->send($registration);
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.resent'),
