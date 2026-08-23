@@ -2,13 +2,16 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers\Users;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\Users\Passwords\ChangeRequest;
-use VanDmade\Cuztomisable\Services\PasswordService;
+use VanDmade\Cuztomisable\Services\Users\PasswordService;
 
+/**
+ * Handles user password management operations.
+ */
 class PasswordController extends CuztomisableController
 {
 
@@ -25,7 +28,7 @@ class PasswordController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/user.password.changed'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -37,7 +40,7 @@ class PasswordController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/user.account.temporary_password'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

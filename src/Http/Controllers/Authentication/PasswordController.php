@@ -2,10 +2,11 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers\Authentication;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Throwable;
+use VanDmade\Cuztomisable\Enums\SentVia;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\Passwords\ForgotRequest;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\Passwords\ResetRequest;
@@ -31,7 +32,7 @@ class PasswordController extends CuztomisableController
                 'message' => __('cuztomisable/authentication.passwords.sent'),
                 'token' => $reset->token ?? null,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -44,7 +45,7 @@ class PasswordController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.'.$messageKey),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -58,11 +59,11 @@ class PasswordController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.resent', [
                     'sent' => $result['resending'] ? 'resent' : 'sent',
-                    'location' => $reset->sent_via == 'phone' && $sendVia['phone'] ?
+                    'location' => $reset->sent_via === SentVia::Text && $sendVia['phone'] ?
                         $reset->user->mobilePhone->obscuredNumber : $reset->user->obscuredEmail,
                 ]),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -75,7 +76,7 @@ class PasswordController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/authentication.passwords.reset'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -85,7 +86,7 @@ class PasswordController extends CuztomisableController
         try {
             $status = $this->passwordService->lock($user, $id, $token);
             return redirect(url('message?m='.__('cuztomisable/user.account.'.$status)));
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

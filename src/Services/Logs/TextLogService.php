@@ -29,7 +29,7 @@ class TextLogService
         return Text::create($data);
     }
 
-    public function get($id): Text
+    public function find($id): Text
     {
         $log = Text::find($id);
         if (!isset($log->id)) {
@@ -55,7 +55,7 @@ class TextLogService
             'search_columns' => ['text_logs.number', 'text_logs.message', 'ru.name', 'cu.name'],
             'default_columns' => ['text_logs.id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
 }

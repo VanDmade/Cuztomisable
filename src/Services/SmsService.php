@@ -5,6 +5,7 @@ namespace VanDmade\Cuztomisable\Services;
 use Aws\Exception\AwsException;
 use Aws\Sns\SnsClient;
 use VanDmade\Cuztomisable\Models\Logs;
+use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -15,8 +16,9 @@ class SmsService
     protected bool $debug;
     protected bool $verifyTls;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ErrorLogService $errorLogService
+    ) {
         $this->debug = (bool) config('app.debug', false);
         $this->verifyTls = config('app.env') !== 'local';
     }
@@ -93,13 +95,7 @@ class SmsService
             'cleaned_phone' => $phone ?? null,
             'redacted' => $loggedMessage !== $message,
         ];
-        Logs\Error::create([
-            'message' => $error->getMessage(),
-            'code' => $error->getCode(),
-            'file' => $error->getFile() ?? null,
-            'line' => $error->getLine() ?? null,
-            'parameters' => $parameters ?? [],
-        ]);
+        $this->errorLogService->log($error, 'SMS send failed', $parameters ?? []);
         return false;
     }
 

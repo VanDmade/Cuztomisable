@@ -76,6 +76,12 @@ class PermissionSeeder extends Seeder
                 'slug' => 'manage-user-roles-permissions',
                 'description' => 'Grants the ability to assign or remove roles and permissions from users.'
             ],
+            [
+                'id' => 12,
+                'name' => 'Manage Terms & Conditions',
+                'slug' => 'manage-terms',
+                'description' => 'Allows uploading and publishing terms & conditions versions, and viewing which users have accepted.'
+            ],
         ];
 
         foreach ($permissions as $permission) {

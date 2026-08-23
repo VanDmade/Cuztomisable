@@ -2,14 +2,12 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
-use VanDmade\Cuztomisable\Http\Resources\UserResource;
 
 class CuztomisableController extends BaseController
 {
@@ -42,7 +40,8 @@ class CuztomisableController extends BaseController
             }
         }
         // Logs the errors of the site
-        if (config('cuztomisable.respondify.errors.log', false) && !is_null($model = config('cuztomisable.respondify.errors.model', null))) {
+        if (config('cuztomisable.respondify.errors.log', false) &&
+            !is_null($model = config('cuztomisable.respondify.errors.model', null))) {
             $model = new $model();
             $model->user_id = Auth::check() ? Auth::user()->id : null;
             $args = [];
@@ -96,34 +95,6 @@ class CuztomisableController extends BaseController
     protected function actorId(): string
     {
         return (string) (Auth::id() ?? 0);
-    }
-
-    protected function authResponse(
-        Model $user,
-        array $result,
-        bool $remember,
-        bool $requiresMfa = false,
-        ?string $mfaToken = null
-    ): JsonResponse {
-        $response = [
-            'message' => __('cuztomisable/authentication.login.'.($requiresMfa ? 'mfa_' : '').'logged_in'),
-            'multi_factor_authentication' => $requiresMfa,
-            'remember' => $remember,
-            'user' => new UserResource($user),
-            'permissions' => $user->permissionSlugs(),
-            'change_password' => $user->change_password,
-        ];
-        if ($mfaToken !== null) {
-            $response['token'] = $mfaToken;
-        }
-        if (isset($result['access_token'])) {
-            $response['access_token'] = $result['access_token'];
-            $response['refresh_token'] = $result['refresh_token'];
-            $response['expires_in'] = config('cuztomisable.login.session_length', 900);
-            return $this->success($response);
-        }
-        $response = $this->success($response);
-        return isset($result['cookie']) ? $response->withCookie($result['cookie']) : $response;
     }
 
 }

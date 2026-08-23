@@ -3,6 +3,7 @@
 namespace VanDmade\Cuztomisable\Observers\Users;
 
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Events\NewIpAddressLogin;
 use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Models\Users\IpAddress;
 use VanDmade\Cuztomisable\Models\Logs;
@@ -20,11 +21,14 @@ class IpAddressObserver
 
     public function created(IpAddress $ipAddress): void
     {
-        if (config('cuztomisable.notifications.new_ip_address.enabled', true) === false) {
-            return;
-        }
         $user = $ipAddress->user;
         if (!$user) {
+            return;
+        }
+        // Package-owned hook for host apps - fires regardless of the notification gates below,
+        // since those only decide whether the built-in email/SMS goes out for this one.
+        NewIpAddressLogin::dispatch($user, $ipAddress);
+        if (config('cuztomisable.notifications.new_ip_address.enabled', true) === false) {
             return;
         }
         $trustedRanges = config('cuztomisable.notifications.new_ip_address.trusted_ip_ranges', []);

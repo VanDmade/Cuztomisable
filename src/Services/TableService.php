@@ -10,7 +10,7 @@ use Exception;
 class TableService
 {
 
-    public static function run(mixed $query, array $parameters, array $searchColumns = []): JsonResponse
+    public static function generate(mixed $query, array $parameters, array $searchColumns = []): JsonResponse
     {
         $parameters = self::cleanParameters($parameters);
         $searchColumns = $parameters['search_columns'] ?? $searchColumns;

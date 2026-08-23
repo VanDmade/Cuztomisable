@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use VanDmade\Cuztomisable\Models\Users\Registration;
 
+/**
+ * When a user is invited this event is dispatched
+ */
 class UserInvited
 {
 

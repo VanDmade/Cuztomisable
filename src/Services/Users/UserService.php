@@ -8,19 +8,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Events\NewUser;
+use VanDmade\Cuztomisable\Mail\Users\Passwords\Temporary as TemporaryMail;
+use VanDmade\Cuztomisable\Mail\Users\Verification as VerificationMail;
 use VanDmade\Cuztomisable\Services\AddressService;
 use VanDmade\Cuztomisable\Services\ImageService;
 use VanDmade\Cuztomisable\Services\PhoneService;
 use VanDmade\Cuztomisable\Services\RefreshTokenService;
 use VanDmade\Cuztomisable\Services\TableService;
 
-/**
- * Orchestration for user CRUD, locking, MFA toggling, and listing - extracted from
- * UserController. resolveTarget() unifies the "self vs admin-targeting-another-user" resolution
- * that get()/save()/toggleLocked()/toggleDelete()/toggleMfa() all needed separately - the old
- * code had this slightly wrong on toggleLocked/toggleDelete (no null-id fallback to self, unlike
- * the other three), fixed here by using one shared, consistent version.
- */
 class UserService
 {
 
@@ -32,7 +30,7 @@ class UserService
     ) {
     }
 
-    public function get(Model $actor, ?int $id): Model
+    public function find(Model $actor, ?int $id): Model
     {
         return $this->resolveTarget($actor, $id);
     }
@@ -80,50 +78,89 @@ class UserService
             'allowed_filters' => ['users.admin', 'users.locked'],
             'default_columns' => ['users.id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
-    public function save(Model $actor, ?int $id, array $data, ?UploadedFile $image, bool $clearImage): Model
-    {
-        return DB::transaction(function () use ($actor, $id, $data, $image, $clearImage) {
+    public function save(
+        Model $actor,
+        ?int $id,
+        array $data,
+        ?UploadedFile $image,
+        bool $clearImage
+    ): Model {
+        return DB::transaction(function() use ($actor, $id, $data, $image, $clearImage) {
             $user = $this->resolveTarget($actor, $id);
+            $emailChanged = $data['email'] !== $user->email;
             $user->name = $data['name'] ?? null;
             $user->username = $data['username'] ?? null;
             $user->email = $data['email'];
+            if ($emailChanged) {
+                // A changed email inherits nothing from the old address's verified status
+                $user->email_verified_at = null;
+            }
             $user->timezone = $data['timezone'] ?? config('cuztomisable.account.default_timezone', 'America/New_York');
             if (config('cuztomisable.login.multi_factor_authentication.allowed', true) && !empty($data['mfa'])) {
                 $user->multi_factor_authentication = $data['mfa'] == '1';
             }
             $user->save();
-            // Determines if the phone is set up and entered
-            if (!empty($data['phone'])) {
-                $this->phoneService->setDefault($user, $data['phone'], $data['country_code'] ?? null);
+            if ($emailChanged && config('cuztomisable.notifications.email_verification.enabled', true)) {
+                Mail::to($user->email)->send(new VerificationMail($user));
             }
-            // Makes sure the address is entered or if it needs to be ignored
-            if (config('cuztomisable.account.address') !== false && !empty($data['address'])) {
-                $this->addressService->setDefault($user, $data);
-            }
-            // Checks to see if the image exists and is valid prior to uploading it to the bucket
-            if ($image && $image->isValid()) {
-                $uploaded = $this->imageService->upload($image);
-                $user->image_id = $uploaded->id;
-                $user->save();
-            } elseif ($clearImage) {
-                if (!is_null($user->image_id)) {
-                    $this->imageService->delete($user->image_id, true);
-                }
-                $user->image_id = null;
-                $user->save();
-            }
+            $this->applyContactAndImage($user, $data, $image, $clearImage);
             // Refreshes the user model to make sure everything is updated
             $user->refresh();
             return $user;
         });
     }
 
+    public function create(array $data, ?UploadedFile $image): Model
+    {
+        return DB::transaction(function() use ($data, $image) {
+            $user = new (config('auth.providers.users.model'))();
+            $user->name = $data['name'] ?? null;
+            $user->username = $data['username'] ?? null;
+            $user->email = $data['email'];
+            $user->timezone = $data['timezone'] ?? config('cuztomisable.account.default_timezone', 'America/New_York');
+            $user->password = Hash::make($password = generateCode(8));
+            $user->change_password = true;
+            $user->change_password_sent_at = now();
+            $user->save();
+            Mail::to($user->email)->send(new TemporaryMail($user, $password));
+            $this->applyContactAndImage($user, $data, $image, false);
+            $user->refresh();
+            // Package-owned hook for host apps
+            NewUser::dispatch($user);
+            return $user;
+        });
+    }
+
+    private function applyContactAndImage(Model $user, array $data, ?UploadedFile $image, bool $clearImage): void
+    {
+        // Determines if the phone is set up and entered
+        if (!empty($data['phone'])) {
+            $this->phoneService->setDefault($user, $data['phone'], $data['country_code'] ?? null);
+        }
+        // Makes sure the address is entered or if it needs to be ignored
+        if (config('cuztomisable.account.address') !== false && !empty($data['address'])) {
+            $this->addressService->setDefault($user, $data);
+        }
+        // Checks to see if the image exists and is valid prior to uploading it to the bucket
+        if ($image && $image->isValid()) {
+            $uploaded = $this->imageService->upload($image);
+            $user->image_id = $uploaded->id;
+            $user->save();
+        } elseif ($clearImage) {
+            if (!is_null($user->image_id)) {
+                $this->imageService->delete($user->image_id, true);
+            }
+            $user->image_id = null;
+            $user->save();
+        }
+    }
+
     public function toggleLocked(Model $actor, ?int $id): bool
     {
-        return DB::transaction(function () use ($actor, $id) {
+        return DB::transaction(function() use ($actor, $id) {
             $user = $this->resolveTarget($actor, $id);
             $locked = $user->locked;
             $user->locked = !$locked;
@@ -134,7 +171,7 @@ class UserService
 
     public function toggleDelete(Model $actor, ?int $id): bool
     {
-        return DB::transaction(function () use ($actor, $id) {
+        return DB::transaction(function() use ($actor, $id) {
             $user = $this->resolveTarget($actor, $id, withTrashed: true);
             if ($user->id == $actor->id) {
                 throw new Exception(__('cuztomisable/user.errors.delete_my_account'), 404);
@@ -151,7 +188,7 @@ class UserService
 
     public function toggleMfa(Model $actor, ?int $id): bool
     {
-        return DB::transaction(function () use ($actor, $id) {
+        return DB::transaction(function() use ($actor, $id) {
             $user = $this->resolveTarget($actor, $id);
             $user->multi_factor_authentication = !$user->multi_factor_authentication;
             $user->save();
@@ -178,7 +215,7 @@ class UserService
 
     public function refreshToken(string $plainToken): array
     {
-        return DB::transaction(function () use ($plainToken) {
+        return DB::transaction(function() use ($plainToken) {
             $token = $this->refreshTokenService->findValid($plainToken);
             if (!$token) {
                 throw new Exception(__('cuztomisable/user.refresh.errors.not_found'), 401);

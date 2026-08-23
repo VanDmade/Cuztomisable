@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers\Authentication;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Models\Users;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\InviteRequest;
@@ -30,7 +30,7 @@ class RegistrationController extends CuztomisableController
                 'message' => __('cuztomisable/authentication.registration.verified'),
                 'user' => $this->registrationService->verify($code),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -39,7 +39,7 @@ class RegistrationController extends CuztomisableController
     {
         try {
             return $this->registrationService->table($request->validated());
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -63,7 +63,7 @@ class RegistrationController extends CuztomisableController
                     'phone' => $verifyPhone,
                 ],
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -76,7 +76,7 @@ class RegistrationController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/authentication.registration.invite'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -89,7 +89,7 @@ class RegistrationController extends CuztomisableController
                 'message' => __('cuztomisable/authentication.registration.resent'),
                 'resend_in' => config('cuztomisable.account.registration.resend_after', 300),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -103,7 +103,7 @@ class RegistrationController extends CuztomisableController
                 'message' => $message,
                 'deleted' => $deleted,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

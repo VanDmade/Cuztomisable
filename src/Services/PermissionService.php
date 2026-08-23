@@ -12,7 +12,7 @@ use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 class PermissionService
 {
 
-    public function get($id): Permission
+    public function find($id): Permission
     {
         $permission = Permission::select('id', 'name', 'slug', 'description', 'created_by')
             ->with([
@@ -37,7 +37,7 @@ class PermissionService
             'allowed_filters' => ['id', 'slug', 'name'],
             'default_columns' => ['id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
     public function save(array $data, $id = null): bool

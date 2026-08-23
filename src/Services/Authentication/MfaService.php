@@ -5,6 +5,7 @@ namespace VanDmade\Cuztomisable\Services\Authentication;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Enums\SentVia;
 use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
 use VanDmade\Cuztomisable\Services\RefreshTokenService;
@@ -22,7 +23,7 @@ class MfaService
     public function send(string $token, string $type): array
     {
         return DB::transaction(function() use ($token, $type) {
-            $code = $this->codeService->getByToken($token, unusedOnly: true, unexpiredOnly: true);
+            $code = $this->codeService->findByToken($token, unusedOnly: true, unexpiredOnly: true);
             // Makes sure the code exists, hasn't been used, and a user is attached
             if (!isset($code->id)) {
                 throw new Exception(__('cuztomisable/authentication.mfa.errors.not_found'), 404);
@@ -39,38 +40,39 @@ class MfaService
             }
             $code->sent_at = now();
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
-            // Checks the code to see how it was resent and resends it
-            if ($type == 'resend') {
-                $type = !empty($code->sent_via) ? $code->sent_via : ($sendVia['phone'] ? 'phone' : 'email');
-            }
-            if ($type == 'phone' && $sendVia['phone']) {
+            // A resend reuses whichever channel the code already went out on, or falls back to
+            // config's phone-then-email preference; a fresh request names the channel directly
+            $sentVia = $type === 'resend'
+                ? ($code->sent_via ?? ($sendVia['phone'] ? SentVia::Text : SentVia::Email))
+                : SentVia::from($type);
+            if ($sentVia === SentVia::Text && $sendVia['phone']) {
                 $phone = $code->user->mobilePhone;
                 // No mobile phone on file
                 if (!isset($phone->id)) {
                     throw new Exception(__('cuztomisable/authentication.mfa.errors.no_mobile_phone'), 404);
                 }
-                $code->sent_via = 'phone';
+                $code->sent_via = SentVia::Text;
                 $message = __('cuztomisable/text.mfa', [
                     'company' => env('APP_NAME'),
                     'code' => $code->code,
                 ]);
                 SendText::dispatch($phone->country_code, $phone->number, $message);
             } else {
-                $code->sent_via = 'email';
+                $code->sent_via = SentVia::Email;
                 Mail::to($code->user->email)->send(new MFAMail($code->user, $code));
             }
             $code->save();
             return [
                 'code' => $code,
                 'resending' => $resending,
-                'type' => $type,
+                'type' => $sentVia,
             ];
         });
     }
 
     public function verify(string $token): array
     {
-        $code = $this->codeService->getByToken($token);
+        $code = $this->codeService->findByToken($token);
         // Makes sure the code exists and hasn't been used
         if (!isset($code->id) || !is_null($code->used_at)) {
             throw new Exception(__('cuztomisable/authentication.mfa.errors.not_found'), 404);
@@ -93,7 +95,7 @@ class MfaService
     public function save(string $token, string $submittedCode, bool $remember, bool $isMobile): array
     {
         return DB::transaction(function() use ($token, $submittedCode, $remember, $isMobile) {
-            $code = $this->codeService->getByToken($token, unusedOnly: true, unexpiredOnly: true);
+            $code = $this->codeService->findByToken($token, unusedOnly: true, unexpiredOnly: true);
             if (!isset($code->id)) {
                 throw new Exception(__('cuztomisable/authentication.mfa.errors.not_found'), 404);
             }

@@ -6,31 +6,38 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Http\Requests\Users\RefreshRequest;
 use VanDmade\Cuztomisable\Http\Requests\Users\UserRequest;
 use VanDmade\Cuztomisable\Http\Resources\UserResource;
+use VanDmade\Cuztomisable\Services\TermsService;
 use VanDmade\Cuztomisable\Services\Users\UserService;
 
+/**
+ * Handles user management operations.
+ */
 class UserController extends CuztomisableController
 {
 
     public function __construct(
-        protected readonly UserService $userService
+        protected readonly UserService $userService,
+        protected readonly TermsService $termsService
     ) {
     }
 
     public function get(Request $request, $id = null): JsonResponse
     {
         try {
-            $user = $this->userService->get($request->user(), $id !== null ? (int) $id : null);
+            $user = $this->userService->find($request->user(), $id !== null ? (int) $id : null);
             return $this->success([
-                'user' => new UserResource($user),
+                'user' => UserResource::forUser($user),
                 'change_password' => $user->change_password,
                 'permissions' => $user->permissionSlugs(),
+                'needs_to_accept_terms' => $this->termsService->needsToAccept($user),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -39,7 +46,7 @@ class UserController extends CuztomisableController
     {
         try {
             return $this->userService->table($request->validated());
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -48,8 +55,16 @@ class UserController extends CuztomisableController
     {
         try {
             $data = $request->validated();
-            $clearImage = !empty($data['clear_image']) && $data['clear_image'] == '1';
             $image = $request->hasFile('image') ? $request->file('image') : null;
+            // Prevents creating a user within the profile
+            if ($id === null && $request->routeIs('users.update')) {
+                $user = $this->userService->create($data, $image);
+                return $this->success([
+                    'message' => __('cuztomisable/user.created'),
+                    'user' => UserResource::forUser($user),
+                ]);
+            }
+            $clearImage = !empty($data['clear_image']) && $data['clear_image'] == '1';
             $user = $this->userService->save(
                 $request->user(),
                 $id !== null ? (int) $id : null,
@@ -59,9 +74,9 @@ class UserController extends CuztomisableController
             );
             return $this->success([
                 'message' => __('cuztomisable/user.saved'),
-                'user' => new UserResource($user),
+                'user' => UserResource::forUser($user),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -74,7 +89,7 @@ class UserController extends CuztomisableController
                 'message' => __('cuztomisable/user.'.($wasLocked ? 'unlocked' : 'locked')),
                 'locked' => $wasLocked,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -87,7 +102,7 @@ class UserController extends CuztomisableController
                 'message' => __('cuztomisable/user.'.($deleted ? 'undo' : 'deleted')),
                 'deleted' => $deleted,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -100,7 +115,7 @@ class UserController extends CuztomisableController
                 'message' => __('cuztomisable/user.mfa.'.($enabled ? 'enabled' : 'disabled')),
                 'enabled' => $enabled,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -111,7 +126,7 @@ class UserController extends CuztomisableController
             return $this->success([
                 'list' => $this->userService->list(),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -127,7 +142,7 @@ class UserController extends CuztomisableController
                 'message' => __('cuztomisable/user.refresh.refreshed'),
                 'token_expires_at' => $result['token_expires_at'],
             ])->withCookie($result['cookie']);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -142,13 +157,11 @@ class UserController extends CuztomisableController
                 'refresh_token' => $result['refresh_token'],
                 'expires_in' => config('cuztomisable.login.session_length', 900),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
 
-    // Not currently wired into routes.php - ported for parity, same as the old controller,
-    // but neither this nor unsubscribe() below has ever actually been reachable.
     public function verification(Request $request, $token, $type): JsonResponse|RedirectResponse
     {
         try {
@@ -160,7 +173,7 @@ class UserController extends CuztomisableController
             );
             $messageKey = $verified ? 'verification' : 'errors.invalid_verification';
             return redirect(url('/message?m='.__('cuztomisable/user.'.$messageKey, ['type' => $type])));
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -176,7 +189,7 @@ class UserController extends CuztomisableController
             );
             $messageKey = $unsubscribed ? 'unsubscribe' : 'errors.invalid_unsubscribe';
             return redirect(url('/message?m='.__('cuztomisable/user.'.$messageKey, ['type' => $type])));
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

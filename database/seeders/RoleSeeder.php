@@ -28,6 +28,12 @@ class RoleSeeder extends Seeder
                 'slug' => 'support',
                 'description' => 'Limited access focused on assisting users — can view and manage users, reset passwords, invite new users, and review login activity. Cannot assign roles or permissions.',
             ],
+            [
+                'id' => 4,
+                'name' => 'Basic User',
+                'slug' => 'basic-user',
+                'description' => 'Default role for a new member with no elevated permissions. A global default (not tied to any one organization) - available everywhere, alongside whatever roles an organization creates for itself.',
+            ],
         ];
 
         foreach ($roles as $role) {

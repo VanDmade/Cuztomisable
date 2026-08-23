@@ -5,7 +5,9 @@ namespace VanDmade\Cuztomisable\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use Auth;
 
 class Address extends Model
@@ -27,6 +29,7 @@ class Address extends Model
         'billing',
         'default',
         'user_id',
+        'organization_id',
         'created_by',
         'deleted_at',
         'deleted_by',
@@ -44,6 +47,7 @@ class Address extends Model
         'updated_at',
         'deleted_at',
         'user_id',
+        'organization_id',
         'created_by',
         'deleted_by',
     ];
@@ -70,6 +74,11 @@ class Address extends Model
     public function user()
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     public function createdBy()

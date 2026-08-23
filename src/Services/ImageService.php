@@ -2,17 +2,18 @@
 
 namespace VanDmade\Cuztomisable\Services;
 
-use VanDmade\Cuztomisable\Models\Image;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Model;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageInterface;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use VanDmade\Cuztomisable\Models\Image;
+use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 use Exception;
-use Log;
 use Throwable;
 
 class ImageService
@@ -23,15 +24,16 @@ class ImageService
     protected int $defaultQuality;
     protected int $defaultSize;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ErrorLogService $errorLogService
+    ) {
         $this->disk = config('filesystems.default', 'public');
         $this->defaultWidth = config('cuztomisable.images.default_width', 1200);
         $this->defaultQuality = config('cuztomisable.images.default_quality', 80);
         $this->defaultSize = config('cuztomisable.images.default_size', 300 * 1024);
     }
 
-    public function get(int $id, bool $includeTrashed = false): ?Image
+    public function find(int $id, bool $includeTrashed = false): ?Image
     {
         $query = Image::query();
         if ($includeTrashed) {
@@ -42,7 +44,7 @@ class ImageService
 
     public function view(int $id, bool $url = false, ?int $temporaryLength = null): StreamedResponse|string
     {
-        $image = $this->get($id);
+        $image = $this->find($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
@@ -88,24 +90,15 @@ class ImageService
         $manager = new ImageManager(new Driver());
         $image = $manager->read($file->getRealPath());
         $image->scaleDown(width: $this->defaultWidth);
-        // Rotated images carry a transparent alpha channel that GD's WebP
-        // encoder fails to write ("gd-webp encoding failed"); flatten it.
         $image->blendTransparency();
-        $quality = $this->defaultQuality;
         try {
-            $encoded = $image->toWebp($quality);
-            while (strlen((string) $encoded) > $this->defaultSize && $quality > 20) {
-                $quality -= 5;
-                $encoded = $image->toWebp($quality);
-            }
+            $encoded = $this->encodeWithinTargetSize($image);
         } catch (Throwable $error) {
-            Log::error('WebP encoding failed', [
-                'message' => $error->getMessage(),
+            $this->errorLogService->log($error, 'WebP encoding failed during upload', [
                 'original_name' => $file->getClientOriginalName(),
                 'original_mime' => $file->getMimeType(),
                 'width' => $image->width(),
                 'height' => $image->height(),
-                'quality' => $quality,
                 'memory_usage' => memory_get_usage(true),
                 'memory_peak' => memory_get_peak_usage(true),
             ]);
@@ -116,8 +109,7 @@ class ImageService
         try {
             $disk->put($filename, (string) $encoded);
         } catch (Throwable $error) {
-            Log::error('S3 upload failed', [
-                'message' => $error->getMessage(),
+            $this->errorLogService->log($error, 'Image upload to storage disk failed', [
                 'previous' => $error->getPrevious()?->getMessage(),
             ]);
             throw $error;
@@ -141,7 +133,7 @@ class ImageService
 
     public function delete(int $id, bool $removeCompletely = false): bool
     {
-        $image = $this->get($id);
+        $image = $this->find($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
@@ -269,8 +261,7 @@ class ImageService
         try {
             return (string) $canvas->toWebp(50);
         } catch (Throwable $error) {
-            Log::error('Combine WebP encoding failed', [
-                'message' => $error->getMessage(),
+            $this->errorLogService->log($error, 'Combine WebP encoding failed', [
                 'image_count' => count($loaded),
                 'sources' => array_map(fn($img) => $img->width().'x'.$img->height(), $loaded),
                 'canvas_width' => $canvas->width(),
@@ -284,10 +275,18 @@ class ImageService
 
     public function resize(int $id, int $width): void
     {
-        $image = $this->get($id);
+        $image = $this->find($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
+        $loaded = $this->readFromDisk($image);
+        // Only ever shrinks - upscaling would just soften the image, not add real detail
+        if ($width >= $loaded->width()) {
+            throw new Exception('The requested width must be smaller than the current image width.', 422);
+        }
+        $loaded->scale(width: $width);
+        $loaded->blendTransparency();
+        $this->writeToDisk($image, (string) $loaded->toWebp($this->defaultQuality), $loaded->width(), $loaded->height());
     }
 
     public function crop(
@@ -297,18 +296,70 @@ class ImageService
         int $x = 0,
         int $y = 0
     ): void {
-        $image = $this->get($id);
+        $image = $this->find($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
+        $loaded = $this->readFromDisk($image);
+        $loaded->crop($width, $height, $x, $y);
+        $loaded->blendTransparency();
+        $this->writeToDisk($image, (string) $loaded->toWebp($this->defaultQuality), $loaded->width(), $loaded->height());
     }
 
     public function optimize(int $id): void
     {
-        $image = $this->get($id);
+        $image = $this->find($id);
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
+        $loaded = $this->readFromDisk($image);
+        $loaded->scaleDown(width: $this->defaultWidth);
+        $loaded->blendTransparency();
+        try {
+            $encoded = $this->encodeWithinTargetSize($loaded);
+        } catch (Throwable $error) {
+            $this->errorLogService->log($error, 'WebP encoding failed during optimize', [
+                'image_id' => $image->id,
+                'width' => $loaded->width(),
+                'height' => $loaded->height(),
+                'memory_usage' => memory_get_usage(true),
+                'memory_peak' => memory_get_peak_usage(true),
+            ]);
+            throw $error;
+        }
+        $this->writeToDisk($image, $encoded, $loaded->width(), $loaded->height());
+    }
+
+    private function readFromDisk(Image $image): ImageInterface
+    {
+        $disk = Storage::disk($image->disk);
+        if (!$disk->exists($image->path)) {
+            throw new Exception('The image file is missing.', 404);
+        }
+        return (new ImageManager(new Driver()))->read($disk->get($image->path));
+    }
+
+    private function writeToDisk(Image $image, string $encoded, int $width, int $height): void
+    {
+        Storage::disk($image->disk)->put($image->path, $encoded);
+        $parameters = array_merge(json_decode($image->parameters ?? '{}', true) ?? [], [
+            'width' => $width,
+            'height' => $height,
+            'size' => strlen($encoded),
+        ]);
+        $image->parameters = json_encode($parameters);
+        $image->save();
+    }
+
+    private function encodeWithinTargetSize(mixed $image): string
+    {
+        $quality = $this->defaultQuality;
+        $encoded = (string) $image->toWebp($quality);
+        while (strlen($encoded) > $this->defaultSize && $quality > 20) {
+            $quality -= 5;
+            $encoded = (string) $image->toWebp($quality);
+        }
+        return $encoded;
     }
 
     public function generatePath(): string

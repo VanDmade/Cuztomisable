@@ -1,12 +1,16 @@
 <?php
 
+use VanDmade\Cuztomisable\Http\Controllers\OrganizationController;
 use VanDmade\Cuztomisable\Http\Controllers\SettingsController;
+use VanDmade\Cuztomisable\Http\Controllers\TermsController;
 use VanDmade\Cuztomisable\Http\Controllers\PermissionController;
 use VanDmade\Cuztomisable\Http\Controllers\RoleController;
 use VanDmade\Cuztomisable\Http\Controllers\FormController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\AccessController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\PasswordController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\IpAddressController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\PhoneController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\AddressController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\RegistrationController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\LoginController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\UserController;
@@ -17,7 +21,8 @@ Route::controller(SettingsController::class)->group(function() {
     Route::get('/cuztomisable/settings', 'all');
 });
 Route::controller(LoginController::class)->group(function() {
-    Route::post('/login', 'login');
+    Route::post('/login', 'login')
+        ->middleware('throttler:login,ip,request=username');
     Route::post('/logout', 'logout');
 });
 Route::controller(MFAController::class)->group(function() {
@@ -50,6 +55,10 @@ Route::controller(RegistrationPasswordController::class)->group(function() {
 Route::controller(UserController::class)->group(function() {
     Route::post('/refresh/token', 'refreshToken')
         ->middleware('throttler:users.refresh_token,ip');
+});
+Route::controller(TermsController::class)->group(function() {
+    // Guest-accessible - e.g. a signup page linking to the current terms before an account exists
+    Route::get('/terms/current', 'current');
 });
 Route::group(['middleware' => ['auth:sanctum']], function() {
     Route::controller(SettingsController::class)->group(function() {
@@ -123,6 +132,48 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('/ip/{id}', 'toggleDelete')
                 ->middleware('throttler:ip_addresses.toggle_delete,actor,params=id');
         });
+    });
+    Route::controller(PhoneController::class)->group(function() {
+        Route::get('/phone/{id}', 'get');
+        Route::get('/phones', 'table');
+        Route::get('/user/{id}/phones', 'table');
+        Route::post('/phone/{id?}', 'save')
+            ->middleware('throttler:phones.save,actor,params=id');
+        Route::patch('/phone/{id}/default', 'makeDefault')
+            ->middleware('throttler:phones.default,actor,params=id');
+        Route::delete('/phone/{id}', 'toggleDelete')
+            ->middleware('throttler:phones.toggle_delete,actor,params=id');
+    });
+    Route::controller(AddressController::class)->group(function() {
+        Route::get('/address/{id}', 'get');
+        Route::get('/addresses', 'table');
+        Route::get('/user/{id}/addresses', 'table');
+        Route::post('/address/{id?}', 'save')
+            ->middleware('throttler:addresses.save,actor,params=id');
+        Route::patch('/address/{id}/default', 'makeDefault')
+            ->middleware('throttler:addresses.default,actor,params=id');
+        Route::delete('/address/{id}', 'toggleDelete')
+            ->middleware('throttler:addresses.toggle_delete,actor,params=id');
+    });
+    Route::controller(TermsController::class)->group(function() {
+        Route::get('/terms/status', 'status');
+        Route::post('/terms/accept', 'accept')
+            ->middleware('throttler:terms.accept,actor');
+        Route::middleware(['permission:manage-terms'])->group(function() {
+            Route::get('/terms/acceptances', 'acceptances');
+            Route::get('/terms', 'table');
+            Route::post('/terms', 'save')
+                ->middleware('throttler:terms.save,actor');
+            Route::get('/terms/{id}', 'get');
+            Route::patch('/terms/{id}/publish', 'publish')
+                ->middleware('throttler:terms.publish,actor,params=id');
+        });
+    });
+    Route::controller(OrganizationController::class)->group(function() {
+        Route::get('/organizations', 'list');
+        Route::get('/organizations/current', 'current');
+        Route::patch('/organizations/{id}/switch', 'switch')
+            ->middleware('throttler:organizations.switch,actor,params=id');
     });
     Route::controller(RoleController::class)->group(function() {
         Route::get('/list/roles', 'list');

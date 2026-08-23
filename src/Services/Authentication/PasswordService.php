@@ -6,6 +6,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Enums\SentVia;
+use VanDmade\Cuztomisable\Events\PasswordReset as PasswordResetEvent;
 use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Forgot as ForgotMail;
 use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Reset as ResetMail;
@@ -14,6 +16,18 @@ use VanDmade\Cuztomisable\Models\Users;
 
 class PasswordService
 {
+
+    private function findActiveByToken(string $token): Users\Passwords\Reset
+    {
+        $reset = Users\Passwords\Reset::where('token', '=', $token)
+            ->whereHas('user')
+            ->whereNull('used_at')
+            ->first();
+        if (!isset($reset->id)) {
+            throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
+        }
+        return $reset;
+    }
 
     public function forgot(array $data): ?Users\Passwords\Reset
     {
@@ -33,10 +47,41 @@ class PasswordService
             }
             $reset = Users\Passwords\Reset::create([
                 'user_id' => $user->id,
-                'sent_via' => $data['type'] == 'phone' ? 'phone' : 'email',
+                'sent_via' => $data['type'] == 'phone' ? SentVia::Text : SentVia::Email,
             ]);
             $this->deliver($reset);
             return $reset;
+        });
+    }
+
+    public function send(string $token): array
+    {
+        return DB::transaction(function() use ($token) {
+            $reset = Users\Passwords\Reset::where('token', '=', $token)
+                ->whereHas('user')
+                ->whereNull('used_at')
+                ->where('expires_at', '>=', now())
+                ->first();
+            if (!isset($reset->id)) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
+            }
+            $resendAfter = config('cuztomisable.account.passwords.resend_after', 300);
+            $resending = $reset->sent_at !== null;
+            // Checks to see if the code was sent recently
+            if ($reset->sent_at !== null && $reset->sent_at->gt(now()->subSeconds($resendAfter))) {
+                throw new Exception(__('cuztomisable/authentication.passwords.errors.sent_recently'), 401);
+            }
+            if (config('cuztomisable.account.passwords.recreate_code_on_resend', false)) {
+                // This prevents them guessing incorrect codes over nad over and allows for a new code each time. (CAn get confusing)
+                $reset->code = Users\Passwords\Reset::generateNumericCode((int) config('cuztomisable.account.code.length', 6));
+            }
+            $reset->sent_at = now();
+            $reset->save();
+            $this->deliver($reset);
+            return [
+                'reset' => $reset,
+                'resending' => $resending,
+            ];
         });
     }
 
@@ -59,40 +104,6 @@ class PasswordService
             throw new Exception(__('cuztomisable/authentication.passwords.errors.attempt_counter'), 404);
         }
         return ['locked' => false];
-    }
-
-    public function send(string $token): array
-    {
-        return DB::transaction(function() use ($token) {
-            $reset = Users\Passwords\Reset::where('token', '=', $token)
-                ->whereHas('user')
-                ->whereNull('used_at')
-                ->where('expires_at', '>=', now())
-                ->first();
-            if (!isset($reset->id)) {
-                throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
-            }
-            $resendAfter = config('cuztomisable.account.passwords.resend_after', 300);
-            $resending = $reset->sent_at !== null;
-            // Checks to see if the code was sent recently
-            if ($reset->sent_at !== null && $reset->sent_at->gt(now()->subSeconds($resendAfter))) {
-                throw new Exception(__('cuztomisable/authentication.passwords.errors.sent_recently'), 401);
-            }
-            // Determines if the code needs to be recreated or not - uses the same numeric
-            // generator Reset::boot() uses at creation, unlike the old code which called the
-            // global generateCode() helper here and would've swapped a numeric code for a
-            // hex/id-prefixed one on resend.
-            if (config('cuztomisable.account.passwords.recreate_code_on_resend', false)) {
-                $reset->code = Users\Passwords\Reset::generateNumericCode((int) config('cuztomisable.account.code.length', 6));
-            }
-            $reset->sent_at = now();
-            $reset->save();
-            $this->deliver($reset);
-            return [
-                'reset' => $reset,
-                'resending' => $resending,
-            ];
-        });
     }
 
     public function save(array $data, string $token): array
@@ -124,18 +135,25 @@ class PasswordService
             // Notifies the user their password was reset
             Mail::to($user->email)->send(new ResetMail($user, $reset));
         }
+        // Package-owned hook for host apps
+        PasswordResetEvent::dispatch($user, $reset);
         return ['user' => $user, 'reset' => $reset];
     }
 
     public function lock($userId, $id, string $token): string
     {
+        // This allows each system to determine IF they want to allow a user to lock their account without logging in
+        if (!config('cuztomisable.account.passwords.allow_lock_via_token', false)) {
+            return 'could_not_lock';
+        }
         return DB::transaction(function() use ($userId, $id, $token) {
             $reset = Users\Passwords\Reset::where('user_id', '=', $userId)
                 ->where('id', '=', $id)
                 ->where('token', '=', $token)
                 ->first();
-            // Only allows a locked account to occur within the past week
-            if (!isset($reset->id) || $reset->created_at->lte(now()->subWeek())) {
+            $lockWindow = config('cuztomisable.account.passwords.lock_window_seconds', 86400);
+            // Only allows a locked account to occur within the configured window of the reset
+            if (!isset($reset->id) || $reset->created_at->lte(now()->subSeconds($lockWindow))) {
                 return 'could_not_lock';
             }
             $user = $reset->user;
@@ -154,8 +172,9 @@ class PasswordService
 
     private function deliver(Users\Passwords\Reset $reset): void
     {
+        // This method is used to determine how the rest code is sent
         $sendVia = config('cuztomisable.account.passwords.send_via');
-        if ($reset->sent_via == 'phone' && $sendVia['phone']) {
+        if ($reset->sent_via === SentVia::Text && $sendVia['phone']) {
             $phone = $reset->user->mobilePhone;
             if (isset($phone->id)) {
                 $message = __('cuztomisable/text.passwords.reset', [
@@ -167,18 +186,6 @@ class PasswordService
         } else {
             Mail::to($reset->user->email)->send(new ForgotMail($reset));
         }
-    }
-
-    private function findActiveByToken(string $token): Users\Passwords\Reset
-    {
-        $reset = Users\Passwords\Reset::where('token', '=', $token)
-            ->whereHas('user')
-            ->whereNull('used_at')
-            ->first();
-        if (!isset($reset->id)) {
-            throw new Exception(__('cuztomisable/authentication.passwords.errors.not_found'), 404);
-        }
-        return $reset;
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace VanDmade\Cuztomisable\Services;
+namespace VanDmade\Cuztomisable\Services\Users;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +9,7 @@ use VanDmade\Cuztomisable\Models\Users as UserModels;
 class AccessService
 {
 
-    public function get($id): array
+    public function find($id): array
     {
         $user = config('auth.providers.users.model')::where('id', '=', $id)->first();
         if (!isset($user->id)) {

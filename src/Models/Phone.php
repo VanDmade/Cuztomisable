@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
@@ -26,6 +27,7 @@ class Phone extends Model
         'disable_messages',
         'verified_at',
         'user_id',
+        'organization_id',
         'created_by',
         'deleted_at',
         'deleted_by',
@@ -44,11 +46,12 @@ class Phone extends Model
         'updated_at',
         'deleted_at',
         'user_id',
+        'organization_id',
         'created_by',
         'deleted_by',
     ];
 
-    protected $appends = ['full_phone_number']; 
+    protected $appends = ['full_phone_number'];
 
     public static function boot(): void
     {
@@ -83,6 +86,11 @@ class Phone extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     public function createdBy(): BelongsTo

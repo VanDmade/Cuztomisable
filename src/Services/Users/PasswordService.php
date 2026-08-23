@@ -1,6 +1,6 @@
 <?php
 
-namespace VanDmade\Cuztomisable\Services;
+namespace VanDmade\Cuztomisable\Services\Users;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -11,11 +11,6 @@ use VanDmade\Cuztomisable\Mail\Users\Passwords\Changed as ChangedMail;
 use VanDmade\Cuztomisable\Mail\Users\Passwords\Temporary as TemporaryMail;
 use VanDmade\Cuztomisable\Models\Users;
 
-/**
- * Orchestration for an authenticated user changing their own password, and an admin sending
- * a temporary password to another user - the forgot/reset (unauthenticated) flow lives in
- * Services\Authentication\PasswordService instead.
- */
 class PasswordService
 {
 

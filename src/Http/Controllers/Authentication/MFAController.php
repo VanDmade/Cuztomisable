@@ -2,12 +2,14 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers\Authentication;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
+use VanDmade\Cuztomisable\Enums\SentVia;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\MFA\MFARequest;
 use VanDmade\Cuztomisable\Http\Requests\Authentication\MFA\SendRequest;
+use VanDmade\Cuztomisable\Http\Resources\AuthResource;
 use VanDmade\Cuztomisable\Services\Authentication\MfaService;
 
 /**
@@ -31,11 +33,11 @@ class MFAController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/authentication.mfa.sent', [
                     'sent' => $result['resending'] ? 'resent' : 'sent',
-                    'location' => $result['type'] == 'phone' && $sendVia['phone'] ?
+                    'location' => $result['type'] === SentVia::Text && $sendVia['phone'] ?
                         $code->user->mobilePhone->obscuredNumber : $code->user->obscuredEmail,
                 ]),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -51,7 +53,7 @@ class MFAController extends CuztomisableController
                 ],
                 $response
             ));
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -63,8 +65,8 @@ class MFAController extends CuztomisableController
             $isMobile = $request->header('X-App-Platform') === 'mobile';
             $remember = filter_var($data['remember'] ?? false, FILTER_VALIDATE_BOOL);
             $result = $this->mfaService->save($token, $data['code'], $remember, $isMobile);
-            return $this->authResponse($result['user'], $result, $remember);
-        } catch (Exception $error) {
+            return (new AuthResource($result['user'], $result, $remember))->toResponse($request);
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

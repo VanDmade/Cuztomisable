@@ -1,6 +1,6 @@
 <?php
 
-namespace VanDmade\Cuztomisable\Services;
+namespace VanDmade\Cuztomisable\Services\Users;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,14 +9,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Users as UserModels;
+use VanDmade\Cuztomisable\Services\TableService;
 
-/**
- * Orchestration for managing a user's known IP addresses.
- */
 class IpAddressService
 {
 
-    public function get($id): UserModels\IpAddress
+    public function find($id): UserModels\IpAddress
     {
         $ip = $this->query()
             ->where('id', '=', $id)
@@ -65,7 +63,7 @@ class IpAddressService
             'search_columns' => ['user_ip_addresses.ip_address', 'user_ip_addresses.label', 'user_ip_addresses.geo_label'],
             'default_columns' => ['user_ip_addresses.last_used_at' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
     public function forget($id): void

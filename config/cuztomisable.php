@@ -12,6 +12,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Resources
+    |--------------------------------------------------------------------------
+    | API Resource classes used to shape outgoing JSON - override with a host app's own
+    | subclass to include/exclude different fields, resolved via UserResource::forUser().
+    */
+    'resources' => [
+        'user' => \VanDmade\Cuztomisable\Http\Resources\UserResource::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | App
     |--------------------------------------------------------------------------
     */
@@ -169,36 +180,8 @@ return [
         |----------------------------------------------------------------------
         | Passwords
         |----------------------------------------------------------------------
+        | See config/passwords.php - merged in here as account.passwords by the service provider.
         */
-        'passwords' => [
-            'reset_with' => [
-                'email' => true,
-                'phone' => false,
-            ],
-            // Seconds between each allowed password reset attempt
-            'time_between_allowed_resets' => 300,
-            // Seconds between allowed resends of the reset code
-            'resend_after' => 15,
-            // Regenerate the code each time it is resent
-            'recreate_code_on_resend' => false,
-            // Channels the reset code can be delivered through
-            'send_via' => [
-                'phone' => false,
-                'email' => true,
-            ],
-            // Number of previous passwords that must differ before reuse is allowed
-            'reuse_after' => 3,
-            // Minimum seconds required between password changes (0 = no cooldown)
-            'change_cooldown_seconds'  => 0,
-            // Password complexity requirements
-            'requirements' => [
-                'min' => 8,
-                'max' => null,
-                'special_characters' => 1,
-                'numbers' => 1,
-                'uppercase_characters' => 1,
-            ],
-        ],
 
         /*
         |----------------------------------------------------------------------
@@ -533,10 +516,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Organizations (multi-tenancy - Step 9, still mostly not built)
+    | Organizations (multi-tenancy)
     |--------------------------------------------------------------------------
+    | Off by default - users can still belong to organizations and switch between them either
+    | way, but OrganizationScope (applied by any model using the HasOrganization trait, e.g.
+    | Roles\Role / Permission) only actually filters queries once this is turned on.
     */
     'organizations' => [
+        'enabled' => false,
         // The Organization model class - swap this if your app brings its own instead of
         // using the one Cuztomisable ships by default.
         'organization_model' => \VanDmade\Cuztomisable\Models\Organizations\Organization::class,

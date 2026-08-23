@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use VanDmade\Cuztomisable\Enums\SentVia;
 use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 
 class Reset extends Model
@@ -35,6 +36,7 @@ class Reset extends Model
         'sent_at' => 'datetime',
         'used_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'sent_via' => SentVia::class,
     ];
 
     protected $hidden = [

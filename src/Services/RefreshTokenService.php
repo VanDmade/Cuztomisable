@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 
-/**
- * Orchestration for mobile refresh tokens - shared between LoginService/MfaService (issuing one
- * on a successful mobile login) and UserService (finding/renewing one on /refresh/token), rather
- * than each touching the RefreshToken model independently.
- */
 class RefreshTokenService
 {
 

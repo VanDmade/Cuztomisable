@@ -5,6 +5,7 @@ return [
         'saved' => 'You have saved this user\'s access.',
     ],
     'saved' => 'You have saved this user.',
+    'created' => 'The user was created and a temporary password was emailed to them.',
     'deleted' => 'The user was deleted.',
     'undo' => 'The user was added backed into the system.',
     'locked' => 'This account has been locked.',
@@ -21,6 +22,26 @@ return [
             'not_found' => 'Your session has expired. Please log in again.',
             'user_not_found' => 'We could not verify your account. Please log in again.',
             'revoked' => 'This session has been revoked and can no longer be used. Please log in again.',
+        ],
+    ],
+    'phone' => [
+        'saved' => 'The phone number was saved.',
+        'created' => 'The phone number was added.',
+        'default' => 'This is now your default phone number.',
+        'deleted' => 'The phone number was deleted.',
+        'undo' => 'The phone number was added backed into the system.',
+        'errors' => [
+            'not_found' => 'The phone number was not found.',
+        ],
+    ],
+    'address' => [
+        'saved' => 'The address was saved.',
+        'created' => 'The address was added.',
+        'default' => 'This is now your default address.',
+        'deleted' => 'The address was deleted.',
+        'undo' => 'The address was added backed into the system.',
+        'errors' => [
+            'not_found' => 'The address was not found.',
         ],
     ],
     'ip_address' => [

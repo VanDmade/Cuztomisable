@@ -4,13 +4,10 @@ namespace VanDmade\Cuztomisable\Services;
 
 use VanDmade\Cuztomisable\Models\Form;
 
-/**
- * Orchestration for a user's in-progress multi-step form/wizard state (formerly Formora).
- */
 class FormService
 {
 
-    public function get(int $userId, string $page): ?Form
+    public function find(int $userId, string $page): ?Form
     {
         return Form::where('user_id', $userId)
             ->where('current', '=', $page)

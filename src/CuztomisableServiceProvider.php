@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
 use VanDmade\Cuztomisable\Middleware\CheckPermission;
 use VanDmade\Cuztomisable\Middleware\RequireAdmin;
+use VanDmade\Cuztomisable\Middleware\RequireCurrentTerms;
 use VanDmade\Cuztomisable\Middleware\Throttler;
 use VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider;
 use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
@@ -25,6 +26,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $router->aliasMiddleware('permission', CheckPermission::class);
         $router->aliasMiddleware('require-admin', RequireAdmin::class);
         $router->aliasMiddleware('throttler', Throttler::class);
+        $router->aliasMiddleware('require-current-terms', RequireCurrentTerms::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views/emails', 'cuztomisable');
         if ($this->app->runningInConsole()) {
@@ -54,6 +56,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/email.php', 'cuztomisable.notifications.emails');
         $this->mergeConfigFrom(__DIR__.'/../config/text.php', 'cuztomisable.notifications.texts');
         $this->mergeConfigFrom(__DIR__.'/../config/rate_limits.php', 'cuztomisable.rate_limits');
+        $this->mergeConfigFrom(__DIR__.'/../config/passwords.php', 'cuztomisable.account.passwords');
         $this->app->bind(SmsProviderInterface::class, config('cuztomisable.sms_provider', AwsSnsSmsProvider::class));
         $this->publishes([
             __DIR__.'/../config/cuztomisable.php' => config_path('cuztomisable.php'),

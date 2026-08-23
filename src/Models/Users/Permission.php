@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use VanDmade\Cuztomisable\Concerns\Auditable;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 
 class Permission extends Model
@@ -19,6 +20,7 @@ class Permission extends Model
     protected $fillable = [
         'user_id',
         'permission_id',
+        'organization_id',
         'created_by',
         'deleted_at',
         'deleted_by',
@@ -43,6 +45,11 @@ class Permission extends Model
     public function permission(): BelongsTo
     {
         return $this->belongsTo(PermissionModel::class, 'permission_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
 }

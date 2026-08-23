@@ -2,13 +2,10 @@
 
 namespace VanDmade\Cuztomisable\Services;
 
-/**
- * Orchestration for package settings retrieval.
- */
 class SettingsService
 {
 
-    public function get(): array
+    public function find(): array
     {
         return [
             'home' => config('cuztomisable.app.home', '/portal'),

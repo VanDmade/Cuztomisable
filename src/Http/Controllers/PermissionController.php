@@ -2,8 +2,8 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Requests\PermissionRequest;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Services\PermissionService;
@@ -19,12 +19,12 @@ class PermissionController extends CuztomisableController
     public function get($id): JsonResponse
     {
         try {
-            $permission = $this->permissionService->get($id);
+            $permission = $this->permissionService->find($id);
             return $this->success([
                 'permission' => $permission,
                 'deleted' => $permission->trashed(),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -33,7 +33,7 @@ class PermissionController extends CuztomisableController
     {
         try {
             return $this->permissionService->table($request->validated());
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -45,7 +45,7 @@ class PermissionController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/permission.'.($created ? 'created' : 'saved')),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -58,7 +58,7 @@ class PermissionController extends CuztomisableController
                 'message' => __('cuztomisable/permission.'.($deleted ? 'restored' : 'deleted')),
                 'deleted' => $deleted,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -69,7 +69,7 @@ class PermissionController extends CuztomisableController
             return $this->success([
                 'list' => $this->permissionService->list($role),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

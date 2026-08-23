@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use VanDmade\Cuztomisable\Concerns\Auditable;
+use VanDmade\Cuztomisable\Concerns\HasOrganization;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 
 class Role extends Model
 {
 
-    use HasFactory, Auditable, SoftDeletes;
+    use HasFactory, Auditable, SoftDeletes, HasOrganization;
 
     protected $table = 'roles';
 
@@ -22,6 +23,7 @@ class Role extends Model
         'name',
         'slug',
         'description',
+        'organization_id',
         'created_by',
         'deleted_at',
         'deleted_by',

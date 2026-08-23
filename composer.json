@@ -27,6 +27,7 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.0.1",
         "illuminate/support": "^11.3|^12.0|^13.0",
+        "intervention/image": "^3.0",
         "laravel/sanctum": "^4.0"
     },
     "require-dev": {

@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use VanDmade\Cuztomisable\Events\NewUser;
 use VanDmade\Cuztomisable\Events\UserInvited;
 use VanDmade\Cuztomisable\Events\UserRegistered;
 use VanDmade\Cuztomisable\Jobs\SendText;
@@ -97,7 +98,7 @@ class RegistrationService
             'allowed_filters' => ['user_registrations.created_by', 'user_registrations.used_at'],
             'default_columns' => ['user_registrations.id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
     public function save(array $data, ?string $code): Model
@@ -169,6 +170,9 @@ class RegistrationService
                 Mail::to($sendRegisteredTo)->send(new RegisteredMail($user));
             }
             UserRegistered::dispatch($user);
+            // Broader hook for host apps that want to group all "a user now exists" handling
+            // together, regardless of which path created the user
+            NewUser::dispatch($user);
             return $user;
         });
     }

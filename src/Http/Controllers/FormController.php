@@ -5,6 +5,7 @@ namespace VanDmade\Cuztomisable\Http\Controllers;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Requests\FormRequest;
 use VanDmade\Cuztomisable\Services\FormService;
 
@@ -26,9 +27,9 @@ class FormController extends CuztomisableController
                 throw new Exception(__('cuztomisable/global.unauthenticated'), 401);
             }
             return $this->success([
-                'form' => $this->formService->get(Auth::id(), $page),
+                'form' => $this->formService->find(Auth::id(), $page),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -43,7 +44,7 @@ class FormController extends CuztomisableController
             return $this->success([
                 'form' => $this->formService->save(Auth::id(), $page, $data),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

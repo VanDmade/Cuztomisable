@@ -8,6 +8,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class UserResource extends JsonResource
 {
 
+    public static function forUser($user): JsonResource
+    {
+        $class = config('cuztomisable.resources.user', static::class);
+        return new $class($user);
+    }
+
     public function toArray(Request $request): array
     {
         return [

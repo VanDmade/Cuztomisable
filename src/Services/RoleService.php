@@ -14,7 +14,7 @@ use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 class RoleService
 {
 
-    public function get($id): Roles\Role
+    public function find($id): Roles\Role
     {
         $role = Roles\Role::select('id', 'name', 'slug', 'description', 'created_by')
             ->with([
@@ -39,7 +39,7 @@ class RoleService
             'allowed_filters' => ['id', 'slug', 'name'],
             'default_columns' => ['id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
     public function save(array $data, $id, string $actorId): bool

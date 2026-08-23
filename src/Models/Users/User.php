@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use VanDmade\Cuztomisable\Concerns\Auditable;
+use VanDmade\Cuztomisable\Concerns\BelongsToOrganizations;
 use VanDmade\Cuztomisable\Concerns\CuztomisableUser;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 
@@ -17,7 +18,7 @@ use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 class User extends Authenticatable
 {
 
-    use HasFactory, HasApiTokens, SoftDeletes, Auditable, CuztomisableUser;
+    use HasFactory, HasApiTokens, SoftDeletes, Auditable, CuztomisableUser, BelongsToOrganizations;
 
     protected $table = 'users';
 
@@ -25,6 +26,7 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        'organization_id',
         'email_verified_at',
         'disable_emails',
         'password',

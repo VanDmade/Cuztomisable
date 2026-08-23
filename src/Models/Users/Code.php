@@ -5,6 +5,7 @@ namespace VanDmade\Cuztomisable\Models\Users;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use VanDmade\Cuztomisable\Enums\SentVia;
 use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
 
 class Code extends Model
@@ -34,6 +35,7 @@ class Code extends Model
         'used_at' => 'datetime',
         'deleted_at' => 'datetime',
         'attempt_counter' => 'integer',
+        'sent_via' => SentVia::class,
     ];
 
     protected $hidden = [

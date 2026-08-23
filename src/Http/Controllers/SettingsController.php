@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Requests\TimezoneRequest;
 use VanDmade\Cuztomisable\Services\SettingsService;
 use VanDmade\Cuztomisable\Services\Users\UserService;
@@ -21,8 +21,8 @@ class SettingsController extends CuztomisableController
     public function all(): JsonResponse
     {
         try {
-            return $this->success($this->settingsService->get());
-        } catch (Exception $error) {
+            return $this->success($this->settingsService->find());
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -36,7 +36,7 @@ class SettingsController extends CuztomisableController
                 'message' => __('cuztomisable/global.timezone.'.($updated ? 'updated' : 'unchanged')),
                 'updated' => $updated,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

@@ -2,13 +2,16 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers\Users;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Controllers\CuztomisableController;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Http\Requests\Users\IpAddressSaveRequest;
-use VanDmade\Cuztomisable\Services\IpAddressService;
+use VanDmade\Cuztomisable\Services\Users\IpAddressService;
 
+/**
+ * Handles user IP address management operations.
+ */
 class IpAddressController extends CuztomisableController
 {
 
@@ -21,9 +24,9 @@ class IpAddressController extends CuztomisableController
     {
         try {
             return $this->success([
-                'ip' => $this->ipAddressService->get($id),
+                'ip' => $this->ipAddressService->find($id),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -32,7 +35,7 @@ class IpAddressController extends CuztomisableController
     {
         try {
             return $this->ipAddressService->table($request->validated(), $id);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -44,7 +47,7 @@ class IpAddressController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/user.ip_address.forgotten'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -57,7 +60,7 @@ class IpAddressController extends CuztomisableController
                 'message' => __('cuztomisable/user.ip_address.'.($deleted ? 'undo' : 'deleted')),
                 'deleted' => $deleted,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -70,7 +73,7 @@ class IpAddressController extends CuztomisableController
                 'message' => __('cuztomisable/user.ip_address.saved'),
                 'ip' => $ip,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 
+/**
+ * When a text message is sent this event is dispatched
+ */
 class TextSent
 {
 

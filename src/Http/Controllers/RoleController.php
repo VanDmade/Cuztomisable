@@ -2,9 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Controllers;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 use VanDmade\Cuztomisable\Http\Requests\RoleRequest;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Services\RoleService;
@@ -20,12 +20,12 @@ class RoleController extends CuztomisableController
     public function get($id): JsonResponse
     {
         try {
-            $role = $this->roleService->get($id);
+            $role = $this->roleService->find($id);
             return $this->success([
                 'role' => $role,
                 'deleted' => $role->trashed(),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -34,7 +34,7 @@ class RoleController extends CuztomisableController
     {
         try {
             return $this->roleService->table($request->validated());
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -46,7 +46,7 @@ class RoleController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/role.'.($created ? 'created' : 'saved')),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -59,7 +59,7 @@ class RoleController extends CuztomisableController
                 'message' => __('cuztomisable/role.'.($deleted ? 'restored' : 'deleted')),
                 'deleted' => $deleted,
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -71,7 +71,7 @@ class RoleController extends CuztomisableController
             return $this->success([
                 'message' => __('cuztomisable/role.permission_removed'),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }
@@ -82,7 +82,7 @@ class RoleController extends CuztomisableController
             return $this->success([
                 'list' => $this->roleService->list($request),
             ]);
-        } catch (Exception $error) {
+        } catch (Throwable $error) {
             return $this->error($error);
         }
     }

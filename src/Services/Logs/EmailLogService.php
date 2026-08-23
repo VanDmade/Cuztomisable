@@ -27,7 +27,7 @@ class EmailLogService
         return Email::create($data);
     }
 
-    public function get($id): Email
+    public function find($id): Email
     {
         $log = Email::find($id);
         if (!isset($log->id)) {
@@ -53,7 +53,7 @@ class EmailLogService
             'search_columns' => ['email_logs.to', 'email_logs.from', 'email_logs.subject', 'ru.name', 'cu.name'],
             'default_columns' => ['email_logs.id' => 'desc'],
         ];
-        return TableService::run($query, array_merge($data, $parameters));
+        return TableService::generate($query, array_merge($data, $parameters));
     }
 
 }

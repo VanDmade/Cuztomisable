@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Events;
 use Illuminate\Foundation\Events\Dispatchable;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * When an email is sent this event is dispatched
+ */
 class EmailSent
 {
 

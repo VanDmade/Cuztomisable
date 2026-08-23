@@ -79,8 +79,12 @@ class LoginService
         });
     }
 
-    public function logout($user): void
+    public function logout($user = null): void
     {
+        // Allows for logout to occur without the user being passed
+        if (empty($user)) {
+            $user = Auth::user();
+        }
         // Revoke current access token (from cookie-injected Authorization header)
         $user?->currentAccessToken()?->delete();
     }

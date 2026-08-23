@@ -6,7 +6,7 @@ use Aws\Exception\AwsException;
 use Aws\Sns\SnsClient;
 use Exception;
 use Illuminate\Support\Facades\Log;
-use VanDmade\Cuztomisable\Models\Logs;
+use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 
 class AwsSnsSmsProvider implements SmsProviderInterface
 {
@@ -15,8 +15,9 @@ class AwsSnsSmsProvider implements SmsProviderInterface
     protected bool $debug;
     protected bool $verifyTls;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ErrorLogService $errorLogService
+    ) {
         $this->debug = (bool) config('app.debug', false);
         $this->verifyTls = config('app.env') !== 'local';
     }
@@ -80,13 +81,7 @@ class AwsSnsSmsProvider implements SmsProviderInterface
             'message' => $message,
             'cleaned_phone' => $phone ?? null,
         ];
-        Logs\Error::create([
-            'message' => $error->getMessage(),
-            'code' => $error->getCode(),
-            'file' => $error->getFile() ?? null,
-            'line' => $error->getLine() ?? null,
-            'parameters' => $parameters ?? [],
-        ]);
+        $this->errorLogService->log($error, 'SMS send failed', $parameters ?? []);
         return false;
     }
 
