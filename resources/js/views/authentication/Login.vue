@@ -1,14 +1,12 @@
 <template>
-    <div id="login-page" class="page">
-        <div class="card ma-2 pa-6">
-            <div class="d-flex">
-                <img :src="$url+'logo.png'" class="cz-authentication-logo">
-                <div class="cz-title">
-                    <h3 class="card-title">Login</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">Welcome to {{ appName }}!</h6>
-                </div>
+    <div id="login-page" class="page auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <img :src="$url+'logo.png'" class="auth-card__logo">
+                <h1 class="auth-card__title">Log in</h1>
+                <p class="auth-card__subtitle">Welcome back to {{ appName }}</p>
             </div>
-            <fm-form ref="loginForm" class="mt-4" :form="form"
+            <fm-form ref="loginForm" class="auth-card__form" :form="form"
                 @save="login">
                 <fm-input
                     :label="usernameLabel()"
@@ -24,15 +22,17 @@
                     autocomplete="current-password"
                     :errors="errors.password"
                     :disabled="submitting" />
-                <router-link :to="{ name: 'forgot' }" class="button--link">Forgot password?</router-link>
+                <div class="auth-card__row">
+                    <router-link :to="{ name: 'forgot' }" class="button--link">Forgot password?</router-link>
+                </div>
                 <div class="form-buttons">
-                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Login</button>
+                    <button type="submit" class="button button--primary button--block" :disabled="submitting">Log in</button>
                 </div>
             </fm-form>
         </div>
-        <div class="text-center">
-            <router-link :to="{ name: 'registration' }" class="button--link">New here? Create an account!</router-link>
-        </div>
+        <p class="auth-card__footer">
+            New here? <router-link :to="{ name: 'registration' }" class="button--link">Create an account</router-link>
+        </p>
     </div>
 </template>
 <script>
@@ -50,7 +50,7 @@ export default {
         }
     },
     methods: {
-        async login() {
+        login: async function() {
             this.submitting = true;
             this.errors = [];
             var formData = new FormData();

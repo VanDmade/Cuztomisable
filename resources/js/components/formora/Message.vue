@@ -32,10 +32,10 @@ export default {
         },
     },
     computed: {
-        messages() {
+        messages: function() {
             return notify.state.items;
         },
-        containerStyle() {
+        containerStyle: function() {
             return {
                 minWidth: this.minWidth || notify.state.settings.minWidth,
                 maxWidth: this.maxWidth || notify.state.settings.maxWidth,

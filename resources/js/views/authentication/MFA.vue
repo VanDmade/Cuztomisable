@@ -203,7 +203,7 @@ export default {
                 }, 1500);
             });
         },
-        async save() {
+        save: async function() {
             this.submitting = true;
             this.setToken();
             if (!this.token) {

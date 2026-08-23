@@ -190,7 +190,7 @@ export default {
             this.$refs['inactivityModal'].close();
             this.resetInactivityTimer();
         },
-        async logout() {
+        logout: async function() {
             loading.show({ message: 'See you next time!' });
             setTimeout(async () => {
                 this.removeActivityListeners();
