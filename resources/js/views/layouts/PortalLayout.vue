@@ -3,7 +3,7 @@
         <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
             <div class="position-relative container-fluid">
-                <router-link class="navbar-brand pa-0" :to="{ path: appHome }"><img :src="$url+'logo.png'" style="height: 32px;"></router-link>
+                <router-link class="navbar-brand pa-0" :to="{ path: appHome }"><img :src="$url+'banner-white.png'" style="height: 32px;"></router-link>
                 <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
@@ -16,7 +16,7 @@
                 <div class="collapse navbar-collapse portal-navbar-collapse" id="navigation">
                     <div class="navbar-nav me-auto d-lg-none">
                         <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
-                            <img class="collapsed-profile-image" style="cursor: pointer;" :src="$url+'test.png'" @click="collapseNavbar(); $router.push({ name: 'profile' })">
+                            <img class="collapsed-profile-image" style="cursor: pointer;" :src="$store.state.user?.image || $url+'profile.png'" @click="collapseNavbar(); $router.push({ name: 'profile' })">
                             <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
                         </div>
                         <template v-if="navigation && navigation.length">
@@ -60,13 +60,12 @@
                     </div>
                     <div class="navbar-nav ms-auto">
                         <span v-if="screenSize == 'large'" class="navbar-text text-white d-inline-flex align-items-center pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
-                            <img class="profile-image" :src="$url+'test.png'" @click="$router.push({ name: 'profile' })">
+                            <img class="profile-image" :src="$store.state.user?.image || $url+'profile.png'" @click="$router.push({ name: 'profile' })">
                             <span class="pl-2">{{ $store.state.user?.name }}</span>
                         </span>
                         <hr v-if="screenSize == 'medium'" class="mobile-logout-divider">
-                        <a href="#" class="nav-link d-inline-flex align-items-center text-white" role="button" @click.prevent="logout">
-                            <span class="material-icons me-1" aria-hidden="true">logout</span>
-                            <span>Logout</span>
+                        <a href="#" class="nav-link d-inline-flex align-items-center text-white" role="button" aria-label="Logout" @click.prevent="logout">
+                            <span class="material-icons" aria-hidden="true">logout</span>
                         </a>
                     </div>
                 </div>

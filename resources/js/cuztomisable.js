@@ -1,5 +1,5 @@
 import './bootstrap';
-import '../sass/app.scss';
+import '../sass/cuztomisable.scss';
 import '../sass/formora.scss';
 import '../sass/tablelify.scss';
 import * as axiosModule from 'axios';
@@ -423,14 +423,16 @@ export async function loadCuztomisableApp() {
                 },
             });
             await store.dispatch('checkAuth');
-            if (store.state.authenticated && AUTH_GUEST_ROUTE_NAMES.has(routeState.name)) {
-                await visit('/portal', true);
-            }
             if (store.state.authenticated) {
                 // Fire-and-forget - a stale timezone shouldn't block the app from mounting
                 syncTimezoneIfStale();
             }
             app.mount(el);
+            if (store.state.authenticated && AUTH_GUEST_ROUTE_NAMES.has(routeState.name)) {
+                // Must happen after mount - router.visit() reads Inertia's page state,
+                // which is only initialized once the App component has been mounted.
+                await visit('/portal', true);
+            }
             return { app, store };
         },
     });

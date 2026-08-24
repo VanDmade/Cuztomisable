@@ -99,7 +99,7 @@ export default {
         // Ensures that registration via code is enabled. If not, it allows the user to register without a code.
         if (this.code != null && this.code != '') {
             this.verify();
-        } else if (this.$cuztomisable.registration.disabled) {
+        } else if (this.$cuztomisable?.registration?.disabled?.web) {
             this.$router.push({
                 path: 'message',
                 query: {

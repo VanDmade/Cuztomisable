@@ -3,8 +3,40 @@
 .tablelify {
     table-layout: fixed;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+
+    thead {
+        background: $color-light;
+        tr:first-child {
+            th:first-child {
+                border-top-left-radius: $border-radius;
+            }
+            th:last-child {
+                border-top-right-radius: $border-radius;
+            }
+        }
+    }
+    tbody tr:last-child {
+        td:first-child {
+            border-bottom-left-radius: $border-radius;
+        }
+        td:last-child {
+            border-bottom-right-radius: $border-radius;
+        }
+    }
     .tablelify-header {
-        padding: 8px 12px;
+        padding: 12px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: $color-muted;
+        border-bottom: 1px solid $color-border;
+        white-space: nowrap;
         .tablelify-sorter {
             display: inline-flex;
             align-items: center;
@@ -23,21 +55,35 @@
         .tablelify-sorter {
             padding-right: 8px;
             .tablelify-sort-hover {
-                color: #ddd;
+                color: transparent;
+                transition: color 0.15s ease;
             }
         }
     }
     .tablelify-header:hover {
+        color: $color-text;
         .tablelify-sorter {
             .tablelify-sort-hover {
-                color: var(--bs-body-color);
+                color: $color-muted;
             }
         }
     }
     .tablelify-header.tablelify-sortable {
         cursor: pointer;
     }
+    tbody tr:not(.tablelify-row) td {
+        padding: 32px 16px;
+        color: $color-muted;
+    }
     .tablelify-row {
+        border-bottom: 1px solid $color-border;
+        transition: background-color 0.15s ease;
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: $color-light;
+        }
         .tablelify-color-column {
             margin-left: 12px;
             margin-right: 12px;
@@ -51,6 +97,7 @@
             vertical-align: middle;
             img.tablelify-image {
                 height: 42px;
+                border-radius: $border-radius * 0.5;
                 @media (max-width: 768px) {
                     margin: 12px;
                     height: 64px;
@@ -59,7 +106,9 @@
         }
     }
     .tablelify-data {
-        padding: 8px 12px;
+        padding: 12px 16px;
+        color: $color-text;
+        font-size: 14px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -92,30 +141,53 @@
 }
 
 .tablelify-pagination {
+    align-items: center;
+    font-size: 14px;
+    color: $color-muted;
     .tablelify-button {
-        min-width: 44px;
+        min-width: 32px;
+        height: 32px !important;
+        padding: 0 8px !important;
+        border: none !important;
+        background: transparent !important;
+        color: $color-muted !important;
+        border-radius: $border-radius * 0.5;
+        font-weight: 500;
+        transition: background-color 0.15s ease, color 0.15s ease;
         @media (max-width: 768px) {
             min-width: auto;
         }
+        &:hover:not(:disabled) {
+            background-color: $color-light !important;
+            color: $color-text !important;
+        }
+        &:disabled {
+            opacity: 0.4;
+        }
+    }
+    .tablelify-button.button--primary {
+        background-color: $color-primary !important;
+        color: $color-white !important;
     }
     .tablelify-pagination-button {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px; /* space between icon and text */
-        padding: 8px 12px;
+        padding: 0 8px;
         font-size: 18px;
         line-height: 24px;
         vertical-align: top;
-        height: 44px;
-        min-width: 44px;
+        height: 32px;
+        min-width: 32px;
         i {
-            font-size: inherit;
+            font-size: 18px;
             line-height: inherit;
             margin: auto;
         }
         @media (max-width: 768px) {
-            min-width: 38px;
-            width: 38px;
+            min-width: 32px;
+            width: 32px;
         }
     }
 }
@@ -125,17 +197,23 @@
             display: none;
         }
         .tablelify-row {
+            display: block;
+            padding: 8px 0;
             .tablelify-column {
                 display: block;
             }
         }
         .tablelify-header-text {
-            padding: 0 12px;
+            padding: 0 16px;
             display: block;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: $color-muted;
         }
         .tablelify-data {
-            padding: 0 12px 8px 12px;
+            padding: 0 16px 8px 16px;
         }
     }
 }

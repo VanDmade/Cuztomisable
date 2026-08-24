@@ -11,7 +11,7 @@
                 </div>
             </div>
         </div>
-        <table class="table table-striped table-bordered tablelify mb-4" cellpadding="0" cellspacing="0">
+        <table class="table tablelify mb-4" cellpadding="0" cellspacing="0">
             <thead v-if="headersList.length != 0">
                 <tr>
                     <th v-for="(header, headerIndex) in headersList" :key="'header-'+headerIndex"

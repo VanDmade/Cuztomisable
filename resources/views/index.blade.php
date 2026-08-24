@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="/cuztomisable/logo.png">
     <title>{{ config('app.name') }}</title>
     @inertiaHead
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/js/cuztomisable.js'])
 </head>
 <body>
     @inertia

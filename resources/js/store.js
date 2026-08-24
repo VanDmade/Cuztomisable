@@ -95,7 +95,7 @@ export default createStore({
             }
         },
         async login({ commit, dispatch }, credentials) {
-            await axios.get('/sanctum/csrf-cookie');
+            await axios.get('/sanctum/csrf-cookie', { baseURL: '/' });
             let response = await axios.post('/login', credentials);
             const payload = response?.data?.data ?? response?.data ?? {};
             if (payload.multi_factor_authentication !== true) {

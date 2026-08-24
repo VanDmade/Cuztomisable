@@ -9,7 +9,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
+use Inertia\Inertia;
 use VanDmade\Cuztomisable\Middleware\CheckPermission;
+use VanDmade\Cuztomisable\Middleware\HandleInertiaRequests;
 use VanDmade\Cuztomisable\Middleware\RequireAdmin;
 use VanDmade\Cuztomisable\Middleware\RequireCurrentTerms;
 use VanDmade\Cuztomisable\Middleware\Throttler;
@@ -45,6 +47,32 @@ class CuztomisableServiceProvider extends ServiceProvider
                 Middleware\EnsureValidMobileAgent::class,
             ])
             ->group(__DIR__.'/../routes.php');
+
+        Route::middleware([
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            Middleware\TokenFromCookie::class,
+            Middleware\RequireCsrfUnlessMobile::class,
+            Middleware\EnsureValidMobileAgent::class,
+            HandleInertiaRequests::class,
+        ])->group(function () {
+            Route::get('/', fn () => Inertia::render('authentication/Login'))->name('page.login');
+            Route::get('/login', fn () => Inertia::render('authentication/Login'))->name('page.login.alias');
+            Route::get('/registration/{code?}', fn () => Inertia::render('authentication/Registration'))->name('page.registration');
+            Route::get('/forgot', fn () => Inertia::render('authentication/Forgot'))->name('page.forgot');
+            Route::get('/reset/{token}', fn () => Inertia::render('authentication/Reset'))->name('page.reset');
+            Route::get('/mfa/{token}', fn () => Inertia::render('authentication/MFA'))->name('page.mfa');
+            Route::get('/message', fn () => Inertia::render('Message'))->name('page.message');
+            Route::get('/portal', fn () => Inertia::render('Portal'))->name('page.portal');
+            Route::get('/profile', fn () => Inertia::render('users/Form'))->name('page.profile');
+            Route::get('/user/{id}', fn () => Inertia::render('users/Form'))->name('page.user.form');
+            Route::get('/users', fn () => Inertia::render('users/Table'))->name('page.users');
+            Route::get('/invites', fn () => Inertia::render('users/invites/Table'))->name('page.invites');
+            Route::get('/roles', fn () => Inertia::render('roles/Table'))->name('page.roles');
+            Route::get('/permissions', fn () => Inertia::render('permissions/Table'))->name('page.permissions');
+        });
     }
 
     public function register(): void

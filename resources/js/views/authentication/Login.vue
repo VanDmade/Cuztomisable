@@ -30,7 +30,7 @@
                 </div>
             </fm-form>
         </div>
-        <p class="auth-card__footer">
+        <p class="auth-card__footer" v-if="!$cuztomisable?.registration?.disabled?.web">
             New here? <router-link :to="{ name: 'registration' }" class="button--link">Create an account</router-link>
         </p>
     </div>
@@ -40,7 +40,7 @@ export default {
     data: function() {
         return {
             appName: import.meta.env.VITE_APP_NAME,
-            appHome: import.meta.env.VITE_APP_HOME,
+            appHome: import.meta.env.VITE_APP_HOME ?? '/portal',
             submitting: false,
             errors: [],
             form: {
@@ -73,7 +73,9 @@ export default {
                             this.$router.push({ path: `/mfa/${encodeURIComponent(String(mfaToken))}` });
                         }, 150);
                     } else {
-                        this.$router.push({ path: this.appHome });
+                        // Hard navigation on purpose: crossing the unauthenticated -> authenticated
+                        // boundary should load a fresh app state rather than carry over SPA state.
+                        window.location.href = this.appHome;
                     }
                 }, 500);
             } catch (error) {
