@@ -1,20 +1,18 @@
 <template>
-    <div id="mfa-page" class="page">
-        <fm-loading :loading="verifying" :full="true" :large="true" message="Loading..."></fm-loading>
-        <div class="card ma-2 pa-6">
-            <div class="d-flex">
-                <img :src="$url+'logo.png'" class="cz-authentication-logo">
-                <div class="cz-title">
-                    <h3 class="card-title">Multi-Factor Authentication</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        <span v-if="!sent">Enter the email address associated with your account.</span>
-                        <span v-else>The code was sent! Please enter it below once you receive it.</span>
-                    </h6>
-                </div>
+    <div id="mfa-page" class="page auth-page">
+        <cz-loading :loading="verifying" :full="true" :large="true" message="Loading..."></cz-loading>
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <img :src="$url+'logo.png'" class="auth-card__logo">
+                <h1 class="auth-card__title">Multi-Factor Authentication</h1>
+                <p class="auth-card__subtitle">
+                    <span v-if="!sent">Enter the email address associated with your account.</span>
+                    <span v-else>The code was sent! Please enter it below once you receive it.</span>
+                </p>
             </div>
-            <fm-form v-if="!sent" ref="mfaSelectForm" class="mt-4" :form="form" @save="send">
+            <cz-form v-if="!sent" ref="mfaSelectForm" class="auth-card__form" :form="form" @save="send">
                 <div class="mfa-email" :class="send_via.phone != null ? 'mb-3' : 'mb-6'" v-if="send_via.email != null">
-                    <fm-checkbox
+                    <cz-checkbox
                         :label="send_via.email"
                         v-model="form.email"
                         type="radio"
@@ -22,7 +20,7 @@
                         :disabled="submitting" />
                 </div>
                 <div class="mfa-phone mb-6" v-if="send_via.phone != null">
-                    <fm-checkbox
+                    <cz-checkbox
                         :label="send_via.phone"
                         v-model="form.phone"
                         type="radio"
@@ -33,15 +31,15 @@
                     <button type="submit" class="button button--primary button--block" :disabled="submitting || (!form.email && !form.phone && !resending)">Send</button>
                 </div>
                 <p v-if="sent && expiresIn !== null" class="text-center text-muted mt-2 text-xs">Code expires in {{ formattedExpiresIn }}</p>
-            </fm-form>
-            <fm-form v-else ref="mfaForm" class="mt-4" :form="form" @save="save">
-                <fm-input
+            </cz-form>
+            <cz-form v-else ref="mfaForm" class="auth-card__form" :form="form" @save="save">
+                <cz-input
                     label="Code"
                     v-model="form.code"
                     type="input"
                     :errors="errors.code"
                     :disabled="submitting" />
-                <fm-checkbox
+                <cz-checkbox
                     label="Remember device? (Do not use on a public or shared device)"
                     v-model="form.remember"
                     type="checkbox"
@@ -54,7 +52,7 @@
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
                 </div>
                 <p v-if="sent && expiresIn !== null" class="text-center text-muted mt-2 text-xs">Code expires in {{ formattedExpiresIn }}</p>
-            </fm-form>
+            </cz-form>
         </div>
     </div>
 </template>

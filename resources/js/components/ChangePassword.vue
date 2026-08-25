@@ -1,5 +1,5 @@
 <template>
-    <fm-form ref="forceChangePasswordForm" :form="form" @save="save">
+    <cz-form ref="forceChangePasswordForm" :form="form" @save="save">
         <input
             type="text"
             autocomplete="username"
@@ -14,7 +14,7 @@
             class="autocomplete-hidden">
         <h3 class="card-title">Password Change Required</h3>
         <h6 class="card-subtitle mb-4 text-muted">You must update your password before you can continue.</h6>
-        <fm-input
+        <cz-input
             label="Password"
             v-model="form.new"
             type="password"
@@ -27,7 +27,7 @@
                 :disabled="!passwordRequirementsMet || submitting"
                 class="button button--primary button--block">Save</button>
         </div>
-    </fm-form>
+    </cz-form>
 </template>
 <script>
 import PasswordRequirements from './PasswordRequirements.vue';

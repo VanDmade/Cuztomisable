@@ -1,24 +1,24 @@
 <template>
     <div class="page table-page container-fluid">
-        <tablelify :headers="headers" :url="url" ref="userTable">
+        <cz-table :headers="headers" :url="url" ref="userTable">
             <template #phone="{ country_code, phone, phone_verified_at }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     <div v-if="phone == null" class="not-available">N/A</div>
                     <span v-else>
-                        <i v-if="phone_verified_at != null" class="material-icons mr-1 color--success fm-phone-verified">verified</i>{{ formatPhone(phone, country_code) }}
+                        <i v-if="phone_verified_at != null" class="material-icons mr-1 color--success cz-phone-verified">verified</i>{{ formatPhone(phone, country_code) }}
                     </span>
                 </div>
             </template>
             <template #last_used_at="{ last_used_at }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ last_used_at == null ? 'Never' : formatDate(last_used_at) }}
                 </div>
             </template>
             <template v-slot:image="item">
-                <img class="tablelify-image" :src="item.image != null ? $url + item.image.path : defaultImage">
+                <img class="cz-table-image" :src="item.image != null ? $url + item.image.path : defaultImage">
             </template>
             <template v-slot:name="item">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     <div>{{ item.name }}</div>
                     <p class="note mb-0">
                         <i v-if="item.email_verified_at != null" class="material-icons mr-1 color--success">verified</i>
@@ -27,7 +27,7 @@
                 </div>
             </template>
             <template #status="item">
-                <div class="tablelify-data enabled-overflow" :class="{ 'text-center': !breakpoint('sm') }" style="cursor: help;">
+                <div class="cz-table-data enabled-overflow" :class="{ 'text-center': !breakpoint('sm') }" style="cursor: help;">
                     <span v-if="item.admin" class="tooltip-wrapper ml-1 mr-1">
                         <i class="material-icons">admin_panel_settings</i>
                         <span class="tooltip-text">Admin</span>
@@ -47,7 +47,7 @@
                 </div>
             </template>
             <template #actions="item">
-                <div class="tablelify-data text-center">
+                <div class="cz-table-data text-center">
                     <div :class="{ 'row': breakpoint('sm') }">
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
@@ -64,8 +64,8 @@
                     </div>
                 </div>
             </template>
-        </tablelify>
-        <fm-modal ref="deleteUserModal" modal-width="380px">
+        </cz-table>
+        <cz-modal ref="deleteUserModal" modal-width="380px">
             <h3 class="card-title">Delete User?</h3>
             <h6 class="card-subtitle mb-6 text-muted">Send this user on a one-way trip to Deletionville.</h6>
             <div class="row">
@@ -82,7 +82,7 @@
                         @click="$refs.deleteUserModal.close()">No</button>
                 </div>
             </div>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

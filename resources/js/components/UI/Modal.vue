@@ -2,7 +2,7 @@
     <div>
         <div v-if="isOpen" class="modal-backdrop fade show"></div>
         <div
-            class="modal fm-modal fade"
+            class="modal cz-modal fade"
             :class="{ show: isOpen }"
             :style="{ display: isOpen ? 'block' : 'none' }"
             :id="id+'-modal'"
@@ -13,9 +13,9 @@
             @click.self="onBackdropClick">
             <button type="button" v-show="false" :id="'close-'+id" @click="close"></button>
             <button type="button" v-show="false" :id="'open-'+id" @click="open"></button>
-            <div class="modal-dialog fm-modal-dialog" :style="{ 'max-width': modalWidth }">
-                <div class="modal-content fm-modal-content">
-                    <div class="modal-body fm-modal-body">
+            <div class="modal-dialog cz-modal-dialog" :style="{ 'max-width': modalWidth }">
+                <div class="modal-content cz-modal-content">
+                    <div class="modal-body cz-modal-body">
                         <slot></slot>
                     </div>
                 </div>

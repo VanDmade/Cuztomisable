@@ -1,18 +1,18 @@
 <template>
     <div id="recent-login-form">
-        <tablelify :headers="headers" :url="url" ref="userTable" disable-search wait>
+        <cz-table :headers="headers" :url="url" ref="userTable" disable-search wait>
             <template #header>
                 <h3 class="card-title">Recent Login History</h3>
                 <h6 class="card-subtitle mb-0 text-muted">See when and where this account was last accessed.</h6>
             </template>
             <template #last_used_at="{ ip_address, last_used_at }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ ip_address }}
                     <p class="note mb-0">Last Used: {{ last_used_at == null ? 'Never' : formatDate(last_used_at) }}</p>
                 </div>
             </template>
             <template #remember_until="{ id, remember, remember_until }">
-                <div v-if="remember" class="tablelify-data" :class="{ 'd-flex': !breakpoint('sm') }">
+                <div v-if="remember" class="cz-table-data" :class="{ 'd-flex': !breakpoint('sm') }">
                     <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">{{ formatDate(remember_until) }}</div>
                     <template v-if="$store.getters.hasPermission('clear-user-logins')">
                         <button type="button"
@@ -28,7 +28,7 @@
                             :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
                     </template>
                 </div>
-                <div v-else class="tablelify-data" :class="{ 'd-flex': !breakpoint('sm') }">
+                <div v-else class="cz-table-data" :class="{ 'd-flex': !breakpoint('sm') }">
                     <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">No</div>
                     <template v-if="$store.getters.hasPermission('clear-user-logins')">
                         <button type="button"
@@ -45,7 +45,7 @@
                     </template>
                 </div>
             </template>
-        </tablelify>
+        </cz-table>
     </div>
 </template>
 <script>

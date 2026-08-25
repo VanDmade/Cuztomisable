@@ -8,10 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * A user's in-progress multi-step form/wizard state - renamed from Formora, the table stays
- * "formora" for now since renaming a live table is a data migration, not a naming decision.
- */
 class Form extends Model
 {
 

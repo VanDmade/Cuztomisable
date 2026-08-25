@@ -1,6 +1,6 @@
 <template>
     <div id="portal-layout" class="layout">
-        <fm-loading :loading="$store.state.loading" message="Loading..."></fm-loading>
+        <cz-loading :loading="$store.state.loading" message="Loading..."></cz-loading>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
             <div class="position-relative container-fluid">
                 <router-link class="navbar-brand pa-0" :to="{ path: appHome }"><img :src="$url+'banner-white.png'" style="height: 32px;"></router-link>
@@ -77,16 +77,16 @@
                 <slot></slot>
             </div>
         </div>
-        <fm-modal ref="inactivityModal" modal-width="275px" static>
+        <cz-modal ref="inactivityModal" modal-width="275px" static>
             <h3 class="card-title mb-4">Are you still here?</h3>
             <h1 class="text-center mb-4">{{ countdown }}</h1>
             <button type="button"
                 @click="cancelLogout()"
                 class="button button--primary button--block">I'm Still Here</button>
-        </fm-modal>
-        <fm-modal ref="changePasswordModal" modal-width="450px" static>
+        </cz-modal>
+        <cz-modal ref="changePasswordModal" modal-width="450px" static>
             <force-change-password-form v-on:close="handleChangePasswordClose"/>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

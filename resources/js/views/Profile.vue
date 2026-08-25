@@ -2,15 +2,15 @@
     <div id="profile-page">
         <div class="card pa-6" style="max-width: 600px; margin: auto;">
             <div class="d-flex align-items-center position-relative">
-                <div class="position-relative me-3 fm-image-input" style="height: 100px; width: 100px;">
-                    <label for="fm-image-upload" class="position-relative me-3 fm-image-input" style="cursor: pointer; height: inherit; width: inherit;">
-                        <fm-image :src="preview || user?.image"
+                <div class="position-relative me-3 cz-image-input" style="height: 100px; width: 100px;">
+                    <label for="cz-image-upload" class="position-relative me-3 cz-image-input" style="cursor: pointer; height: inherit; width: inherit;">
+                        <cz-image :src="preview || user?.image"
                             alt="User Photo"
-                            img-class="rounded-circle fm-image" />
-                        <span class="position-absolute fm-image-toggle translate-middle">✎</span>
+                            img-class="rounded-circle cz-image" />
+                        <span class="position-absolute cz-image-toggle translate-middle">✎</span>
                         <input
                             type="file"
-                            id="fm-image-upload"
+                            id="cz-image-upload"
                             class="d-none"
                             accept="image/*"
                             @change="handleChange" />
@@ -21,38 +21,38 @@
                     <small class="text-muted">{{ user?.email }}</small>
                 </div>
             </div>
-            <fm-form ref="profileForm"
+            <cz-form ref="profileForm"
                 :form="form"
                 class="mt-4"
                 @save="save"
                 ask-before-leaving>
-                <fm-input
+                <cz-input
                     label="Name"
                     v-model="form.name"
                     type="text"
                     :errors="errors.name"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     v-if="!$cuztomisable.login_with.email && !$cuztomisable.login_with.phone"
                     label="Username"
                     v-model="form.username"
                     type="text"
                     :errors="errors.username"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     label="Email"
                     v-model="form.email"
                     type="email"
                     :errors="errors.email"
                     :disabled="submitting" />
-                <fm-phone
+                <cz-phone
                     label="Phone"
                     v-model="form.phone"
                     :errors="errors.phone"
                     :disabled="submitting"
                     is-mobile
                     default />
-                <fm-address
+                <cz-address
                     v-if="$cuztomisable.registration.address !== false"
                     label="Address"
                     v-model="form.address"
@@ -60,7 +60,7 @@
                     :disabled="submitting"
                     :hasAddressTwo="$cuztomisable.registration.address.address_two"
                     :hasAddressThree="$cuztomisable.registration.address.address_three" />
-                <fm-checkbox
+                <cz-checkbox
                     label="Multi-Factor Authentication"
                     v-model="form.mfa"
                     type="checkbox"
@@ -71,7 +71,7 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Save Changes</button>
                 </div>
-            </fm-form>
+            </cz-form>
         </div>
     </div>
 </template>

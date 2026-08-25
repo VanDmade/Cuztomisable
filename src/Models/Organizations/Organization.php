@@ -10,10 +10,6 @@ use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Phone;
 
-/**
- * A tenant an organization-scoped user can belong to (default org model, overridable via config
- * through cuztomisable.organizations.organization_model).
- */
 class Organization extends Model
 {
 

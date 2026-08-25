@@ -1,31 +1,29 @@
 import './bootstrap';
 import '../sass/cuztomisable.scss';
-import '../sass/formora.scss';
-import '../sass/tablelify.scss';
 import * as axiosModule from 'axios';
 import { createApp, h, reactive, defineComponent, Fragment } from 'vue';
 import { createInertiaApp, Link, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import store from './store';
-import Tablelify from './components/Tablelify.vue';
-import Loading from './components/Formora/Loading.vue';
-import Upload from './components/Formora/Upload.vue';
-import Address from './components/Formora/Address.vue';
-import Delete from './components/Formora/Delete.vue';
-import Carousel from './components/Formora/Carousel.vue';
-import Phone from './components/Formora/Phone.vue';
-import Input from './components/Formora/Input.vue';
-import Radio from './components/Formora/Radio.vue';
-import Multi from './components/Formora/Multi.vue';
-import Image from './components/Formora/Image.vue';
-import Select from './components/Formora/Select.vue';
-import Checkbox from './components/Formora/Checkbox.vue';
-import Textarea from './components/Formora/Textarea.vue';
-import Tags from './components/Formora/Tags.vue';
-import Form from './components/Formora/Form.vue';
-import Autofill from './components/Formora/Autofill.vue';
-import Modal from './components/Formora/Modal.vue';
-import Message from './components/Formora/Message.vue';
+import Table from './components/UI/Table.vue';
+import Loading from './components/UI/Loading.vue';
+import Upload from './components/UI/Upload.vue';
+import Address from './components/UI/Address.vue';
+import Delete from './components/UI/Delete.vue';
+import Carousel from './components/UI/Carousel.vue';
+import Phone from './components/UI/Phone.vue';
+import Input from './components/UI/Input.vue';
+import Radio from './components/UI/Radio.vue';
+import Multi from './components/UI/Multi.vue';
+import Image from './components/UI/Image.vue';
+import Select from './components/UI/Select.vue';
+import Checkbox from './components/UI/Checkbox.vue';
+import Textarea from './components/UI/Textarea.vue';
+import Tags from './components/UI/Tags.vue';
+import Form from './components/UI/Form.vue';
+import Autofill from './components/UI/Autofill.vue';
+import Modal from './components/UI/Modal.vue';
+import Message from './components/UI/Message.vue';
 import notify from './utils/notify';
 import loading from './utils/loading';
 import LoginLayout from './views/layouts/LoginLayout.vue';
@@ -280,25 +278,25 @@ export async function loadCuztomisableApp() {
             app.use(plugin);
             app.use(store);
             const globalComponents = {
-                tablelify: Tablelify,
-                'fm-loading': Loading,
-                'fm-form': Form,
-                'fm-carousel': Carousel,
-                'fm-input': Input,
-                'fm-address': Address,
-                'fm-phone': Phone,
-                'fm-radio': Radio,
-                'fm-multi': Multi,
-                'fm-checkbox': Checkbox,
-                'fm-upload': Upload,
-                'fm-select': Select,
-                'fm-tags': Tags,
-                'fm-textarea': Textarea,
-                'fm-message': Message,
-                'fm-modal': Modal,
-                'fm-image': Image,
-                'fm-autofill': Autofill,
-                'fm-delete': Delete,
+                'cz-table': Table,
+                'cz-loading': Loading,
+                'cz-form': Form,
+                'cz-carousel': Carousel,
+                'cz-input': Input,
+                'cz-address': Address,
+                'cz-phone': Phone,
+                'cz-radio': Radio,
+                'cz-multi': Multi,
+                'cz-checkbox': Checkbox,
+                'cz-upload': Upload,
+                'cz-select': Select,
+                'cz-tags': Tags,
+                'cz-textarea': Textarea,
+                'cz-message': Message,
+                'cz-modal': Modal,
+                'cz-image': Image,
+                'cz-autofill': Autofill,
+                'cz-delete': Delete,
             };
             Object.entries(globalComponents).forEach(([name, comp]) => {
                 app.component(name, comp);

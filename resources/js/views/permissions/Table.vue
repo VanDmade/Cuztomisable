@@ -1,6 +1,6 @@
 <template>
     <div class="page table-page container-fluid">
-        <tablelify :headers="headers" :url="url" ref="permissionTable">
+        <cz-table :headers="headers" :url="url" ref="permissionTable">
             <template #header>
                 <button
                     @click="form()"
@@ -8,18 +8,18 @@
                     :class="{ 'button--block mb-4': breakpoint('sm') }">Add Permission</button>
             </template>
             <template #name="{ name, slug }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ name }}
                     <p class="note mb-0">{{ slug }}</p>
                 </div>
             </template>
             <template #description="{ description }">
-                <div class="tablelify-data tablelify-multi-line">
+                <div class="cz-table-data cz-table-multi-line">
                     {{ description }}
                 </div>
             </template>
             <template #actions="item">
-                <div class="tablelify-data text-center">
+                <div class="cz-table-data text-center">
                     <div :class="{ 'row': breakpoint('sm') }">
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
@@ -36,15 +36,15 @@
                     </div>
                 </div>
             </template>
-        </tablelify>
-        <fm-modal ref="permissionModal" modal-width="425px">
+        </cz-table>
+        <cz-modal ref="permissionModal" modal-width="425px">
             <permission-form
                 :id="id"
                 v-on:close="$refs.permissionModal.close()"
                 v-on:message="setMessage"
                 v-on:redraw="$refs.permissionTable.query()" />
-        </fm-modal>
-        <fm-modal ref="deletePermissionModal" modal-width="380px">
+        </cz-modal>
+        <cz-modal ref="deletePermissionModal" modal-width="380px">
             <h3 class="card-title">Delete Permission?</h3>
             <h6 class="card-subtitle mb-6 text-muted">About to delete this permission. Hope you’re sure…</h6>
             <div class="row">
@@ -61,7 +61,7 @@
                         @click="$refs.deletePermissionModal.close()">No</button>
                 </div>
             </div>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

@@ -1,15 +1,15 @@
 <template>
-    <div class="form-floating fm-form-address"
-        :class="{ 'fm-no-label': label == null || label == '' }">
-        <div class="fm-address-container" v-if="value && typeof value === 'object'">
-            <fm-input
+    <div class="form-floating cz-form-address"
+        :class="{ 'cz-no-label': label == null || label == '' }">
+        <div class="cz-address-container" v-if="value && typeof value === 'object'">
+            <cz-input
                 label="Address"
                 v-model="value.address"
                 type="text"
                 :errors="getError('address')"
                 @change="clearError('address')"
                 :disabled="disabled" />
-            <fm-input
+            <cz-input
                 v-if="hasAddressTwo"
                 label="Address Two"
                 v-model="value.address_two"
@@ -17,7 +17,7 @@
                 :errors="getError('address_two')"
                 @change="clearError('address_two')"
                 :disabled="disabled" />
-            <fm-input
+            <cz-input
                 v-if="hasAddressThree"
                 label="Address Three"
                 v-model="value.address_three"
@@ -27,7 +27,7 @@
                 :disabled="disabled" />
             <div class="row">
                 <div v-if="hasCity" class="col col-md-6 col-12">
-                    <fm-input
+                    <cz-input
                         label="City"
                         v-model="value.city"
                         type="text"
@@ -36,16 +36,16 @@
                         :disabled="disabled" />
                 </div>
                 <div class="col col-md-6 col-12">
-                    <fm-select
+                    <cz-select
                         label="State or Province"
                         v-model="value.state_or_province"
                         :items="statesOrProvinces"
                         :errors="getError('state_or_province')"
                         @change="clearError('state_or_province')"
-                        :disabled="disabled"></fm-select>
+                        :disabled="disabled"></cz-select>
                 </div>
                 <div class="col col-md-6 col-12">
-                    <fm-input
+                    <cz-input
                         label="ZIP/Postal Code"
                         v-model="value.zip_or_postal_code"
                         type="text"
@@ -54,13 +54,13 @@
                         :disabled="disabled" />
                 </div>
                 <div v-if="$cuztomisable.locations.countries.length > 1" class="col col-md-6 col-12">
-                    <fm-select
+                    <cz-select
                         label="Country"
                         v-model="value.country"
                         :items="$cuztomisable.locations.countries ?? []"
                         :errors="getError('country')"
                         @change="clearError('country')"
-                        :disabled="disabled"></fm-select>
+                        :disabled="disabled"></cz-select>
                 </div>
             </div>
         </div>
@@ -70,7 +70,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-address_'+Math.random().toString(16).slice(2),
+            id: 'cz-address_'+Math.random().toString(16).slice(2),
             errorList: [],
             hasCity: true,
             statesOrProvinces: [],

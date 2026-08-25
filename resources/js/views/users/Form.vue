@@ -1,32 +1,32 @@
 <template>
     <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
-        <fm-loading :loading="loading || $store.state.loading"></fm-loading>
-        <fm-form v-if="!loading" ref="userForm" :form="form" @save="save">
+        <cz-loading :loading="loading || $store.state.loading"></cz-loading>
+        <cz-form v-if="!loading" ref="userForm" :form="form" @save="save">
             <div class="row mb-4">
                 <div class="col-lg-9 col-md-8 col-sm-12">
                     <div class="card pa-6 mb-6">
                         <h5 class="card-title">User Details</h5>
                         <h6 class="card-subtitle mb-6 text-muted">Basic information and account settings.</h6>
-                        <fm-input
+                        <cz-input
                             label="Name"
                             v-model="form.name"
                             type="text"
                             :errors="errors.name"
                             :disabled="submitting" />
-                        <fm-input
+                        <cz-input
                             v-if="!$cuztomisable.login_with.email && !$cuztomisable.login_with.phone"
                             label="Username"
                             v-model="form.username"
                             type="text"
                             :errors="errors.username"
                             :disabled="submitting" />
-                        <fm-input
+                        <cz-input
                             label="Email"
                             v-model="form.email"
                             type="email"
                             :errors="errors.email"
                             :disabled="submitting" />
-                        <fm-phone
+                        <cz-phone
                             label="Phone"
                             v-model="form.phone"
                             :errors="errors.phone"
@@ -37,7 +37,7 @@
                     <div v-if="$cuztomisable.registration.address !== false" class="card pa-6" :class="{ 'mb-6': breakpoint('sm') }">
                         <h5 class="card-title">Address</h5>
                         <h6 class="card-subtitle mb-6 text-muted">Primary residence and contact location.</h6>
-                        <fm-address
+                        <cz-address
                             label="Address"
                             v-model="form.address"
                             :errors="errors.address"
@@ -48,10 +48,10 @@
                 </div>
                 <div class="col-lg-3 col-md-4 col-sm-12">
                     <div class="card pa-6">
-                        <fm-image
+                        <cz-image
                             :src="imageUrl"
                             alt="User Image"
-                            img-class="fm-image img-fluid w-100"
+                            img-class="cz-image img-fluid w-100"
                             v-model="form.image"
                             uploader />
                     </div>
@@ -92,8 +92,8 @@
                     :disabled="submitting">Save Changes</button>
                 <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }" @click="goBack()" :disabled="submitting">Go Back</button>
             </div>
-        </fm-form>
-        <fm-modal v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
+        </cz-form>
+        <cz-modal v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
             ref="mfaModal"
             v-on:open="$refs['user-mfa-form'].reset()"
             modal-width="340px">
@@ -103,8 +103,8 @@
                 v-on:close="$refs.mfaModal.close();"
                 v-on:message="message"
                 :user="form?.id"></component>
-        </fm-modal>
-        <fm-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
+        </cz-modal>
+        <cz-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
             ref="securityModal"
             v-on:open="$refs['user-security-form'].reset()"
             modal-width="600px">
@@ -114,8 +114,8 @@
                 v-on:close="$refs.securityModal.close();"
                 v-on:message="message"
                 :user="form?.id"></component>
-        </fm-modal>
-        <fm-modal v-if="isMineOrHasPermission('reset-user-passwords')"
+        </cz-modal>
+        <cz-modal v-if="isMineOrHasPermission('reset-user-passwords')"
             ref="passwordModal"
             v-on:open="$refs['user-password-form'].reset()"
             modal-width="425px">
@@ -126,8 +126,8 @@
                 v-on:message="message"
                 :user="form?.id"
                 :admin="$store.state.user?.admin"></component>
-        </fm-modal>
-        <fm-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
+        </cz-modal>
+        <cz-modal v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
             ref="recentLoginModal"
             v-on:open="$refs['user-login-form']?.reset()"
             modal-width="575px">
@@ -139,7 +139,7 @@
                 v-on:message="message"
                 :user="form?.id"
                 :admin="$store.state.user?.admin"></component>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

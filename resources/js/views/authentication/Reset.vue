@@ -1,18 +1,16 @@
 <template>
-    <div id="login-page" class="page">
-        <div class="card ma-2 pa-6">
-            <div class="d-flex">
-                <img :src="$url+'logo.png'" class="cz-authentication-logo">
-                <div class="cz-title">
-                    <h3 class="card-title">Reset Password</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        <span v-if="!verifiedCode">The code was sent to your email address</span>
-                        <span v-else>Enter your new password</span>
-                    </h6>
-                </div>
+    <div id="login-page" class="page auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <img :src="$url+'logo.png'" class="auth-card__logo">
+                <h1 class="auth-card__title">Reset Password</h1>
+                <p class="auth-card__subtitle">
+                    <span v-if="!verifiedCode">The code was sent to your email address</span>
+                    <span v-else>Enter your new password</span>
+                </p>
             </div>
-            <fm-form v-if="!verifiedCode" ref="codeForm" class="mt-4" :form="form" @save="verify(true)">
-                <fm-input
+            <cz-form v-if="!verifiedCode" ref="codeForm" class="auth-card__form" :form="form" @save="verify(true)">
+                <cz-input
                     label="Code"
                     v-model="form.code"
                     type="input"
@@ -23,9 +21,9 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Verify</button>
                 </div>
-            </fm-form>
-            <fm-form v-else ref="resetForm" class="mt-4" :form="form" @save="save">
-                <fm-input
+            </cz-form>
+            <cz-form v-else ref="resetForm" class="auth-card__form" :form="form" @save="save">
+                <cz-input
                     label="Password"
                     v-model="form.password"
                     type="password"
@@ -35,11 +33,11 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Change</button>
                 </div>
-            </fm-form>
+            </cz-form>
         </div>
-        <div v-if="!verifiedCode" class="text-center">
+        <p v-if="!verifiedCode" class="auth-card__footer">
             <router-link :to="{ name: 'login' }" class="button--link">Remember password?</router-link>
-        </div>
+        </p>
     </div>
 </template>
 <script>

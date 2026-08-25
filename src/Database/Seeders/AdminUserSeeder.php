@@ -1,9 +1,11 @@
 <?php
 
-namespace Database\Seeders;
+namespace VanDmade\Cuztomisable\Database\Seeders;
 
+use Hash;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use VanDmade\Cuztomisable\Models\Roles\Role;
+use VanDmade\Cuztomisable\Models\Users\Role as UserRole;
 
 class AdminUserSeeder extends Seeder
 {
@@ -11,15 +13,14 @@ class AdminUserSeeder extends Seeder
     {
         $userModel = config('auth.providers.users.model');
         $email = env('CUZTOMISABLE_ADMIN', 'admin@cuztomisable.com');
-        $username = env('CUZTOMISABLE_ADMIN_USERNAME', 'admin');
-        $password = env('CUZTOMISABLE_ADMIN_PASSWORD', 'Password123!');
-
+        $username = 'admin';
+        $password = 'password';
         $user = $userModel::updateOrCreate(
             ['email' => $email],
             [
                 'name' => 'Admin',
                 'username' => $username,
-                'password' => $password,
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
                 'admin' => true,
                 'change_password' => true,
@@ -27,17 +28,13 @@ class AdminUserSeeder extends Seeder
                 'multi_factor_authentication' => false,
             ]
         );
-
-        $administratorRoleId = DB::table('roles')->where('slug', 'administrator')->value('id');
-        if ($administratorRoleId) {
-            DB::table('user_roles')->insertOrIgnore([
+        $administrator = Role::where('slug', 'administrator')->first();
+        if ($administrator) {
+            UserRole::firstOrCreate([
                 'user_id' => $user->id,
-                'role_id' => $administratorRoleId,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'role_id' => $administrator->id,
             ]);
         }
-
-        $this->command?->info("Admin user ready: {$email} / {$password} (password change required on first login)");
+        $this->command?->info('Admin user ready: {'.$email.'} / {'.$password.'} (password change required on first login)');
     }
 }

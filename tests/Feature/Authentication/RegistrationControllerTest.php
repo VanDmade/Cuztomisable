@@ -52,7 +52,7 @@ class RegistrationControllerTest extends TestCase
     }
 
     // invite()/toggleDelete()/send() all sit behind auth:sanctum + permission:invite-users
-    // (routes.php). Use Laravel\Sanctum\Sanctum::actingAs($user) - not plain actingAs() - so the
+    // (routes/api.php). Use Laravel\Sanctum\Sanctum::actingAs($user) - not plain actingAs() - so the
     // auth:sanctum middleware actually resolves the user. Granting the permission itself means
     // creating a Models\Permission row plus a Models\Users\Permission link row (user_id/permission_id).
 

@@ -1,22 +1,22 @@
 <template>
     <div class="role-form">
-        <fm-loading v-if="loading" :loading="loading" :large="false" :full="false" />
-        <fm-form v-show="!loading" ref="roleForm" :form="form" @save="save">
+        <cz-loading v-if="loading" :loading="loading" :large="false" :full="false" />
+        <cz-form v-show="!loading" ref="roleForm" :form="form" @save="save">
             <h3 class="card-title">{{ form?.id ? 'Manage': 'Create' }} Role</h3>
             <h6 class="card-subtitle mb-6 text-muted">Define the role's identifier, slug, and description.</h6>
-            <fm-input
+            <cz-input
                 label="Name"
                 v-model="form.name"
                 type="text"
                 :errors="errors.name"
                 :disabled="submitting" />
-            <fm-input
+            <cz-input
                 label="Slug"
                 v-model="form.slug"
                 type="text"
                 :errors="errors.slug"
                 :disabled="submitting" />
-            <fm-textarea
+            <cz-textarea
                 label="Description"
                 v-model="form.description"
                 :errors="errors.description"
@@ -27,7 +27,7 @@
             <h6 v-if="permissions.length == 0" class="card-subtitle mb-6 text-muted">The system doesn't seem to have any permissions yet.</h6>
             <div v-for="(permission, index) in permissions">
                 <div class="d-flex">
-                    <fm-checkbox
+                    <cz-checkbox
                         :label="permission.name"
                         v-model="form.permissions[permission.id.toString()]"
                         type="checkbox"
@@ -53,7 +53,7 @@
                     :disabled="submitting"
                     @click="close">Nevermind</button>
             </div>
-        </fm-form>
+        </cz-form>
     </div>
 </template>
 <script>

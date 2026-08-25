@@ -2,16 +2,16 @@
     <div id="create-user-form">
         <div class="row">
             <div class="col-lg-4 col-md-5 col-sm-12">
-                <fm-form ref="userCreateForm" :form="form" @save="save">
+                <cz-form ref="userCreateForm" :form="form" @save="save">
                     <h3 class="card-title">Invite User</h3>
                     <h6 class="card-subtitle mb-6 text-muted">Granting access like a digital bouncer.</h6>
-                    <fm-input
+                    <cz-input
                         label="Name"
                         v-model="form.name"
                         type="text"
                         :errors="errors.name"
                         :disabled="submitting" />
-                    <fm-phone
+                    <cz-phone
                         v-if="form.use_phone == '1'"
                         label="Phone"
                         v-model="form.phone"
@@ -19,14 +19,14 @@
                         :disabled="submitting"
                         is-mobile
                         default />
-                    <fm-input
+                    <cz-input
                         v-else
                         label="Email"
                         v-model="form.email"
                         type="email"
                         :errors="errors.email"
                         :disabled="submitting" />
-                    <fm-checkbox
+                    <cz-checkbox
                         label="Send invite via phone number"
                         v-model="form.use_phone"
                         @change="errors = [];"
@@ -46,12 +46,12 @@
                                 @click="close">Nevermind</button>
                         </div>
                     </div>
-                </fm-form>
+                </cz-form>
             </div>
             <div class="col-lg-8 col-md-7 col-sm-12">
-                <tablelify :headers="headers" :url="url" ref="inviteTable">
+                <cz-table :headers="headers" :url="url" ref="inviteTable">
                     <template #name="{ name, email, phone }">
-                        <div class="tablelify-data">
+                        <div class="cz-table-data">
                             {{ name }}
                             <p class="note mb-0">
                                 <a v-if="email != null" :href="'mailto:'+email">{{ email }}</a>
@@ -60,12 +60,12 @@
                         </div>
                     </template>
                     <template #expires_at="{ expires_at }">
-                        <div class="tablelify-data">
+                        <div class="cz-table-data">
                             {{ expires_at == null ? 'Never' : formatDate(expires_at) }}
                         </div>
                     </template>
                     <template #actions="item">
-                        <div class="tablelify-data text-center">
+                        <div class="cz-table-data text-center">
                             <div :class="{ 'row': breakpoint('sm') }">
                                 <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                                     <button
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                     </template>
-                </tablelify>
+                </cz-table>
             </div>
         </div>
     </div>

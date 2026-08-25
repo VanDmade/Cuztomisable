@@ -42,7 +42,7 @@ namespace (`loadViewsFrom`). A Mailable's `content()` references them as
 customize one, publish and edit the copy rather than repointing a config value:
 
 ```
-php artisan vendor:publish --tag=cuztomisable-views
+php artisan vendor:publish --tag=cuztomisable-emails
 ```
 
 This publishes into `resources/views/vendor/cuztomisable`, which Laravel checks *before* falling

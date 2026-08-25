@@ -8,7 +8,7 @@ class PermissionControllerTest extends TestCase
 {
 
     // get()/table()/save()/toggleDelete() all sit behind auth:sanctum + permission:manage-roles-permissions
-    // (routes.php). list() has no permission gate beyond being logged in. Use Sanctum::actingAs()
+    // (routes/api.php). list() has no permission gate beyond being logged in. Use Sanctum::actingAs()
     // for these, same as RegistrationControllerTest's invite-gated tests.
 
     // GET /api/permission/{id} - eager-loads createdBy (id/name/email) and roles - works withTrashed(),

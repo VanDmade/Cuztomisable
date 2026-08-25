@@ -1,6 +1,6 @@
 <template>
     <div class="page table-page container-fluid">
-        <tablelify :headers="headers" :url="url" ref="inviteTable">
+        <cz-table :headers="headers" :url="url" ref="inviteTable">
             <template #header>
                 <button
                     @click="add()"
@@ -8,7 +8,7 @@
                     :class="{ 'button--block mb-4': breakpoint('sm') }">Invite User</button>
             </template>
             <template #name="{ name, email, phone }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ name }}
                     <p class="note mb-0">
                         <a v-if="email != null" class="color--link" :href="'mailto:'+email">{{ email }}</a>
@@ -17,7 +17,7 @@
                 </div>
             </template>
             <template #creator="{ creator, creator_email}">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ creator }}
                     <p class="note mb-0">
                         <a class="color--link" :href="'mailto:'+creator_email">{{ creator_email }}</a>
@@ -25,18 +25,18 @@
                 </div>
             </template>
             <template #expires_at="{ expires_at, expired_ago }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     <span v-if="expired_ago != null">{{ expired_ago }}</span>
                     <span v-else>{{ expires_at == null ? 'Never' : formatDate(expires_at) }}</span>
                 </div>
             </template>
             <template #sent_at="{ sent_at }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ sent_at == null ? 'Never' : formatDate(sent_at) }}
                 </div>
             </template>
             <template #used="{ used_at }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     <div v-if="used_at == null">No</div>
                     <div v-else>
                         Yes
@@ -45,7 +45,7 @@
                 </div>
             </template>
             <template #actions="item">
-                <div class="tablelify-data text-center">
+                <div class="cz-table-data text-center">
                     <div :class="{ 'row': breakpoint('sm') }">
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
@@ -64,11 +64,11 @@
                     </div>
                 </div>
             </template>
-        </tablelify>
-        <fm-modal ref="inviteModal" modal-width="425px">
+        </cz-table>
+        <cz-modal ref="inviteModal" modal-width="425px">
             <invite-form v-on:close="$refs.inviteModal.close()" v-on:message="setMessage" v-on:redraw="$refs.inviteTable.query()" />
-        </fm-modal>
-        <fm-modal ref="deleteInvitationModal" modal-width="380px">
+        </cz-modal>
+        <cz-modal ref="deleteInvitationModal" modal-width="380px">
             <h3 class="card-title">Delete Registration Link?</h3>
             <h6 class="card-subtitle mb-6 text-muted">Cancel this invite and prevent registration.</h6>
             <div class="row">
@@ -85,7 +85,7 @@
                         @click="$refs.deleteInvitationModal.close()">No</button>
                 </div>
             </div>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

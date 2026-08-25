@@ -1,20 +1,20 @@
 <template>
-    <div class="form-floating fm-form-input">
-        <div v-if="image" class="fm-form-uploader" @click="upload(false)">
-            <img v-show="!multiple || total <= 1" :src="previewSrc" :id="id" class="fm-image fm-image-preview" :class="{ 'fm-image-cursor': !selected }">
-            <div :id="id + '-container'" class="fm-image-container" :class="{ 'scroll': total > 1 }"></div>
-            <div v-if="!selected" class="fm-form-upload-text">
+    <div class="form-floating cz-form-input">
+        <div v-if="image" class="cz-form-uploader" @click="upload(false)">
+            <img v-show="!multiple || total <= 1" :src="previewSrc" :id="id" class="cz-image cz-image-preview" :class="{ 'cz-image-cursor': !selected }">
+            <div :id="id + '-container'" class="cz-image-container" :class="{ 'scroll': total > 1 }"></div>
+            <div v-if="!selected" class="cz-form-upload-text">
                 Browse for File Upload
-                <ul v-if="!hideDetails && errorList.length > 0" class="form-errors fm-form-errors mb-2">
-                    <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+                <ul v-if="!hideDetails && errorList.length > 0" class="form-errors cz-form-errors mb-2">
+                    <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
                 </ul>
             </div>
-            <div v-else-if="!multiple || total <= 1" class="fm-form-upload-clear" @click="clear"><span class="material-icons">close</span></div>
+            <div v-else-if="!multiple || total <= 1" class="cz-form-upload-clear" @click="clear"><span class="material-icons">close</span></div>
         </div>
         <div class="d-grid" v-if="selected">
             <button type="button" class="button button--primary button--small mt-3" block @click="upload(true)">Upload</button>
         </div>
-        <div v-if="description != null" class="fm-upload-description">{{ description }}</div>
+        <div v-if="description != null" class="cz-upload-description">{{ description }}</div>
         <input v-show="false" type="file" :ref="'uploader-'+id" :id="'uploader-'+id" @change="change" :multiple="multiple">
     </div>
 </template>
@@ -22,7 +22,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-file_'+Math.random().toString(36).slice(2),
+            id: 'cz-file_'+Math.random().toString(36).slice(2),
             key: 0,
             default: this.$url+'default.png',
             previewSrc: this.$url+'default.png',
@@ -179,13 +179,13 @@ export default {
         },
         setThumbnail: function(event) {
             // Makes sure not to mix up click functionality
-            if (event.target.className.indexOf('fm-form-upload-clear') != -1 ||
+            if (event.target.className.indexOf('cz-form-upload-clear') != -1 ||
                 event.target.className.indexOf('material-icons') != -1) {
                 return;
             }
             let outerContainer = document.getElementById(this.id + '-container');
-            let containers = outerContainer.querySelectorAll('.fm-form-multiple-image-container');
-            const target = event.target.closest('.fm-form-multiple-image-container');
+            let containers = outerContainer.querySelectorAll('.cz-form-multiple-image-container');
+            const target = event.target.closest('.cz-form-multiple-image-container');
             let index = Array.from(containers).indexOf(target);
             outerContainer.prepend(target);
             // Removes the current file from it's current location and then adds it to the front
@@ -196,7 +196,7 @@ export default {
             let _this = this;
             // Creates hte container for the clear and image
             let imageContainer = document.createElement('div');
-            imageContainer.className = 'fm-form-multiple-image-container';
+            imageContainer.className = 'cz-form-multiple-image-container';
             if (_this.thumbnail) {
                 // Adds an event to allow the user to select a new thumbnail without re-uploading
                 imageContainer.addEventListener('click', (event) => {
@@ -205,9 +205,9 @@ export default {
             }
             // Creates the actual image to be displayed
             let image = document.createElement('img');
-            image.className = ['fm-image',
-                index == 0 && _this.thumbnail ? ' fm-thumbnail-image' : '',
-                _this.thumbnail ? ' fm-thumbnail-selector' : '',
+            image.className = ['cz-image',
+                index == 0 && _this.thumbnail ? ' cz-thumbnail-image' : '',
+                _this.thumbnail ? ' cz-thumbnail-selector' : '',
             ].join(' ');
             // Determines if the event is the object from the server or actual DOM event
             image.src = typeof(event.id) != 'undefined' ? event.path : event.target.result;
@@ -217,7 +217,7 @@ export default {
             icon.textContent = 'close';
             // Creates the icon to be used to clear
             let clear = document.createElement('span');
-            clear.className = 'fm-form-upload-clear ' + index;
+            clear.className = 'cz-form-upload-clear ' + index;
             clear.appendChild(icon);
             clear.addEventListener('click', (event) => {
                 _this.remove(event);
@@ -226,15 +226,15 @@ export default {
         },
         remove: function(event) {
             let container = document.getElementById(this.id + '-container');
-            let buttons = container.querySelectorAll('.fm-form-upload-clear');
-            const target = event.target.closest('.fm-form-upload-clear');
+            let buttons = container.querySelectorAll('.cz-form-upload-clear');
+            const target = event.target.closest('.cz-form-upload-clear');
             let index = Array.from(buttons).indexOf(target);
             // Removes the image
-            target.closest('.fm-form-multiple-image-container').remove();
+            target.closest('.cz-form-multiple-image-container').remove();
             this.value.splice(index, 1);
             this.total--;
             if (this.total == 1) {
-                let containers = container.querySelectorAll('.fm-form-multiple-image-container');
+                let containers = container.querySelectorAll('.cz-form-multiple-image-container');
                 if (containers.length == 1) {
                     let image = containers[0].querySelector('img');
                     containers[0].remove();

@@ -1,10 +1,10 @@
 <template>
-    <div class="fm-form-input"
-        :class="{ 'fm-no-label': (label == null || label == '') && !dense, 'form-floating': !notFloating }">
+    <div class="cz-form-input"
+        :class="{ 'cz-no-label': (label == null || label == '') && !dense, 'form-floating': !notFloating }">
         <select
             v-model="value"
             :id="id"
-            class="form-control form-select fm-form-control fm-form-select"
+            class="form-control form-select cz-form-control cz-form-select"
             :class="[{ 'is-invalid': errorList.length > 0, 'empty': isEmpty }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
@@ -18,9 +18,9 @@
             <option v-for="(item, itemIndex) in getItems()"
                 :value="yesNo ? item.value : (typeof(item[inputValue]) == 'undefined' ? item : item[inputValue])">{{ yesNo ? item.text : (typeof(item[inputText]) == 'undefined' ? item : item[inputText]) }}</option>
         </select>
-        <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label" :class="{ 'empty': isEmpty }">{{ label }}</label>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <label v-if="label != null && label != ''" :for="id" class="form-label cz-form-label" :class="{ 'empty': isEmpty }">{{ label }}</label>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -28,7 +28,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-select_'+Math.random().toString(16).slice(2),
+            id: 'cz-select_'+Math.random().toString(16).slice(2),
             yesOrNo: [{ value: '1', text: 'Yes'}, { value: '0', text: 'No'}],
             boolOrNo: [{ value: true, text: 'Yes'}, { value: false, text: 'No'}],
             errorList: [],

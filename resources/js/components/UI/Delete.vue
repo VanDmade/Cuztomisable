@@ -1,6 +1,6 @@
 <template>
-    <div class="fm-delete">
-        <fm-loading v-if="loading" :loading="loading" :full="false"></fm-loading>
+    <div class="cz-delete">
+        <cz-loading v-if="loading" :loading="loading" :full="false"></cz-loading>
         <div v-else>
             <h4 class="mb-6" :class="{ 'text-center': breakpoint('sm') }">{{ title }}</h4>
             <slot></slot>

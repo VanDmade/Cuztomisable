@@ -12,7 +12,7 @@ Self-contained [Orchestra Testbench](https://packages.tool.dev/orchestra/testben
 
 Unlike Blocksmith/Hookamatic, Cuztomisable creates its **own** `users` table (it's the main app, not a package bolting onto a host app's existing one) - `tests/TestCase.php` loads Cuztomisable's own migrations directly, no Testbench default-users migration needed.
 
-Sanctum is required (`Models\Users\User` uses `HasApiTokens`) - `tests/TestCase.php` registers `Laravel\Sanctum\SanctumServiceProvider` and wires the `sanctum` auth guard, since a lot of `routes.php` sits behind `auth:sanctum`. For a Sanctum-gated route in a test, use `Laravel\Sanctum\Sanctum::actingAs($user)`, not plain `actingAs()` - the middleware won't recognize a plain session-guard user.
+Sanctum is required (`Models\Users\User` uses `HasApiTokens`) - `tests/TestCase.php` registers `Laravel\Sanctum\SanctumServiceProvider` and wires the `sanctum` auth guard, since a lot of `routes/api.php` sits behind `auth:sanctum`. For a Sanctum-gated route in a test, use `Laravel\Sanctum\Sanctum::actingAs($user)`, not plain `actingAs()` - the middleware won't recognize a plain session-guard user.
 
 ## Running tests
 

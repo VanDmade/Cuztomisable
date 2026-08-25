@@ -309,7 +309,7 @@ return [
         | notifications.emails / notifications.texts by the service provider.
         | The actual view each notification renders is hardcoded on its Mailable
         | (view: 'cuztomisable::...') - to customize a template, publish it with
-        | `php artisan vendor:publish --tag=cuztomisable-views` and edit the copy
+        | `php artisan vendor:publish --tag=cuztomisable-emails` and edit the copy
         | under resources/views/vendor/cuztomisable, rather than repointing a
         | config path. This section only holds delivery settings.
         */

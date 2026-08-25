@@ -1,7 +1,7 @@
 <template>
     <form :id="id" @submit.prevent="$emit('save')">
         <slot></slot>
-        <fm-modal ref="fmFormModal">
+        <cz-modal ref="fmFormModal">
             <h3 class="mb-8 mt-4 text-center">{{ leaveMessage }}</h3>
             <div class="row">
                 <div class="col col-md-6 col-12">
@@ -17,14 +17,14 @@
                         @click="$refs.fmFormModal.close()">{{ noMessage }}</button>
                 </div>
             </div>
-        </fm-modal>
+        </cz-modal>
     </form>
 </template>
 <script>
 export default {
     data: function() {
         return {
-            id: 'fm-form_'+Math.random().toString(16).slice(2),
+            id: 'cz-form_'+Math.random().toString(16).slice(2),
             dialog: true,
             submitting: false,
             next: null,

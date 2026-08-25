@@ -1,24 +1,24 @@
 <template>
-    <div class="fm-image-container lazy-image-wrapper" :id="elementId">
+    <div class="cz-image-container lazy-image-wrapper" :id="elementId">
         <input
             type="file"
             :ref="elementId"
             @change="onFileChange"
             accept="image/*"
             class="form-control d-none" />
-        <i v-if="changed()" @click="reset" class="fm-image-reset cursor--pointer material-icons">close</i>
-        <div class="image-container" :class="{ 'cursor--pointer': uploader, 'fm-border': bordered }" @click="triggerFileInput">
+        <i v-if="changed()" @click="reset" class="cz-image-reset cursor--pointer material-icons">close</i>
+        <div class="image-container" :class="{ 'cursor--pointer': uploader, 'cz-border': bordered }" @click="triggerFileInput">
             <img
                 v-if="visible"
                 :src="url"
                 :alt="alt"
-                :class="[imgClass, 'fade-in', { 'fm-image-hover': uploader }]"
+                :class="[imgClass, 'fade-in', { 'cz-image-hover': uploader }]"
                 loading="lazy"
                 :ref="elementId+'-img'"
                 @load="setImageDimensions" />
         </div>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-0 mt-1">
-            <li v-for="(error, i) in errorList" :key="elementId+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-0 mt-1">
+            <li v-for="(error, i) in errorList" :key="elementId+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
         <div v-if="$refs[elementId] != null && details">
             <strong>Dimensions:</strong> {{ width }} x {{ height }} px<br />
@@ -31,7 +31,7 @@ export default {
     data: function() {
         return {
             visible: false,
-            elementId: 'fm-image_'+Math.random().toString(16).slice(2),
+            elementId: 'cz-image_'+Math.random().toString(16).slice(2),
             url: this.src,
             errorList: [],
             width: 0,
@@ -160,7 +160,7 @@ export default {
         width: inherit;
         height: inherit;
     }
-    .fm-image-reset {
+    .cz-image-reset {
         position: absolute;
         top: 18px;
         right: 18px;
@@ -170,11 +170,11 @@ export default {
         padding: 2px;
         text-align: center;
     }
-    .fm-image-reset:hover, .fm-image-reset:focus {
+    .cz-image-reset:hover, .cz-image-reset:focus {
         box-shadow: 0 0 4px rgba(0,0,0,0.15);
         color: #0f0f0f;
     }
-    .fm-image-hover:hover {
+    .cz-image-hover:hover {
         box-shadow: 0 0 12px rgba(0,0,0,0.025);
     }
 </style>

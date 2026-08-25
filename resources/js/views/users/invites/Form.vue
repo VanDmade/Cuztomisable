@@ -1,15 +1,15 @@
 <template>
     <div id="invite-form">
-        <fm-form ref="inviteForm" :form="form" @save="save">
+        <cz-form ref="inviteForm" :form="form" @save="save">
             <h3 class="card-title">Invite User</h3>
             <h6 class="card-subtitle mb-6 text-muted">Granting access like a digital bouncer.</h6>
-            <fm-input
+            <cz-input
                 label="Name"
                 v-model="form.name"
                 type="text"
                 :errors="errors.name"
                 :disabled="submitting" />
-            <fm-phone
+            <cz-phone
                 v-if="form.use_phone == '1'"
                 label="Phone"
                 v-model="form.phone"
@@ -17,14 +17,14 @@
                 :disabled="submitting"
                 is-mobile
                 default />
-            <fm-input
+            <cz-input
                 v-else
                 label="Email"
                 v-model="form.email"
                 type="email"
                 :errors="errors.email"
                 :disabled="submitting" />
-            <fm-checkbox
+            <cz-checkbox
                 label="Send invite via phone number"
                 v-model="form.use_phone"
                 @change="errors = [];"
@@ -52,7 +52,7 @@
                         @click="close">Nevermind</button>
                 </div>
             </div>
-        </fm-form>
+        </cz-form>
     </div>
 </template>
 <script>

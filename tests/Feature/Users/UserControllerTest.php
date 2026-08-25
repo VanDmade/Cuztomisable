@@ -104,9 +104,9 @@ class UserControllerTest extends TestCase
     {
     }
 
-    // verification()/unsubscribe() exist on the controller but aren't wired up in routes.php at all
+    // verification()/unsubscribe() exist on the controller but aren't wired up in routes/api.php at all
     // (confirmed via a full read of the file) - dead/unreachable code today. Flag this rather than
     // writing HTTP-level tests against routes that don't exist; if these are meant to come back, that's
-    // a routes.php fix, not a test-writing task.
+    // a routes/api.php fix, not a test-writing task.
 
 }

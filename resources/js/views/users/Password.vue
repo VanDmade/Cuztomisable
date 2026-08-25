@@ -1,6 +1,6 @@
 <template>
     <div id="change-password-form">
-        <fm-form ref="changePasswordForm" :form="form"
+        <cz-form ref="changePasswordForm" :form="form"
             @save="submit">
             <div v-if="admin && user != $store.state.user.id" id="password-admin-controls">
                 <h3 class="card-title">Admin Controls</h3>
@@ -23,14 +23,14 @@
             <div v-else id="password-controls">
                 <h3 class="card-title">Change Password</h3>
                 <h6 class="card-subtitle mb-2 text-muted">Set a new password for this account.</h6>
-                <fm-input
+                <cz-input
                     label="Current Password"
                     v-model="form.current"
                     type="password"
                     autocomplete="current-password"
                     :errors="errors.current"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     label="New Password"
                     v-model="form.new"
                     type="password"
@@ -53,7 +53,7 @@
                     </div>
                 </div>
             </div>
-        </fm-form>
+        </cz-form>
     </div>
 </template>
 <script>

@@ -1,6 +1,6 @@
 <template>
-    <div class="fm-form-input form-check"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+    <div class="cz-form-input form-check"
+        :class="{ 'cz-no-label': label == null || label == '' }">
         <input
             v-model="value"
             type="checkbox"
@@ -12,8 +12,8 @@
             :readonly="readonly"
             @input="errorList = []">
         <label v-if="!noLabel" class="form-check-label" :for="id">{{ label }}</label>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -21,7 +21,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-checkbox_'+Math.random().toString(16).slice(2),
+            id: 'cz-checkbox_'+Math.random().toString(16).slice(2),
             errorList: [],
         }
     },

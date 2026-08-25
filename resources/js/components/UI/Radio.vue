@@ -1,6 +1,6 @@
 <template>
-    <div class="fm-form-input"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+    <div class="cz-form-input"
+        :class="{ 'cz-no-label': label == null || label == '' }">
         <div class="form-check" v-for="(item, radioIndex) in items" :key="radioIndex">
             <input
                 v-model="value"
@@ -14,8 +14,8 @@
                 @input="errorList = []">
             <label class="form-check-label" :for="id+'-id_'+radioIndex">{{ item[inputText] }}</label>
         </div>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -23,7 +23,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-radio_'+Math.random().toString(16).slice(2),
+            id: 'cz-radio_'+Math.random().toString(16).slice(2),
             errorList: [],
         }
     },

@@ -1,6 +1,6 @@
 <template>
     <div class="page table-page container-fluid">
-        <tablelify :headers="headers" :url="url" ref="roleTable">
+        <cz-table :headers="headers" :url="url" ref="roleTable">
             <template #header>
                 <button
                     @click="form()"
@@ -8,18 +8,18 @@
                     :class="{ 'button--block mb-4': breakpoint('sm') }">Add Role</button>
             </template>
             <template #name="{ name, slug }">
-                <div class="tablelify-data">
+                <div class="cz-table-data">
                     {{ name }}
                     <p class="note mb-0">{{ slug }}</p>
                 </div>
             </template>
             <template #description="{ description }">
-                <div class="tablelify-data tablelify-multi-line">
+                <div class="cz-table-data cz-table-multi-line">
                     {{ description }}
                 </div>
             </template>
             <template #actions="item">
-                <div class="tablelify-data text-center">
+                <div class="cz-table-data text-center">
                     <div :class="{ 'row': breakpoint('sm') }">
                         <div :class="{ 'col col-sm-6': breakpoint('sm'), 'display-inline': !breakpoint('sm') }">
                             <button
@@ -37,15 +37,15 @@
                     </div>
                 </div>
             </template>
-        </tablelify>
-        <fm-modal ref="roleModal" modal-width="425px">
+        </cz-table>
+        <cz-modal ref="roleModal" modal-width="425px">
             <role-form
                 :id="id"
                 v-on:close="$refs.roleModal.close()"
                 v-on:message="setMessage"
                 v-on:redraw="$refs.roleTable.query()" />
-        </fm-modal>
-        <fm-modal ref="deleteRoleModal" modal-width="380px">
+        </cz-modal>
+        <cz-modal ref="deleteRoleModal" modal-width="380px">
             <h3 class="card-title">Delete Role?</h3>
             <h6 class="card-subtitle mb-6 text-muted">About to delete this role. Any users still assigned to it are about to feel very unauthorized.</h6>
             <div class="row">
@@ -62,7 +62,7 @@
                         @click="$refs.deleteRoleModal.close()">No</button>
                 </div>
             </div>
-        </fm-modal>
+        </cz-modal>
     </div>
 </template>
 <script>

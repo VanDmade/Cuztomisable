@@ -1,12 +1,12 @@
 <template>
-    <div class="fm-messages" :style="containerStyle">
-        <div v-for="item in messages" :key="item.id" class="fm-message-container">
-            <div class="fm-message shadow fade-in" :class="messageClasses(item)">
-                <span class="fm-message-text">{{ item.text }}</span>
+    <div class="cz-messages" :style="containerStyle">
+        <div v-for="item in messages" :key="item.id" class="cz-message-container">
+            <div class="cz-message shadow fade-in" :class="messageClasses(item)">
+                <span class="cz-message-text">{{ item.text }}</span>
                 <button
                     v-if="item.persistent"
                     type="button"
-                    class="fm-message-close"
+                    class="cz-message-close"
                     @click="close(item.id)">
                     <span class="material-icons">close</span>
                 </button>
@@ -21,9 +21,9 @@ export default {
     methods: {
         messageClasses: function(item) {
             const color = String(item?.color ?? 'success').toLowerCase();
-            const classes = [`fm-message-${color}`];
+            const classes = [`cz-message-${color}`];
             if (color === 'danger') {
-                classes.push('fm-message-error');
+                classes.push('cz-message-error');
             }
             return classes;
         },

@@ -1,11 +1,11 @@
 <template>
-    <div class="form-floating fm-form-input fm-form-autofill"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+    <div class="form-floating cz-form-input cz-form-autofill"
+        :class="{ 'cz-no-label': label == null || label == '' }">
         <input
             v-model="value"
             type="text"
             :id="id"
-            class="form-control fm-form-control"
+            class="form-control cz-form-control"
             :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
@@ -13,12 +13,12 @@
             :list="datalist"
             @input="errorList = []"
             @keydown.enter.prevent="handleEnter">
-        <label v-if="label != null && label != ''" :for="id" class="fm-form-label">{{ label }}</label>
+        <label v-if="label != null && label != ''" :for="id" class="cz-form-label">{{ label }}</label>
         <datalist :id="datalist">
             <option v-for="(option, i) in list" :key="`${id}-option-${i}`" :value="option[listText]">{{ option[listText] }}</option>
         </datalist>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -26,7 +26,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-autofill_'+Math.random().toString(16).slice(2),
+            id: 'cz-autofill_'+Math.random().toString(16).slice(2),
             datalist: 'datalist_'+Math.random().toString(16).slice(2),
             errorList: [],
         }

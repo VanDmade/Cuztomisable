@@ -1,11 +1,11 @@
 <template>
-    <div class="fm-form-input"
-        :class="{ 'form-floating': label != null && label != '', 'fm-no-label': label == null || label == '', 'fm-color-input': type == 'color' }">
+    <div class="cz-form-input"
+        :class="{ 'form-floating': label != null && label != '', 'cz-no-label': label == null || label == '', 'cz-color-input': type == 'color' }">
         <input
             v-model="value"
             :type="type == 'number' ? 'input' : type"
             :id="id"
-            class="form-control fm-form-control"
+            class="form-control cz-form-control"
             :class="[{
                 'is-invalid': errorList.length > 0,
                 'empty': value === '' || value === null || value === undefined,
@@ -16,9 +16,9 @@
             :maxlength="max != null ? max : 1000000"
             :autocomplete="autocomplete"
             @input="errorList = []">
-        <label v-if="label != null && label != ''" :for="id" class="fm-form-label">{{ label }}</label>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <label v-if="label != null && label != ''" :for="id" class="cz-form-label">{{ label }}</label>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -26,7 +26,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-input_'+Math.random().toString(16).slice(2),
+            id: 'cz-input_'+Math.random().toString(16).slice(2),
             errorList: [],
         }
     },

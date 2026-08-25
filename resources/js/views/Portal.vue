@@ -30,14 +30,14 @@
                 <div class="portal-feature">
                     <span class="material-icons portal-feature__icon">table_chart</span>
                     <div>
-                        <h5 class="portal-feature__title">Tablelify — Dynamic Data Tables</h5>
+                        <h5 class="portal-feature__title">Dynamic Data Tables</h5>
                         <p class="portal-feature__desc">A configurable table engine that handles sorting, filtering, and pagination at the API level. Drop it into any view, point it at an endpoint, and your data is immediately browsable — no custom table logic required.</p>
                     </div>
                 </div>
                 <div class="portal-feature">
                     <span class="material-icons portal-feature__icon">dynamic_form</span>
                     <div>
-                        <h5 class="portal-feature__title">Formora — Component Form Library</h5>
+                        <h5 class="portal-feature__title">Component Form Library</h5>
                         <p class="portal-feature__desc">A suite of pre-built form components — inputs, selects, multi-selects, file uploads, phone fields, and more — all consistently styled and validation-ready. Forms that used to take hours take minutes.</p>
                     </div>
                 </div>

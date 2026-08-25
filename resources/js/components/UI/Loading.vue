@@ -1,10 +1,10 @@
 <template>
     <transition name="fade">
-        <div v-if="loading" :class="['fm-loading', { large, 'fm-loading-full': full }]">
-            <div class="fm-spinner spinner-border fm-bootstrap-spinner text-primary" :class="{ 'spinner-border-sm': !large }" role="status" aria-live="polite">
+        <div v-if="loading" :class="['cz-loading', { large, 'cz-loading-full': full }]">
+            <div class="cz-spinner spinner-border cz-bootstrap-spinner text-primary" :class="{ 'spinner-border-sm': !large }" role="status" aria-live="polite">
                 <span class="visually-hidden">{{ message }}</span>
             </div>
-            <p class="fm-loading-text">{{ message }}</p>
+            <p class="cz-loading-text">{{ message }}</p>
         </div>
     </transition>
 </template>

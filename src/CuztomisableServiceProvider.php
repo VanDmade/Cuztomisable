@@ -10,11 +10,12 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Routing\Router;
 use Inertia\Inertia;
+use VanDmade\Cuztomisable\Console\Commands\InstallCommand;
 use VanDmade\Cuztomisable\Middleware\CheckPermission;
-use VanDmade\Cuztomisable\Middleware\HandleInertiaRequests;
 use VanDmade\Cuztomisable\Middleware\RequireAdmin;
 use VanDmade\Cuztomisable\Middleware\RequireCurrentTerms;
 use VanDmade\Cuztomisable\Middleware\Throttler;
+use VanDmade\Cuztomisable\Models\Users\User;
 use VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider;
 use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
@@ -32,9 +33,9 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views/emails', 'cuztomisable');
         if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../database/seeders' => database_path('seeders'),
-            ], 'cuztomisable-seeders');
+            $this->commands([
+                InstallCommand::class,
+            ]);
         }
         Route::prefix('api')
             ->middleware([
@@ -46,75 +47,78 @@ class CuztomisableServiceProvider extends ServiceProvider
                 Middleware\RequireCsrfUnlessMobile::class,
                 Middleware\EnsureValidMobileAgent::class,
             ])
-            ->group(__DIR__.'/../routes.php');
+            ->group(__DIR__.'/../routes/api.php');
 
-        Route::middleware([
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            Middleware\TokenFromCookie::class,
-            Middleware\RequireCsrfUnlessMobile::class,
-            Middleware\EnsureValidMobileAgent::class,
-            HandleInertiaRequests::class,
-        ])->group(function () {
-            Route::get('/', fn () => Inertia::render('authentication/Login'))->name('page.login');
-            Route::get('/login', fn () => Inertia::render('authentication/Login'))->name('page.login.alias');
-            Route::get('/registration/{code?}', fn () => Inertia::render('authentication/Registration'))->name('page.registration');
-            Route::get('/forgot', fn () => Inertia::render('authentication/Forgot'))->name('page.forgot');
-            Route::get('/reset/{token}', fn () => Inertia::render('authentication/Reset'))->name('page.reset');
-            Route::get('/mfa/{token}', fn () => Inertia::render('authentication/MFA'))->name('page.mfa');
-            Route::get('/message', fn () => Inertia::render('Message'))->name('page.message');
-            Route::get('/portal', fn () => Inertia::render('Portal'))->name('page.portal');
-            Route::get('/profile', fn () => Inertia::render('users/Form'))->name('page.profile');
-            Route::get('/user/{id}', fn () => Inertia::render('users/Form'))->name('page.user.form');
-            Route::get('/users', fn () => Inertia::render('users/Table'))->name('page.users');
-            Route::get('/invites', fn () => Inertia::render('users/invites/Table'))->name('page.invites');
-            Route::get('/roles', fn () => Inertia::render('roles/Table'))->name('page.roles');
-            Route::get('/permissions', fn () => Inertia::render('permissions/Table'))->name('page.permissions');
-        });
+        // Only if the host installed inertiajs/inertia-laravel themselves - no middleware class
+        // of our own, just Inertia's own render() call under the same web-safe middleware the
+        // API routes already use.
+        if (class_exists(Inertia::class)) {
+            Inertia::setRootView('index');
+            Route::middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                ShareErrorsFromSession::class,
+            ])->group(__DIR__.'/../routes/web.php');
+        }
     }
 
     public function register(): void
     {
         $this->app->register(EventServiceProvider::class);
+        if (!env('AUTH_MODEL')) {
+            config(['auth.providers.users.model' => User::class]);
+        }
         $this->mergeConfigFrom(__DIR__.'/../config/cuztomisable.php', 'cuztomisable');
-        // email.php/text.php are source-organization only, not separately published - they merge
-        // into the same nested paths the single published cuztomisable.php already exposes.
+        // Merges the config files into the main config file
         $this->mergeConfigFrom(__DIR__.'/../config/email.php', 'cuztomisable.notifications.emails');
         $this->mergeConfigFrom(__DIR__.'/../config/text.php', 'cuztomisable.notifications.texts');
         $this->mergeConfigFrom(__DIR__.'/../config/rate_limits.php', 'cuztomisable.rate_limits');
         $this->mergeConfigFrom(__DIR__.'/../config/passwords.php', 'cuztomisable.account.passwords');
         $this->app->bind(SmsProviderInterface::class, config('cuztomisable.sms_provider', AwsSnsSmsProvider::class));
+        // Separates the resources into sections to allow for ease of re-publishing and organization.
+        $framework = [
+            __DIR__.'/../resources/js/bootstrap.js' => resource_path('js/bootstrap.js'),
+            __DIR__.'/../resources/js/cuztomisable.js' => resource_path('js/cuztomisable.js'),
+            __DIR__.'/../resources/js/store.js' => resource_path('js/store.js'),
+            __DIR__.'/../resources/js/components' => resource_path('js/components'),
+            __DIR__.'/../resources/js/queues' => resource_path('js/queues'),
+            __DIR__.'/../resources/js/routers' => resource_path('js/routers'),
+            __DIR__.'/../resources/js/utils' => resource_path('js/utils'),
+            __DIR__.'/../resources/sass' => resource_path('sass'),
+            __DIR__.'/../resources/languages/en' => resource_path('lang/en/cuztomisable'),
+        ];
+        $pages = [
+            __DIR__.'/../resources/js/views' => resource_path('js/views'),
+            __DIR__.'/../resources/views/index.blade.php' => resource_path('views/index.blade.php'),
+        ];
+        $branding = [
+            __DIR__.'/../images' => public_path('cuztomisable'),
+        ];
         $this->publishes([
             __DIR__.'/../config/cuztomisable.php' => config_path('cuztomisable.php'),
-            __DIR__.'/../resources/js' => resource_path('js'),
-            __DIR__.'/../resources/sass' => resource_path('sass'),
-            __DIR__.'/../resources/views/' => resource_path('views'),
-            __DIR__.'/../resources/views/emails' => resource_path('views/vendor/cuztomisable'),
-            __DIR__.'/../resources/languages/en' => resource_path('lang/en/cuztomisable'),
-            __DIR__.'/../images' => public_path('cuztomisable'),
+            ...$framework,
+            ...$pages,
+            ...$branding,
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ], 'cuztomisable');
         $this->publishes([
             __DIR__.'/../config/cuztomisable.php' => config_path('cuztomisable.php'),
         ], 'cuztomisable-config');
         $this->publishes([
-            __DIR__.'/../resources/js' => resource_path('js'),
-            __DIR__.'/../resources/sass' => resource_path('sass'),
-            __DIR__.'/../resources/views/' => resource_path('views'),
-            __DIR__.'/../resources/languages/en' => resource_path('lang/en/cuztomisable'),
-            __DIR__.'/../images' => public_path('cuztomisable'),
+            ...$framework,
+            ...$pages,
+            ...$branding,
         ], 'cuztomisable-assets');
+        $this->publishes($framework, 'cuztomisable-framework');
+        $this->publishes($pages, 'cuztomisable-pages');
+        $this->publishes($branding, 'cuztomisable-branding');
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations/cuztomisable'),
         ], 'cuztomisable-migrations');
-        // Override just the emails, without pulling in JS/sass/config/etc - publishes into the
-        // vendor-namespaced path loadViewsFrom() checks first, so unpublished views keep using
-        // the package's bundled default and this only ever needs to contain what's customized.
         $this->publishes([
             __DIR__.'/../resources/views/emails' => resource_path('views/vendor/cuztomisable'),
-        ], 'cuztomisable-views');
+        ], 'cuztomisable-emails');
     }
 
 }

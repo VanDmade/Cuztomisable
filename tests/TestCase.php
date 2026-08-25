@@ -32,7 +32,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('queue.default', 'sync');
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
         $app['config']->set('auth.providers.users.model', User::class);
-        // The auth:sanctum middleware (routes.php) resolves this guard by config alone -
+        // The auth:sanctum middleware (routes/api.php) resolves this guard by config alone -
         // Sanctum's own provider registers the driver, but the guard entry itself has to exist.
         $app['config']->set('auth.guards.sanctum', ['driver' => 'sanctum', 'provider' => 'users']);
     }

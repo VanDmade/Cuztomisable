@@ -1,19 +1,19 @@
 <template>
-    <div class="fm-form-multi-entries">
-        <div class="fm-form-multi-entries-label">
+    <div class="cz-form-multi-entries">
+        <div class="cz-form-multi-entries-label">
             <div class="mt-2">
                 <h5 v-if="label != null" class="mt-0" :class="{ 'mb-2': notes == null, 'mb-1': notes != null }">{{ label }}</h5>
                 <p v-if="notes != null" class="notes mb-2">{{ notes }}</p>
             </div>
-            <div class="fm-form-multi-entries-add">
+            <div class="cz-form-multi-entries-add">
                 <button type="button" @click="add" :disabled="disabled" class="button button--primary button--small mt-2">{{ addLabel }}</button>
             </div>
         </div>
-        <div class="fm-form-multi-entry" v-for="(mainItem, multiIndex) in value">
+        <div class="cz-form-multi-entry" v-for="(mainItem, multiIndex) in value">
             <div v-for="(item, alternativeIndex) in ([mainItem].concat(typeof(mainItem.alternatives) !== 'undefined' ? mainItem.alternatives : []))">
                 <div :class="{ 'input-group': !breakpoint('sm') }">
                     <span v-if="steps && !breakpoint('sm')" class="input-group-text">{{ item.steps == null ? (multiIndex + 1) : item.steps }}</span>
-                    <span v-if="checkboxes && !breakpoint('sm')" class="input-group-text fm-multi-checkbox">
+                    <span v-if="checkboxes && !breakpoint('sm')" class="input-group-text cz-multi-checkbox">
                         <input type="checkbox" v-model="mainItem[checkboxField]" :disabled="disabled" />
                     </span>
                     <slot :value="value" :index="multiIndex" :alternativeIndex="alternativeIndex == 0 ? null : (alternativeIndex - 1)" name="entry"></slot>
@@ -21,15 +21,15 @@
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
                         :disabled="(multiIndex == 0) || disabled"
-                        class="button fm-button-reorder fm-button-reorder-upward button-outline-secondary px-1"
+                        class="button cz-button-reorder cz-button-reorder-upward button-outline-secondary px-1"
                         @click="reorderUp(multiIndex)"><span class="material-icons">arrow_upward</span></button>
                     <button
                         v-if="value.length > 1 && reorganize && alternativeIndex == 0"
                         type="button"
                         :disabled="(multiIndex == value.length - 1) || disabled"
-                        class="button fm-button-reorder fm-button-reorder-downward button-outline-secondary px-1"
+                        class="button cz-button-reorder cz-button-reorder-downward button-outline-secondary px-1"
                         @click="reorderDown(multiIndex)"><span class="material-icons">arrow_downward</span></button>
-                    <div class="fm-button-container" :class="{ 'd-grid mt-4': breakpoint('sm'), 'fm-button-remove-border-radius': settings }">
+                    <div class="cz-button-container" :class="{ 'd-grid mt-4': breakpoint('sm'), 'cz-button-remove-border-radius': settings }">
                         <button
                             type="button"
                             class="button button--danger"
@@ -38,20 +38,20 @@
                     </div>
                     <slot :value="value" :index="multiIndex" :alternativeIndex="alternativeIndex == 0 ? null : (alternativeIndex - 1)" name="settings"></slot>
                 </div>
-                <div :class="{ 'fm-form-entry-flex': !breakpoint('sm') }" class="mb-2" style="min-height: 18px;">
-                    <p class="fm-form-entry-output notes pl-1 mb-0">
+                <div :class="{ 'cz-form-entry-flex': !breakpoint('sm') }" class="mb-2" style="min-height: 18px;">
+                    <p class="cz-form-entry-output notes pl-1 mb-0">
                         <slot :value="value" :index="multiIndex" :alternativeIndex="alternativeIndex == 0 ? null : (alternativeIndex - 1)" name="output"></slot>
                     </p>
                     <p v-if="slugs" class="notes mb-0 pl-1">{{ item.slug }}</p>
                 </div>
-                <ul v-if="!hideDetails && (hideDetailsWhenNoErrors && getErrors(multiIndex).length > 0)" class="form-errors fm-form-errors mb-2">
+                <ul v-if="!hideDetails && (hideDetailsWhenNoErrors && getErrors(multiIndex).length > 0)" class="form-errors cz-form-errors mb-2">
                     <li v-for="(error, i) in getErrors(multiIndex)"
                         :key="id+'-error-'+i"
-                        class="form-error fm-form-error">{{ error }}</li>
+                        class="form-error cz-form-error">{{ error }}</li>
                 </ul>
             </div>
         </div>
-        <div v-if="breakpoint('sm')" class="fm-button-container d-grid">
+        <div v-if="breakpoint('sm')" class="cz-button-container d-grid">
             <button v-if="addButton == true" type="button" @click="add" :disabled="disabled" class="button btn--primary">{{ addLabel }}</button>
         </div>
     </div>
@@ -60,7 +60,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-multi_'+Math.random().toString(16).slice(2),
+            id: 'cz-multi_'+Math.random().toString(16).slice(2),
             errorList: [],
             asking: [],
             counter: 0,

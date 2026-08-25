@@ -1,27 +1,27 @@
 <template>
-    <div id="forgot-page" class="page">
-        <div class="card ma-2 pa-6">
-            <div class="d-flex">
-                <img :src="$url+'logo.png'" class="cz-authentication-logo">
-                <div class="cz-title">
-                    <h3 class="card-title">Forgot Password</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">Enter the email address associated with your account</h6>
-                </div>
+    <div id="forgot-page" class="page auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <img :src="$url+'logo.png'" class="auth-card__logo">
+                <h1 class="auth-card__title">Forgot Password</h1>
+                <p class="auth-card__subtitle">Enter the email address associated with your account</p>
             </div>
-            <fm-form ref="forgotForm" class="mt-4" :form="form"
+            <cz-form ref="forgotForm" class="auth-card__form" :form="form"
                 @save="save">
-                <fm-input
+                <cz-input
                     :label="usernameLabel()"
                     v-model="form.username"
                     type="input"
                     :errors="errors.username"
                     :disabled="submitting" />
-                <router-link :to="{ name: 'login' }" class="button--link">Remember password?</router-link>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Send</button>
                 </div>
-            </fm-form>
+            </cz-form>
         </div>
+        <p class="auth-card__footer">
+            <router-link :to="{ name: 'login' }" class="button--link">Remember password?</router-link>
+        </p>
     </div>
 </template>
 <script>

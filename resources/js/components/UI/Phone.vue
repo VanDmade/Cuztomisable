@@ -1,30 +1,30 @@
 <template>
-    <div class="form-floating fm-form-phone"
-        :class="{ 'fm-no-label': label == null || label == '' }">
-        <div class="fm-flex-container" v-if="value && typeof value === 'object'">
-            <fm-select
+    <div class="form-floating cz-form-phone"
+        :class="{ 'cz-no-label': label == null || label == '' }">
+        <div class="cz-flex-container" v-if="value && typeof value === 'object'">
+            <cz-select
                 v-if="$cuztomisable.locations.country_codes.length > 1"
                 v-model="value.country_code"
                 :class="[{
                     'is-invalid': errorList.length > 0,
                     'empty': value.country_code == '' || value.country_code == null },
                     inputClass,
-                    'fm-form-phone-country-code-input'
+                    'cz-form-phone-country-code-input'
                 ]"
                 :items="$cuztomisable.locations.country_codes"
                 :disabled="disabled"
                 :readonly="readonly"
                 hideDetails />
-            <fm-input
+            <cz-input
                 :label="label"
                 v-model="value.number"
                 :class="[{
                     'is-invalid': errorList.length > 0,
                     'empty': value.number == '' || value.number == null,
-                    'fm-form-phone-normal-borders-left': $cuztomisable.locations.country_codes.length <= 1,
-                    'fm-form-phone-normal-borders-right': !extension },
+                    'cz-form-phone-normal-borders-left': $cuztomisable.locations.country_codes.length <= 1,
+                    'cz-form-phone-normal-borders-right': !extension },
                     inputClass,
-                    'fm-form-phone-input'
+                    'cz-form-phone-input'
                 ]"
                 max="15"
                 type="number"
@@ -33,7 +33,7 @@
                 :readonly="readonly"
                 @change="errorList = []"
                 hideDetails />
-            <fm-input
+            <cz-input
                 v-if="extension"
                 label="Ext."
                 v-model="value.extension"
@@ -41,15 +41,15 @@
                     'is-invalid': errorList.length > 0,
                     'empty': value.extension == '' || value.extension == null },
                     inputClass,
-                    'fm-form-phone-extension-input'
+                    'cz-form-phone-extension-input'
                 ]"
                 type="number"
                 :disabled="disabled"
                 :readonly="readonly"
                 hideDetails />
         </div>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -57,7 +57,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-phone_'+Math.random().toString(16).slice(2),
+            id: 'cz-phone_'+Math.random().toString(16).slice(2),
             errorList: [],
         }
     },

@@ -1,13 +1,13 @@
 <template>
     <div id="security-form">
-        <fm-loading v-if="loading" :loading="loading" :large="false" :full="false" />
-        <fm-form v-show="!loading" ref="userSecurityForm" :form="form" @save="save">
+        <cz-loading v-if="loading" :loading="loading" :large="false" :full="false" />
+        <cz-form v-show="!loading" ref="userSecurityForm" :form="form" @save="save">
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h5 class="card-title">Roles</h5>
                     <h6 class="card-subtitle mb-2 text-muted">Assign role-based access.</h6>
                     <div class="checkbox-container" v-for="(role, index) in roles">
-                        <fm-checkbox
+                        <cz-checkbox
                             :label="role.name"
                             v-model="form.roles[role.id.toString()]"
                             type="checkbox"
@@ -22,7 +22,7 @@
                     <h5 class="card-title">Permissions</h5>
                     <h6 class="card-subtitle mb-2 text-muted">Adjust individual rights.</h6>
                     <div class="checkbox-container" v-for="(permission, index) in permissions">
-                        <fm-checkbox
+                        <cz-checkbox
                             :label="permission.name"
                             v-model="form.permissions[permission.id.toString()]"
                             type="checkbox"
@@ -48,7 +48,7 @@
                         @click="close">Nevermind</button>
                 </div>
             </div>
-        </fm-form>
+        </cz-form>
     </div>
 </template>
 <script>

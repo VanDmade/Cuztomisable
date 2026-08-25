@@ -1,15 +1,15 @@
 <template>
-    <div class="fm-carousel" :id="elementId" :style="{ 'width': width }">
-        <div class="fm-carousel-container">
-            <button @click="prevImage" class="fm-carousel-nav left" :disabled="!hasPrev">‹</button>
-            <img :src="images[activeIndex]" class="fm-carousel-image" />
-            <button @click="nextImage" class="fm-carousel-nav right" :disabled="!hasNext">›</button>
+    <div class="cz-carousel" :id="elementId" :style="{ 'width': width }">
+        <div class="cz-carousel-container">
+            <button @click="prevImage" class="cz-carousel-nav left" :disabled="!hasPrev">‹</button>
+            <img :src="images[activeIndex]" class="cz-carousel-image" />
+            <button @click="nextImage" class="cz-carousel-nav right" :disabled="!hasNext">›</button>
         </div>
-        <div class="fm-carousel-thumbs" v-if="images.length > 1">
+        <div class="cz-carousel-thumbs" v-if="images.length > 1">
             <img v-for="(img, i) in images"
                 :key="'thumb-' + i"
                 :src="img"
-                class="fm-carousel-thumb"
+                class="cz-carousel-thumb"
                 :class="{ active: i === activeIndex }"
                 @click="activeIndex = i" />
         </div>
@@ -19,7 +19,7 @@
 export default {
     data: function() {
         return {
-            elementId: 'fm-carousel_'+Math.random().toString(16).slice(2),
+            elementId: 'cz-carousel_'+Math.random().toString(16).slice(2),
             activeIndex: 0
         }
     },

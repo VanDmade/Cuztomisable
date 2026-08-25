@@ -36,13 +36,17 @@ php artisan migrate
 
 ### Publish Tags
 
-| Tag | What it publishes |
-|---|---|
-| `cuztomisable` | Everything below |
-| `cuztomisable-config` | Config files → `config/cuztomisable/` |
-| `cuztomisable-assets` | JS, SASS, views, lang files, images |
-| `cuztomisable-migrations` | Migrations → `database/migrations/cuztomisable/` |
-| `cuztomisable-seeders` | Seeders → `database/seeders/` |
+| Tag | What it publishes | Safe to `--force` re-publish? |
+|---|---|---|
+| `cuztomisable` | Everything below | No - see per-tag column |
+| `cuztomisable-config` | `config/cuztomisable.php` | Only if you haven't hand-edited it |
+| `cuztomisable-assets` | Everything in `cuztomisable-framework` + `cuztomisable-pages` + `cuztomisable-branding` | No - see per-tag column |
+| `cuztomisable-framework` | App shell logic: `resources/js/{bootstrap,cuztomisable,store}.js`, `resources/js/{components,queues,routers,utils}`, `resources/sass`, `resources/lang/en/cuztomisable` | **Yes** - re-run with `--force` to pull updates. Your own `resources/sass/variables.scss` is never touched (the package only ships `variables.example.scss`). |
+| `cuztomisable-pages` | The actual screens: `resources/js/views` and the Inertia root shell (`resources/views/index.blade.php`) | **No** - publish once, then edit these directly (e.g. `resources/js/views/authentication/Registration.vue`). Re-publishing overwrites your edits. |
+| `cuztomisable-branding` | Logos → `public/cuztomisable` | **No** - one-time seed. Replace the files yourself; never republish this tag. |
+| `cuztomisable-emails` | Email Blade templates → `resources/views/vendor/cuztomisable` | Only if you haven't customized a given template |
+| `cuztomisable-migrations` | Migrations → `database/migrations/cuztomisable/` | N/A (migrations are additive) |
+| `cuztomisable-seeders` | Seeders → `database/seeders/` | Only if you haven't hand-edited them |
 
 ## Configuration
 

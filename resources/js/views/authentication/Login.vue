@@ -6,16 +6,16 @@
                 <h1 class="auth-card__title">Log in</h1>
                 <p class="auth-card__subtitle">Welcome back to {{ appName }}</p>
             </div>
-            <fm-form ref="loginForm" class="auth-card__form" :form="form"
+            <cz-form ref="loginForm" class="auth-card__form" :form="form"
                 @save="login">
-                <fm-input
+                <cz-input
                     :label="usernameLabel()"
                     v-model="form.username"
                     type="text"
                     autocomplete="username"
                     :errors="errors.username"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     label="Password"
                     v-model="form.password"
                     type="password"
@@ -28,7 +28,7 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting">Log in</button>
                 </div>
-            </fm-form>
+            </cz-form>
         </div>
         <p class="auth-card__footer" v-if="!$cuztomisable?.registration?.disabled?.web">
             New here? <router-link :to="{ name: 'registration' }" class="button--link">Create an account</router-link>

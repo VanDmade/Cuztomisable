@@ -1,22 +1,22 @@
 <template>
     <div class="permission-form">
-        <fm-loading v-if="loading" :loading="loading" :large="false" :full="false" />
-        <fm-form v-show="!loading" ref="permissionForm" :form="form" @save="save">
+        <cz-loading v-if="loading" :loading="loading" :large="false" :full="false" />
+        <cz-form v-show="!loading" ref="permissionForm" :form="form" @save="save">
             <h3 class="card-title">{{ form?.id ? 'Manage': 'Create' }} Permission</h3>
             <h6 class="card-subtitle mb-6 text-muted">Specify the permission key, slug, and purpose.</h6>
-            <fm-input
+            <cz-input
                 label="Name"
                 v-model="form.name"
                 type="text"
                 :errors="errors.name"
                 :disabled="submitting" />
-            <fm-input
+            <cz-input
                 label="Slug"
                 v-model="form.slug"
                 type="text"
                 :errors="errors.slug"
                 :disabled="submitting" />
-            <fm-textarea
+            <cz-textarea
                 label="Description"
                 v-model="form.description"
                 :errors="errors.description"
@@ -34,7 +34,7 @@
                     :disabled="submitting"
                     @click="close">Nevermind</button>
             </div>
-        </fm-form>
+        </cz-form>
     </div>
 </template>
 <script>

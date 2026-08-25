@@ -1,10 +1,10 @@
 <template>
-    <div class="form-floating fm-form-input fm-form-textarea"
-        :class="{ 'fm-no-label': label == null || label == '' }">
+    <div class="form-floating cz-form-input cz-form-textarea"
+        :class="{ 'cz-no-label': label == null || label == '' }">
         <textarea
             v-model="value"
             :id="id"
-            class="form-control fm-form-control"
+            class="form-control cz-form-control"
             :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
@@ -12,9 +12,9 @@
             :maxlength="maxlength"
             :style="{ 'height': height }"
             @input="errorList = []"></textarea>
-        <label v-if="label != null && label != ''" :for="id" class="form-label fm-form-label">{{ label }}</label>
-        <ul v-if="!hideDetails" class="form-errors fm-form-errors mb-2">
-            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error fm-form-error">{{ error }}</li>
+        <label v-if="label != null && label != ''" :for="id" class="form-label cz-form-label">{{ label }}</label>
+        <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
+            <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
     </div>
 </template>
@@ -22,7 +22,7 @@
 export default {
     data: function() {
         return {
-            id: 'fm-textarea_'+Math.random().toString(16).slice(2),
+            id: 'cz-textarea_'+Math.random().toString(16).slice(2),
             // Calculates the height based on the total rows to allow for floating labels with ease
             height: ((parseInt(this.rows) + 1) * 25) + 'px',
             errorList: [],

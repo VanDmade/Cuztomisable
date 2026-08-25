@@ -1,46 +1,44 @@
 <template>
-    <div id="registration-page" class="page">
-        <div class="card ma-2 pa-6">
-            <div class="d-flex">
-                <img :src="$url+'logo.png'" class="cz-authentication-logo">
-                <div class="cz-title">
-                    <h3 class="card-title">Sign Up!</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">We are always welcoming to new users!</h6>
-                </div>
+    <div id="registration-page" class="page auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <img :src="$url+'logo.png'" class="auth-card__logo">
+                <h1 class="auth-card__title">Sign Up!</h1>
+                <p class="auth-card__subtitle">We are always welcoming to new users!</p>
             </div>
-            <fm-form ref="registrationForm" class="mt-4" :form="form"
+            <cz-form ref="registrationForm" class="auth-card__form" :form="form"
                 @save="save"
                 @initialize="initialize"
                 ask-before-leaving
                 save-progress-before-leaving
                 load-progress-on-entry>
-                <fm-input
+                <cz-input
                     label="Name"
                     v-model="form.name"
                     type="text"
                     :errors="errors.name"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     v-if="!$cuztomisable.login_with.email && !$cuztomisable.login_with.phone"
                     label="Username"
                     v-model="form.username"
                     type="text"
                     :errors="errors.username"
                     :disabled="submitting" />
-                <fm-input
+                <cz-input
                     label="Email"
                     v-model="form.email"
                     type="email"
                     :errors="errors.email"
                     :disabled="submitting" />
-                <fm-phone
+                <cz-phone
                     label="Phone"
                     v-model="form.phone"
                     :errors="errors.phone"
                     :disabled="submitting"
                     is-mobile
                     default />
-                <fm-address
+                <cz-address
                     v-if="$cuztomisable.registration.address !== false"
                     label="Address"
                     v-model="form.address"
@@ -48,7 +46,7 @@
                     :disabled="submitting"
                     :hasAddressTwo="$cuztomisable.registration.address.address_two"
                     :hasAddressThree="$cuztomisable.registration.address.address_three" />
-                <fm-input
+                <cz-input
                     label="Password"
                     v-model="form.password"
                     type="password"
@@ -58,11 +56,11 @@
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting || !passwordRequirementsMet">Sign Up</button>
                 </div>
-            </fm-form>
+            </cz-form>
         </div>
-        <div class="text-center">
+        <p class="auth-card__footer">
             <router-link :to="{ name: 'login' }" class="button--link">Already have an account?</router-link>
-        </div>
+        </p>
     </div>
 </template>
 <script>
