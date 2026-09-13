@@ -28,7 +28,12 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "illuminate/support": "^11.3|^12.0|^13.0",
         "intervention/image": "^3.0",
-        "laravel/sanctum": "^4.0"
+        "laravel/sanctum": "^4.0",
+        "laravel/socialite": "^5.16",
+        "socialiteproviders/manager": "^4.6",
+        "socialiteproviders/linkedin": "^4.2",
+        "socialiteproviders/twitter": "^4.1",
+        "socialiteproviders/instagram": "^4.1"
     },
     "require-dev": {
         "orchestra/testbench": "^9.0|^10.0",

@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Users as UserModels;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * CRUD for a user's saved IP addresses.
+ */
 class IpAddressService
 {
 

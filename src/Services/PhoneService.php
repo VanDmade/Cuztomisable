@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Phone;
 
+/**
+ * CRUD and default-number logic for phone numbers.
+ */
 class PhoneService
 {
 

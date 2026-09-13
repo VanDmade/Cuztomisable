@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Models\Permission;
 use VanDmade\Cuztomisable\Models\Roles;
 use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 
+/**
+ * CRUD for roles, including their attached permissions.
+ */
 class RoleService
 {
 

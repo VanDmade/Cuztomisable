@@ -12,6 +12,9 @@ use VanDmade\Cuztomisable\Concerns\HasOrganization;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 
+/**
+ * A role that groups permissions together.
+ */
 class Role extends Model
 {
 

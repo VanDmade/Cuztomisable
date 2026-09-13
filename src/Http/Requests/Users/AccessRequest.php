@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Users;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates assigning roles/permissions to a user.
+ */
 class AccessRequest extends CuztomisableRequest
 {
 

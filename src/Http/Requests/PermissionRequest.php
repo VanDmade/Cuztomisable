@@ -2,6 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Requests;
 
+/**
+ * Validates creating/updating a permission.
+ */
 class PermissionRequest extends CuztomisableRequest
 {
 

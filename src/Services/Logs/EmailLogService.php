@@ -9,6 +9,9 @@ use Illuminate\Support\Arr;
 use VanDmade\Cuztomisable\Models\Logs\Email;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * Lists logged sent emails.
+ */
 class EmailLogService
 {
 

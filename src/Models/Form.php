@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * A user's (or guest's) in-progress form/wizard state.
+ */
 class Form extends Model
 {
 

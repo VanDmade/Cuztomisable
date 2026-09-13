@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Models\Users\Registration;
 use Illuminate\Support\Facades\Auth;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails an invited user their registration link.
+ */
 class Invitation extends VanDmadeMailable implements ShouldQueue
 {
 

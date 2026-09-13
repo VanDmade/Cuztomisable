@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Authentication\Passwords;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates completing a password reset.
+ */
 class ResetRequest extends CuztomisableRequest
 {
 

@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 use VanDmade\Cuztomisable\Models\Roles\Role;
 use VanDmade\Cuztomisable\Models\Users\Role as UserRole;
 
+/**
+ * Seeds the default admin login.
+ */
 class AdminUserSeeder extends Seeder
 {
     public function run(): void

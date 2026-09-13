@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use VanDmade\Cuztomisable\Traits\Concerns\Auditable;
-use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Concerns\Auditable;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use Exception;
 
+/**
+ * An uploaded image file.
+ */
 class Image extends Model
 {
     use HasFactory, SoftDeletes, Auditable;

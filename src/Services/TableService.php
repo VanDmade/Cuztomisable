@@ -7,6 +7,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Exception;
 
+/**
+ * Generic search/sort/filter/paginate logic shared by every admin table endpoint.
+ */
 class TableService
 {
 

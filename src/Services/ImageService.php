@@ -16,6 +16,9 @@ use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 use Exception;
 use Throwable;
 
+/**
+ * Uploads, resizes, and deletes images.
+ */
 class ImageService
 {
 

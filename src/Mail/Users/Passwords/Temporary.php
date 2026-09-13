@@ -9,6 +9,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a user a temporary password.
+ */
 class Temporary extends VanDmadeMailable implements ShouldQueue
 {
 

@@ -9,6 +9,9 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Throwable;
 
+/**
+ * Base controller with shared success()/error() JSON response helpers.
+ */
 class CuztomisableController extends BaseController
 {
 

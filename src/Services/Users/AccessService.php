@@ -6,6 +6,9 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Users as UserModels;
 
+/**
+ * Gets and saves a user's roles/permissions.
+ */
 class AccessService
 {
 

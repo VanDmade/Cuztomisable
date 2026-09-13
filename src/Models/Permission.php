@@ -10,6 +10,9 @@ use VanDmade\Cuztomisable\Concerns\Auditable;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Roles;
 
+/**
+ * A permission that can be granted to a role or directly to a user.
+ */
 class Permission extends Model
 {
 

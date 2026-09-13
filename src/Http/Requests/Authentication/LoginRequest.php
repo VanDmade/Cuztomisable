@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Authentication;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates a login attempt.
+ */
 class LoginRequest extends CuztomisableRequest
 {
 

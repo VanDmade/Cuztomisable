@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
+/**
+ * A logged application error.
+ */
 class Error extends Model
 {
 

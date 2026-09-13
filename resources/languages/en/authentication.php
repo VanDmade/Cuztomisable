@@ -68,4 +68,11 @@ return [
             'already_used' => 'This email address or phone number is already associated with another account. Please check if the user already exists in the system.',
         ],
     ],
+    'socialite' => [
+        'errors' => [
+            'disabled' => 'That sign-in method isn\'t available right now.',
+            'locked' => 'This account is currently locked.',
+            'failed' => 'We couldn\'t complete sign-in with that provider. Please try again.',
+        ],
+    ],
 ];

@@ -7,6 +7,9 @@ use VanDmade\Cuztomisable\Models\Permission;
 use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 use VanDmade\Cuztomisable\Models\Roles\Role;
 
+/**
+ * Attaches the built-in permissions to the built-in roles.
+ */
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void

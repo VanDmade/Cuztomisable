@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 use VanDmade\Cuztomisable\Services\TermsService;
 
+/**
+ * Blocks a request until the user accepts the current terms & conditions.
+ */
 class RequireCurrentTerms
 {
 
@@ -22,7 +25,7 @@ class RequireCurrentTerms
 
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is($this->exempt)) {
+        if (!config('cuztomisable.terms.enabled', false) || $request->is($this->exempt)) {
             return $next($request);
         }
         if (Auth::check() && $this->termsService->needsToAccept(Auth::user())) {

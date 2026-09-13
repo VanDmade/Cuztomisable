@@ -8,6 +8,9 @@ use VanDmade\Cuztomisable\Http\Requests\PermissionRequest;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Services\PermissionService;
 
+/**
+ * CRUD endpoints for permissions.
+ */
 class PermissionController extends CuztomisableController
 {
 

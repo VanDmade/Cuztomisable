@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Scopes a model's queries to the current user's organization.
+ */
 class OrganizationScope implements Scope
 {
 

@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Authentication;
 use VanDmade\Cuztomisable\Concerns\Validators\Phone as PhoneValidator;
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates inviting a new user by email or phone.
+ */
 class InviteRequest extends CuztomisableRequest
 {
 

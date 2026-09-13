@@ -9,6 +9,9 @@ use VanDmade\Cuztomisable\Http\Requests\RoleRequest;
 use VanDmade\Cuztomisable\Http\Requests\TableRequest;
 use VanDmade\Cuztomisable\Services\RoleService;
 
+/**
+ * CRUD endpoints for roles.
+ */
 class RoleController extends CuztomisableController
 {
 

@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use VanDmade\Cuztomisable\Enums\SentVia;
-use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 
+/**
+ * A password-reset request.
+ */
 class Reset extends Model
 {
 

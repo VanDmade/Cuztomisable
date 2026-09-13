@@ -1,14 +1,6 @@
 <?php
-
-/*
-|--------------------------------------------------------------------------
-| Passwords
-|--------------------------------------------------------------------------
-| Forgot/reset flow, plus reuse/change settings shared with the authenticated change-password
-| flow. Merged into cuztomisable.account.passwords at boot - this file exists purely to keep the
-| source organized; the app still only ever publishes and edits the single config/cuztomisable.php.
-*/
-
+// Forgot/reset password settings, plus reuse/change rules shared with the authenticated
+// change-password flow.
 return [
     'reset_with' => [
         'email' => true,

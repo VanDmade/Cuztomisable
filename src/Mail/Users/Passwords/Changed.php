@@ -9,6 +9,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a user confirming their password was changed.
+ */
 class Changed extends VanDmadeMailable implements ShouldQueue
 {
 

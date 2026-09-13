@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Validates a mobile app's user agent before letting it bypass CSRF.
+ */
 class EnsureValidMobileAgent
 {
 

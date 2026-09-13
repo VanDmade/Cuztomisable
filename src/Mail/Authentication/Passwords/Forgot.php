@@ -10,6 +10,9 @@ use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Passwords\Reset;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a forgot-password link/code.
+ */
 class Forgot extends VanDmadeMailable implements ShouldQueue
 {
 

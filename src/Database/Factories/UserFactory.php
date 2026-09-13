@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use VanDmade\Cuztomisable\Models\Users\User;
 
+/**
+ * Default factory for the package's User model.
+ */
 class UserFactory extends Factory
 {
 

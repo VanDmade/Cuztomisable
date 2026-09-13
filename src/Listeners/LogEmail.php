@@ -7,6 +7,9 @@ use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\InteractsWithQueue;
 use VanDmade\Cuztomisable\Services\Logs\EmailLogService;
 
+/**
+ * Logs a sent email to email_logs.
+ */
 class LogEmail
 {
 

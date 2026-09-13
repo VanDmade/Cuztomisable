@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Users;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates labelling a saved IP address.
+ */
 class IpAddressSaveRequest extends CuztomisableRequest
 {
 

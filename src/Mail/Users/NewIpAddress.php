@@ -10,6 +10,9 @@ use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\IpAddress;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a user about a login from a new IP address.
+ */
 class NewIpAddress extends VanDmadeMailable implements ShouldQueue
 {
 

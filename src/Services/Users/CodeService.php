@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Services\Users;
 
 use VanDmade\Cuztomisable\Models\Users\Code;
 
+/**
+ * Looks up an MFA code by its token.
+ */
 class CodeService
 {
 

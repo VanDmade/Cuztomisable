@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use VanDmade\Cuztomisable\Services\SettingsService;
 
+/**
+ * Validates saving an admin-editable setting.
+ */
 class SettingsRequest extends FormRequest
 {
 

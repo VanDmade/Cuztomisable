@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Database\Seeders;
 use Illuminate\Database\Seeder;
 use VanDmade\Cuztomisable\Models\Permission;
 
+/**
+ * Seeds the built-in permission catalog.
+ */
 class PermissionSeeder extends Seeder
 {
     public function run(): void

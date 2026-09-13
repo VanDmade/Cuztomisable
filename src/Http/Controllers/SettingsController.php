@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Http\Requests\TimezoneRequest;
 use VanDmade\Cuztomisable\Services\SettingsService;
 use VanDmade\Cuztomisable\Services\Users\UserService;
 
+/**
+ * Reads and writes admin-editable settings.
+ */
 class SettingsController extends CuztomisableController
 {
 

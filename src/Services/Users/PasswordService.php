@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Mail\Users\Passwords\Changed as ChangedMail;
 use VanDmade\Cuztomisable\Mail\Users\Passwords\Temporary as TemporaryMail;
 use VanDmade\Cuztomisable\Models\Users;
 
+/**
+ * Changes a user's password (self-service or forced).
+ */
 class PasswordService
 {
 

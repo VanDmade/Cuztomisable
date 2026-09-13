@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Validates the browser-detected timezone sync.
+ */
 class TimezoneRequest extends CuztomisableRequest
 {
 

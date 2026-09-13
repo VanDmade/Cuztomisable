@@ -16,6 +16,7 @@ use VanDmade\Cuztomisable\Http\Controllers\Authentication\LoginController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\UserController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\LogController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\MFAController;
+use VanDmade\Cuztomisable\Http\Controllers\Authentication\SocialiteController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\PasswordController as RegistrationPasswordController;
 
 Route::controller(SettingsController::class)->group(function() {
@@ -25,6 +26,13 @@ Route::controller(LoginController::class)->group(function() {
     Route::post('/login', 'login')
         ->middleware('throttler:login,ip,request=username');
     Route::post('/logout', 'logout');
+});
+Route::controller(SocialiteController::class)->group(function() {
+    // Guest-accessible social login redirect/callback
+    Route::get('/auth/{provider}/redirect', 'redirect')
+        ->middleware('throttler:socialite.redirect,ip,params=provider');
+    Route::get('/auth/{provider}/callback', 'callback')
+        ->middleware('throttler:socialite.callback,ip,params=provider');
 });
 Route::controller(MFAController::class)->group(function() {
     Route::post('/login/mfa/{token}/send', 'send')

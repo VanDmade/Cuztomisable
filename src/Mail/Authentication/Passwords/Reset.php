@@ -10,6 +10,9 @@ use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Passwords\Reset as ResetModel;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails confirmation that a password was reset.
+ */
 class Reset extends VanDmadeMailable implements ShouldQueue
 {
 

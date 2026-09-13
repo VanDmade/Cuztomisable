@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Users;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates creating/updating a user's address.
+ */
 class AddressRequest extends CuztomisableRequest
 {
 

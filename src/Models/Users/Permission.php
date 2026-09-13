@@ -10,6 +10,9 @@ use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use VanDmade\Cuztomisable\Models\Permission as PermissionModel;
 
+/**
+ * The link between a user and a permission granted directly to them.
+ */
 class Permission extends Model
 {
 

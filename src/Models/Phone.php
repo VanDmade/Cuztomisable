@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use VanDmade\Cuztomisable\Traits\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
+/**
+ * A saved phone number.
+ */
 class Phone extends Model
 {
 

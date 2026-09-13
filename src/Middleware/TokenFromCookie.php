@@ -6,6 +6,9 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Promotes the cookie-stored auth token into a Bearer Authorization header.
+ */
 class TokenFromCookie
 {
 

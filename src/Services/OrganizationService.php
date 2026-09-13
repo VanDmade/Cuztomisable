@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use Exception;
 
+/**
+ * Lists a user's organizations and switches between them.
+ */
 class OrganizationService
 {
 

@@ -9,6 +9,9 @@ use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Sends text messages via AWS SNS. Unused - AwsSnsSmsProvider is the real bound provider.
+ */
 class SmsService
 {
 

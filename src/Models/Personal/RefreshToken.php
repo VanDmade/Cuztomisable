@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Models\Personal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A refresh token issued to a mobile client.
+ */
 class RefreshToken extends Model
 {
 

@@ -1,161 +1,69 @@
 <?php
-
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | SMS Provider
-    |--------------------------------------------------------------------------
-    | SmsProviderInterface implementation used to send text messages.
-    */
+    // SmsProviderInterface implementation used to send text messages.
     'sms_provider' => \VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider::class,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Resources
-    |--------------------------------------------------------------------------
-    | API Resource classes used to shape outgoing JSON - override with a host app's own
-    | subclass to include/exclude different fields, resolved via UserResource::forUser().
-    */
+    // API Resource classes used to shape outgoing JSON - override with a host app's own
+    // subclass to include/exclude different fields, resolved via UserResource::forUser().
     'resources' => [
         'user' => \VanDmade\Cuztomisable\Http\Resources\UserResource::class,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | App
-    |--------------------------------------------------------------------------
-    */
     'app' => [
-
-        /*
-        |----------------------------------------------------------------------
-        | Home Route
-        |----------------------------------------------------------------------
-        | The route authenticated users land on after login or when they visit
-        | a guest-only page (e.g. /login) while already authenticated.
-        */
+        // The route authenticated users land on after login or when they visit a guest-only
+        // page (e.g. /login) while already authenticated.
         'home' => env('APP_HOME', '/portal'),
-
-        /*
-        |----------------------------------------------------------------------
-        | Mobile Agent Validation
-        |----------------------------------------------------------------------
-        | Controls user-agent checks for requests from mobile apps.
-        | Example UA format: AppName/v1.0 (Android)
-        */
+        // User-agent checks for requests from mobile apps. Example UA: AppName/v1.0 (Android)
         'mobile_agent' => [
             // Require user-agent matching for X-App-Platform: mobile requests
-            'enabled'          => true,
+            'enabled' => true,
             // Optional API key to validate mobile clients bypassing CSRF
-            'api_key'          => null,
-            'api_key_header'   => 'X-App-Key',
+            'api_key' => null,
+            'api_key_header' => 'X-App-Key',
             // Allowed apps — name must match the UA string, min_version is optional
             'apps' => [
                 ['name' => 'Mixing Maverick', 'min_version' => '1.0.0'],
                 ['name' => 'Cuztomisable',    'min_version' => '1.0.0'],
             ],
             // Allowed platform labels in the UA string
-            'platforms'        => ['Android', 'iOS', 'Other'],
+            'platforms' => ['Android', 'iOS', 'Other'],
             // Log requests that fail agent validation (useful for debugging)
-            'log_invalid'      => false,
+            'log_invalid' => false,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Navigation
-        |----------------------------------------------------------------------
-        | Sidebar/navbar links shown to authenticated users. Each entry supports:
-        |   route — Vue Router route name
-        |   path  — Fallback href
-        |   text  — Tooltip / label
-        |   icon  — Material Icons ligature
-        */
+        // Sidebar/navbar links shown to authenticated users. Each entry supports:
+        // route (Vue Router route name), path (fallback href), text (label), icon (Material Icons ligature)
         'navigation' => [],
-
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Login
-    |--------------------------------------------------------------------------
-    */
     'login' => [
-
-        /*
-        |----------------------------------------------------------------------
-        | Login Methods
-        |----------------------------------------------------------------------
-        | Specifies how users can identify themselves on the login form.
-        | If both email and phone are false, a username field will be used instead.
-        */
+        // How users identify themselves on the login form. If both are false, username is used.
         'login_with' => [
             'email' => true,
             'phone' => false,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Remember Me
-        |----------------------------------------------------------------------
-        | Allows the user to stay logged in across sessions.
-        | When true, session_length is ignored for that session.
-        */
+        // Lets a user stay logged in across sessions. When true, session_length is ignored.
         'remember' => false,
-
-        /*
-        |----------------------------------------------------------------------
-        | Auth Cookie
-        |----------------------------------------------------------------------
-        | Name of the cookie used to store the web auth token.
-        */
+        // Name of the cookie used to store the web auth token.
         'cookie_name' => 'api_token',
-
-        /*
-        |----------------------------------------------------------------------
-        | Session Length
-        |----------------------------------------------------------------------
-        | Duration in seconds before the session expires. Set to null for no limit.
-        */
+        // Seconds before the session expires. Null for no limit.
         'session_length' => 900,
-
-        /*
-        |----------------------------------------------------------------------
-        | Login Attempts
-        |----------------------------------------------------------------------
-        */
         'attempts' => [
             // Number of failed attempts before the account is restricted
-            'total'  => 5,
+            'total' => 5,
             // If true, the account is permanently locked until manually unlocked
             'locked' => false,
             // Seconds the account is restricted before login is allowed again (ignored if locked = true)
-            'timer'  => 300,
+            'timer' => 300,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Verification
-        |----------------------------------------------------------------------
-        | Require email/phone verification before allowing login.
-        */
+        // Require email/phone verification before allowing login.
         'verification' => [
             'email' => true,
             'phone' => false,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Multi-Factor Authentication
-        |----------------------------------------------------------------------
-        */
         'multi_factor_authentication' => [
             // Determines if the system allows users to set up and use MFA
-            'allowed'                  => true,
+            'allowed' => true,
             // Seconds before the user can resend the code
-            'resend_after'             => 60,
+            'resend_after' => 60,
             // Regenerate the code each time it is resent
-            'recreate_code_on_resend'  => true,
+            'recreate_code_on_resend' => true,
             // Maximum allowed code attempts before invalidation
             'attempts' => [
                 'max' => 5,
@@ -166,57 +74,19 @@ return [
                 'email' => true,
             ],
         ],
-
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Account
-    |--------------------------------------------------------------------------
-    */
     'account' => [
-
-        /*
-        |----------------------------------------------------------------------
-        | Passwords
-        |----------------------------------------------------------------------
-        | See config/passwords.php - merged in here as account.passwords by the service provider.
-        */
-
-        /*
-        |----------------------------------------------------------------------
-        | Verification Codes
-        |----------------------------------------------------------------------
-        */
+        // Passwords: see config/passwords.php, merged in here as account.passwords.
         'code' => [
             // Number of digits/characters in generated codes
             'length' => 6,
             // Seconds before a code expires
             'expires_in' => 300,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Account Locking
-        |----------------------------------------------------------------------
-        | When true, new accounts are locked by default and must be unlocked
-        | by an administrator before the user can log in.
-        */
+        // When true, new accounts are locked by default and need an admin to unlock them.
         'locked_by_default' => true,
-
-        /*
-        |----------------------------------------------------------------------
-        | Default Timezone
-        |----------------------------------------------------------------------
-        | Used for a new user's timezone when none is given at registration/creation.
-        */
+        // Used for a new user's timezone when none is given at registration/creation.
         'default_timezone' => 'America/New_York',
-
-        /*
-        |----------------------------------------------------------------------
-        | Registration
-        |----------------------------------------------------------------------
-        */
         'registration' => [
             // Disable open registration (invite-only when true), per platform.
             // Identified via the X-App-Platform request header ('mobile' or otherwise treated as 'web').
@@ -237,25 +107,12 @@ return [
             // Seconds before the user can request another registration code
             'resend_after' => 300,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Address
-        |----------------------------------------------------------------------
-        | Controls address fields in the user registration/profile form.
-        | Set to false to hide address fields entirely.
-        */
+        // Address fields in the user registration/profile form. Set to false to hide entirely.
         'address' => [
             'required' => false,
             'address_two' => true,
             'address_three' => false,
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Administrator
-        |----------------------------------------------------------------------
-        */
         'administrator' => [
             'temporary_password' => [
                 // Seconds before a temporary password expires
@@ -264,26 +121,9 @@ return [
                 'resend_after' => 300,
             ],
         ],
-
-        /*
-        |----------------------------------------------------------------------
-        | Token Length
-        |----------------------------------------------------------------------
-        | Length of URL tokens (max 64).
-        */
+        // Length of URL tokens (max 64).
         'token_length' => 16,
-
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Mobile
-    |--------------------------------------------------------------------------
-    | Was never actually merged under the old ten-file config setup (config/mobile.php
-    | existed but CuztomisableServiceProvider never called mergeConfigFrom() on it) - every
-    | cuztomisable.mobile.* read silently fell back to its hardcoded default. Fixed by this
-    | consolidation: being a section of this one file means it's merged automatically.
-    */
     'mobile' => [
         'refresh' => [
             // The token will be updated and returned anytime it is reset
@@ -292,28 +132,11 @@ return [
             'expires_in' => 30,
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Notifications
-    |--------------------------------------------------------------------------
-    */
     'notifications' => [
-
-        /*
-        |----------------------------------------------------------------------
-        | Notification Templates
-        |----------------------------------------------------------------------
-        | Email and text delivery settings (logging, redaction, from/reply-to,
-        | etc.) live in config/email.php and config/text.php, merged in here as
-        | notifications.emails / notifications.texts by the service provider.
-        | The actual view each notification renders is hardcoded on its Mailable
-        | (view: 'cuztomisable::...') - to customize a template, publish it with
-        | `php artisan vendor:publish --tag=cuztomisable-emails` and edit the copy
-        | under resources/views/vendor/cuztomisable, rather than repointing a
-        | config path. This section only holds delivery settings.
-        */
-
+        // Email/text delivery settings live in config/email.php and config/text.php, merged in
+        // here as notifications.emails / notifications.texts. To customize a template, publish
+        // it (`php artisan vendor:publish --tag=cuztomisable-emails`) and edit the copy under
+        // resources/views/vendor/cuztomisable - this section only holds delivery settings.
         // Sent when a user logs in from an unrecognised IP address
         'new_ip_address' => [
             'enabled' => true,
@@ -324,33 +147,23 @@ return [
                 'phone' => false,
             ],
             // Skip notification for recognised device fingerprints
-            'skip_known_devices'  => false,
+            'skip_known_devices' => false,
             // CIDR ranges that skip new IP notifications
-            'trusted_ip_ranges'   => [],
+            'trusted_ip_ranges' => [],
         ],
-
         // Email address verification
         'email_verification' => [
             'enabled' => true,
         ],
-
         // Phone number verification
         'phone_verification' => [
             'enabled' => true,
         ],
-
         // Confirmation sent to the user after their password is reset
         'reset' => [
             'enabled' => true,
         ],
-
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Locations
-    |--------------------------------------------------------------------------
-    */
     'locations' => [
         // Default country that will be selected when filling out the form, set to null if you want them to choose.
         'default_country' => 'USA',
@@ -416,7 +229,6 @@ return [
                     ['value' => 'WV', 'text' => 'West Virginia'],
                     ['value' => 'WI', 'text' => 'Wisconsin'],
                     ['value' => 'WY', 'text' => 'Wyoming'],
-
                 ],
             ]
         ],
@@ -427,47 +239,15 @@ return [
             ['text' => '(+44) UK', 'value' => 44, 'format' => '(XX) XXXX-XXXX', 'required_length' => 10],
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Images
-    |--------------------------------------------------------------------------
-    */
     'images' => [
-
-        /*
-        |----------------------------------------------------------------------
-        | Default Width
-        |----------------------------------------------------------------------
-        | Uploaded images are scaled down to this width (in pixels) before storage.
-        */
+        // Uploaded images are scaled down to this width (in pixels) before storage.
         'default_width' => 1200,
-
-        /*
-        |----------------------------------------------------------------------
-        | Default Quality
-        |----------------------------------------------------------------------
-        | Starting WebP encoding quality (0-100). Lowered in steps until the
-        | encoded image fits within `default_size`.
-        */
+        // Starting WebP encoding quality (0-100), lowered in steps until it fits default_size.
         'default_quality' => 80,
-
-        /*
-        |----------------------------------------------------------------------
-        | Default Size
-        |----------------------------------------------------------------------
-        | Maximum encoded file size in bytes. Quality is reduced until the
-        | image fits, or the minimum quality floor is reached.
-        */
+        // Maximum encoded file size in bytes.
         'default_size' => 300 * 1024,
-
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Respondify (response formatting - see Support\ResponseService, Step 5)
-    |--------------------------------------------------------------------------
-    */
+    // Response formatting (see Support\ResponseService)
     'respondify' => [
         // Debug code that will be returned when using the debug method
         'debugging_response_code' => 500,
@@ -493,12 +273,7 @@ return [
             'sql_error_code' => 500,
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Tablelify (paginated table queries - see Support\TableService, Step 5)
-    |--------------------------------------------------------------------------
-    */
+    // Paginated table queries (see Services\TableService)
     'tablelify' => [
         // References whether the filtered total will need to be displayed along with the base query's total
         'filtered' => true,
@@ -513,56 +288,25 @@ return [
             'order_direction' => 'desc',
         ],
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Settings
-    |--------------------------------------------------------------------------
-    | Keys that are admin-editable settings (SettingsController::get()/save(), stored in the
-    | settings table). Add a key here to make it manageable - no new controller, service, or
-    | route needed. Reading a value is always open (whoever it's returned to can see it, e.g.
-    | a cookie banner shown before login); only saving is permission-gated, via a slug of
-    | `settings-{key}` (underscores become hyphens) - add a matching row to PermissionSeeder to
-    | make it assignable to a role, or rely on the manage-settings blanket permission.
-    */
+    // Keys that are admin-editable settings (SettingsController::get()/save(), stored in the
+    // settings table). Add a key here to make it manageable. Reading a value is always open;
+    // saving is permission-gated via a `settings-{key}` slug or the manage-settings permission.
     'settings' => [
         'cookie_message',
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Organizations (multi-tenancy)
-    |--------------------------------------------------------------------------
-    | Off by default - users can still belong to organizations and switch between them either
-    | way, but OrganizationScope (applied by any model using the HasOrganization trait, e.g.
-    | Roles\Role / Permission) only actually filters queries once this is turned on.
-    */
+    // Multi-tenancy - off by default. Users can still belong to organizations and switch
+    // between them either way, but OrganizationScope only filters queries once enabled.
     'organizations' => [
         'enabled' => false,
         // The Organization model class - swap this if your app brings its own instead of
         // using the one Cuztomisable ships by default.
         'organization_model' => \VanDmade\Cuztomisable\Models\Organizations\Organization::class,
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | OTP / TOTP (Step 10, not built yet)
-    |--------------------------------------------------------------------------
-    */
-    'otp' => [],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Social account linking (Step 11, not built yet)
-    |--------------------------------------------------------------------------
-    */
+    // Social login - filled in from config/social.php by the service provider.
     'social' => [],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Terms & conditions / cookie consent (Step 12, not built yet)
-    |--------------------------------------------------------------------------
-    */
-    'terms' => [],
-
+    // Terms & conditions acceptance is off by default - flip 'enabled' to true to require it.
+    // Currently set to true so the acceptance flow can be tested; set back to false before shipping.
+    'terms' => [
+        'enabled' => true,
+    ],
 ];

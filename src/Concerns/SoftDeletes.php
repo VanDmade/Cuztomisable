@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes as SoftDeletion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Soft-delete plus who-deleted-it tracking for a model.
+ */
 trait SoftDeletes
 {
 

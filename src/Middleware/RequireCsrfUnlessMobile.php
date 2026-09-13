@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Middleware;
 use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
 
+/**
+ * Enforces CSRF for browser requests, skips it for verified mobile apps.
+ */
 class RequireCsrfUnlessMobile extends BaseVerifier
 {
 

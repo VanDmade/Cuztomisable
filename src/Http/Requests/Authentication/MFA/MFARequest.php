@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Authentication\MFA;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates submitting an MFA code.
+ */
 class MFARequest extends CuztomisableRequest
 {
 

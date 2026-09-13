@@ -3,6 +3,7 @@
 namespace VanDmade\Cuztomisable\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use VanDmade\Cuztomisable\Concerns\NullsToEmpty;
 
 /**
  * Shared base FormRequest every Cuztomisable request extends - common validation messages.
@@ -10,6 +11,15 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class CuztomisableRequest extends FormRequest
 {
+
+    use NullsToEmpty;
+
+    // A frontend that sends the literal string "null" for an empty field (FormData can't send a
+    // real null) shouldn't fail a `nullable` rule meant for an actually-empty value.
+    public function validationData(): array
+    {
+        return $this->nullsToEmpty(parent::validationData());
+    }
 
     public function messages(): array
     {

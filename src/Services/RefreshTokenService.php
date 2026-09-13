@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use VanDmade\Cuztomisable\Models\Personal\RefreshToken;
 
+/**
+ * Issues and redeems mobile refresh tokens.
+ */
 class RefreshTokenService
 {
 

@@ -690,6 +690,63 @@ input:-webkit-autofill {
         margin-top: 20px;
     }
 }
+.cz-social-login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cz-social-login-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0.6rem 1.2rem;
+    border-radius: $border-radius;
+    border: 1px solid transparent;
+    font-weight: 600;
+    text-decoration: none;
+    transition: $transition;
+    &:hover {
+        filter: brightness(0.95);
+    }
+    &--google {
+        background: $color-white;
+        color: #3c4043;
+        border-color: $color-border;
+    }
+    &--facebook {
+        background: #1877f2;
+        color: $color-white;
+    }
+    &--linkedin {
+        background: #0a66c2;
+        color: $color-white;
+    }
+    &--twitter {
+        background: #000000;
+        color: $color-white;
+    }
+    &--instagram {
+        background: linear-gradient(45deg, #feda75, #d62976, #4f5bd5);
+        color: $color-white;
+    }
+}
+.cz-social-login-icon {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    svg {
+        width: 100%;
+        height: 100%;
+    }
+}
+.cz-auth-hr {
+    margin: 24px 0;
+    border: none;
+    border-top: 1px solid $color-border;
+}
 #login-layout {
     .card {
         min-width: 500px;

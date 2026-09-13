@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Blocks a request unless the user is an admin.
+ */
 class RequireAdmin
 {
 

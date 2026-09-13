@@ -2,6 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Requests;
 
+/**
+ * Validates creating a new terms & conditions version.
+ */
 class TermsRequest extends CuztomisableRequest
 {
 

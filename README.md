@@ -1,243 +1,158 @@
 # Cuztomisable
 
-A customizable Laravel authentication and portal package. Provides a complete foundation for applications with user management, role-based access control, multi-factor authentication, and mobile API support out of the box.
+A Laravel package providing a complete auth + portal foundation: user management, roles/permissions, MFA, password reset, registration/invites, multi-tenant organizations, terms & conditions acceptance, social login, and a Vue 3 (Inertia) frontend — all installed into a host app via a single Artisan command.
+
+Cuztomisable ties into the host app, not the other way around: the host requires this package and publishes what it needs, but nothing in here depends on host-specific code.
 
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11 or 12
+- Laravel 11, 12, or 13 (`illuminate/support ^11.3|^12.0|^13.0`)
 - Laravel Sanctum
+- Laravel Socialite (for social login)
 
 ## Installation
 
-Add the local path repository to your `composer.json`:
+Add the local path repository to your host app's `composer.json`:
 
 ```json
 "repositories": [
     {
         "type": "path",
-        "url": "packages/vandmade/cuztomisable"
+        "url": "packages/VanDmade/Cuztomisable"
     }
 ]
 ```
 
-Then require it:
+Require it and run the installer:
 
 ```bash
-composer require vandmade/cuztomisable
+composer require vandmade/cuztomisable:@dev
+php artisan cuztomisable:install
 ```
 
-Publish assets and run migrations:
+`cuztomisable:install` does everything needed to get running:
 
-```bash
-php artisan vendor:publish --provider="VanDmade\Cuztomisable\CuztomisableServiceProvider"
-php artisan migrate
-```
+1. Publishes config (`cuztomisable-config`), migrations (`cuztomisable-migrations`), and framework/page assets (`cuztomisable-framework`, `cuztomisable-pages`)
+2. Generates a `sessions` table migration if the host doesn't already have one
+3. Publishes Sanctum's `personal_access_tokens` migration if missing (the shipped `User` model uses `HasApiTokens`)
+4. Copies `resources/sass/variables.example.scss` → `resources/sass/variables.scss` if it doesn't exist yet, so first-time styling has sane defaults without overwriting anything you've customized
+5. Runs `migrate --force`
+6. Seeds roles, permissions, role/permission links, a default admin user, and default settings
+7. Prints the seeded admin login (`CUZTOMISABLE_ADMIN` env var, default `admin@cuztomisable.com` / `password`) — change it on first login
 
-### Publish Tags
+### Publish tags
 
-| Tag | What it publishes | Safe to `--force` re-publish? |
-|---|---|---|
-| `cuztomisable` | Everything below | No - see per-tag column |
-| `cuztomisable-config` | `config/cuztomisable.php` | Only if you haven't hand-edited it |
-| `cuztomisable-assets` | Everything in `cuztomisable-framework` + `cuztomisable-pages` | No - see per-tag column |
-| `cuztomisable-framework` | App shell logic: `resources/js/{bootstrap,cuztomisable,store}.js`, `resources/js/{components,queues,routers,utils}`, `resources/sass`, `resources/lang/en/cuztomisable` | **Yes** - re-run with `--force` to pull updates. Your own `resources/sass/variables.scss` is never touched (the package only ships `variables.example.scss`). |
-| `cuztomisable-pages` | The actual screens: `resources/js/views` and the Inertia root shell (`resources/views/index.blade.php`) | **No** - publish once, then edit these directly (e.g. `resources/js/views/authentication/Registration.vue`). Re-publishing overwrites your edits. |
-| `cuztomisable-emails` | Email Blade templates → `resources/views/vendor/cuztomisable` | Only if you haven't customized a given template |
-| `cuztomisable-migrations` | Migrations → `database/migrations/cuztomisable/` | N/A (migrations are additive) |
-| `cuztomisable-seeders` | Seeders → `database/seeders/` | Only if you haven't hand-edited them |
+Only `cuztomisable-config` publishes something into the host's `config/` directory (`config/cuztomisable.php`) — the rest of this package's config files (`email.php`, `text.php`, `passwords.php`, `rate_limits.php`, `social.php`) are merged into `cuztomisable.*` at boot and aren't meant to be published; override their values from your own `config/cuztomisable.php` instead, or with env vars where the file already reads one.
 
-Logos/branding (`logo.png`, `banner.png`, etc.) aren't published at all - `BrandingController` serves them straight from the package at `/cuztomisable/{filename}` with a long-lived `Cache-Control` header, so there's no raw copy in your `public/` folder to fall out of sync or go uncached.
+| Tag | Publishes |
+|---|---|
+| `cuztomisable` | Everything below, in one shot |
+| `cuztomisable-config` | `config/cuztomisable.php` |
+| `cuztomisable-assets` | `cuztomisable-framework` + `cuztomisable-pages` combined |
+| `cuztomisable-framework` | App shell: `resources/js/{bootstrap,cuztomisable,store}.js`, `components/`, `queues/`, `routers/`, `utils/`, `resources/sass/`, `resources/languages/en/` → `lang/en/cuztomisable` |
+| `cuztomisable-pages` | The actual screens: `resources/js/views/` and the Inertia root view `resources/views/index.blade.php` |
+| `cuztomisable-migrations` | `database/migrations/` → `database/migrations/cuztomisable` |
+| `cuztomisable-emails` | `resources/views/emails/` → `resources/views/vendor/cuztomisable` |
+
+Branding images (logo, favicon, etc.) are never published — `BrandingController` serves them live from the package at `GET /cuztomisable/{filename}` with a long-lived cache header, so there's no raw copy in `public/` to fall out of sync.
 
 ## Configuration
 
-Config files are published to `config/cuztomisable/` and accessed via the `cuztomisable.*` key.
+The published config lives at `config/cuztomisable.php` and covers:
 
-| File | Config key | Description |
+- `sms_provider` — the `SmsProviderInterface` implementation used to send texts (default: `AwsSnsSmsProvider`)
+- `resources` — override which API Resource class shapes a given model's JSON output
+- `app` — home route, mobile-agent validation rules, sidebar/navbar links
+- `login` — identification method (email/phone/username), remember-me, session length, lockout attempts, verification requirements, MFA settings
+- `account` — code/token lengths and expiry, default account lock state, default timezone, registration rules, profile address fields, admin temporary-password rules
+- `mobile` — refresh-token behavior for mobile clients
+- `notifications` — toggles for new-IP alerts, email/phone verification, password-reset confirmation (delivery settings themselves live in `email.php`/`text.php`, merged in as `cuztomisable.notifications.emails`/`.texts`)
+- `locations` — default country, countries/states list, country calling codes
+- `images` — upload resize width, WebP quality, max encoded size
+- `respondify` — JSON error-response formatting and logging
+- `tablelify` — pagination defaults for `TableService`
+- `settings` — which keys are exposed as admin-editable settings
+- `organizations` — multi-tenancy toggle (off by default) and the Organization model class
+- `social` — filled in from `config/social.php` at boot; don't edit this key directly
+- `terms` — `'enabled' => false` by default; set `true` to require terms & conditions acceptance before a user can use the API (currently shipped as `true` in this repo so the acceptance flow can be tested end-to-end — flip it back to `false` before shipping)
+
+Merge-only config files (not published, edit host-side `config/cuztomisable.php` overrides instead):
+
+| File | Merged into | Configures |
 |---|---|---|
-| `app.php` | `cuztomisable.app` | Home route, mobile agent validation, navigation |
-| `login.php` | `cuztomisable.login` | Login methods, MFA, session length, verification |
-| `account.php` | `cuztomisable.account` | Passwords, account locking, registration |
-| `mobile.php` | `cuztomisable.mobile` | Mobile token refresh settings |
-| `notifications.php` | `cuztomisable.notifications` | Email and SMS notification settings |
-| `locations.php` | `cuztomisable.locations` | IP tracking and geo-location |
-| `images.php` | `cuztomisable.images` | Image storage settings |
-| `rate_limits.php` | `cuztomisable.rate_limits` | Per-endpoint rate limiting |
-| `respondify.php` | `cuztomisable.respondify` | JSON response formatting defaults |
-| `tablelify.php` | `cuztomisable.tablelify` | Paginated table query defaults |
+| `email.php` | `cuztomisable.notifications.emails` | Email logging on/off, which parameters get redacted from logs, default template branding, default from-address |
+| `text.php` | `cuztomisable.notifications.texts` | Text logging on/off, redaction of URLs/codes/whole messages |
+| `passwords.php` | `cuztomisable.account.passwords` | Forgot/reset delivery channels, timing between resends, password-reuse rules |
+| `rate_limits.php` | `cuztomisable.rate_limits` | Per-action throttle attempts/decay, with a `default` fallback |
+| `social.php` | `cuztomisable.social` | Master social-login switch, and per-provider enabled flag, button label, logo flag, and `client_id`/`client_secret`/`redirect` |
 
-### Home Route (`app.php`)
+## API surface
 
-```php
-'home' => env('APP_HOME', '/portal'),
-```
+All routes are registered under `/api` by the service provider, behind a middleware stack (`TokenFromCookie`, `RequireCsrfUnlessMobile`, `EnsureValidMobileAgent`, session/CSRF). If the host has `inertiajs/inertia-laravel` installed, `routes/web.php` is also registered with the matching Inertia pages (`/`, `/login`, `/registration/{code?}`, `/forgot`, `/reset/{token}`, `/mfa/{token}`, `/portal`, `/profile`, `/users`, `/roles`, `/permissions`, `/settings`, etc.).
 
-Set `APP_HOME` in your `.env` to control where authenticated users land after login.
+| Area | Highlights |
+|---|---|
+| Auth | `POST /login`, `POST /logout` |
+| Social login | `GET /auth/{provider}/redirect`, `GET /auth/{provider}/callback` |
+| MFA | send/verify/submit code during login, self and admin toggle |
+| Password reset | forgot → send code → verify → reset, guest-only |
+| Registration/invites | self-registration by code, admin-issued invites (`invite-users`) |
+| Terms & conditions | current terms, acceptance status/accept, admin publish/manage (`manage-terms`) |
+| Organizations | list, current, switch (`organizations.enabled`) |
+| Settings | public read, admin write (`GET/POST /settings`) |
+| Roles & permissions | full CRUD (`manage-roles-permissions`) |
+| User access | get/set a user's roles+permissions (`view/manage-user-roles-permissions`) |
+| Addresses / Phones | per-user CRUD, default flag |
+| IP addresses | login history, forget device, soft-delete (`clear-user-logins`) |
+| Logs | user activity, email, text (`manage-users`); error log (`view-logs`) |
+| Users | full CRUD, lock/unlock, refresh tokens, MFA toggle, verification (`manage-users`/`view-users`) |
+| Forms | save/resume in-progress multi-step form state, guest or authenticated |
 
-### Registration (`account.php`)
-
-Registration can be disabled per platform. The platform is identified by the `X-App-Platform` request header (`mobile` or absent for web).
-
-```php
-'registration' => [
-    'disabled' => [
-        'web'    => false,
-        'mobile' => false,
-    ],
-    'length'            => 6,
-    'expires_in'        => 3600,
-    'send_notification' => true,
-    'resend_after'      => 300,
-],
-```
-
-### Mobile Agent Validation (`app.php`)
-
-Mobile API requests must send `X-App-Platform: mobile`. Requests are validated against the configured app list and minimum version.
-
-```php
-'mobile_agent' => [
-    'enabled'        => true,
-    'api_key'        => null,          // Optional shared key for CSRF bypass
-    'api_key_header' => 'X-App-Key',
-    'apps' => [
-        ['name' => 'My App', 'min_version' => '1.0.0'],
-    ],
-    'platforms'   => ['Android', 'iOS', 'Other'],
-    'log_invalid' => false,
-],
-```
-
-Expected User-Agent format: `AppName/v1.2.3 (Android)`
-
-## API Routes
-
-All routes are registered under the `/api/` prefix with session and CSRF middleware applied. Authenticated routes require a valid Sanctum token.
-
-### Authentication (public)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/login` | Log in |
-| POST | `/api/logout` | Log out |
-| POST | `/api/login/mfa/{token}` | Submit MFA code |
-| GET | `/api/login/mfa/{token}/verify` | Verify MFA token |
-| POST | `/api/login/mfa/{token}/send` | Re-send MFA code |
-| POST | `/api/password/forgot` | Request password reset |
-| POST | `/api/password/forgot/{token}` | Submit new password |
-| GET | `/api/password/forgot/{token}/verify/{code?}` | Verify reset code |
-| GET | `/api/register/verify/{code}` | Look up a registration invite |
-| POST | `/api/register/{code?}` | Register a new user |
-| POST | `/api/refresh/token` | Refresh Sanctum token |
-
-### Account (authenticated)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/me` | Get current user |
-| GET | `/api/refresh` | Refresh session |
-| POST | `/api/profile` | Update own profile |
-| PATCH | `/api/mfa` | Toggle own MFA |
-| POST | `/api/user/change/password` | Change own password |
-
-### User Management (authenticated, `manage-users` / `view-users`)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/users` | Paginated user table |
-| GET | `/api/user/{id}` | Get a user |
-| GET | `/api/list/users` | Flat user list |
-| POST | `/api/user/{id?}` | Create or update a user |
-| DELETE | `/api/user/{id}` | Toggle soft-delete |
-| PATCH | `/api/user/{id}/locked` | Toggle account lock |
-| PATCH | `/api/user/{id}/mfa` | Toggle user MFA (`toggle-user-mfa`) |
-| POST | `/api/user/{id}/send/password` | Send temp password (`reset-user-passwords`) |
-
-### IP / Login History (authenticated)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/user/{id}/ips` | Login history for a user |
-| GET | `/api/ip/{id}` | Single IP record |
-| PATCH | `/api/ip/{id}` | Update IP record |
-| DELETE | `/api/ip/{id}/forget` | Remove a remembered device (`clear-user-logins`) |
-| DELETE | `/api/ip/{id}` | Soft-delete IP record (`clear-user-logins`) |
-
-### Invitations (authenticated, `invite-users`)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/invites` | Paginated invites table |
-| POST | `/api/invite` | Create an invitation |
-| POST | `/api/invite/{id}/send` | Resend an invitation |
-| DELETE | `/api/invite/{id}` | Delete an invitation |
-
-### Roles & Permissions (authenticated, `manage-roles-permissions`)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/roles` | Paginated roles table |
-| GET | `/api/role/{id}` | Get a role |
-| GET | `/api/list/roles` | Flat roles list |
-| POST | `/api/role/{id?}` | Create or update a role |
-| DELETE | `/api/role/{id}` | Delete a role |
-| DELETE | `/api/role/{id}/permission/{permission}` | Remove a permission from a role |
-| GET | `/api/permissions` | Paginated permissions table |
-| GET | `/api/permission/{id}` | Get a permission |
-| GET | `/api/list/permissions` | Flat permissions list |
-| GET | `/api/list/role/{id}/permissions` | Permissions for a role |
-| POST | `/api/permission/{id?}` | Create or update a permission |
-| DELETE | `/api/permission/{id}` | Delete a permission |
-
-### User Access (authenticated)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/user/{id}/access` | Get roles/permissions for a user (`view-user-roles-permissions`) |
-| POST | `/api/user/{id}/access` | Update roles/permissions for a user (`manage-user-roles-permissions`) |
+See `routes/api.php` and `routes/web.php` for the exact route list and permission gates.
 
 ## Middleware
 
-The service provider registers two middleware aliases:
+Registered as route-middleware aliases by the service provider:
 
-| Alias | Class | Usage |
+| Alias | Class | Purpose |
 |---|---|---|
-| `permission` | `CheckPermission` | Abort 403 if the user lacks the given permission |
-| `require-admin` | `RequireAdmin` | Abort 403 if the user is not an admin |
+| `permission` | `CheckPermission` | Abort 403 unless the user has the given permission(s) |
+| `require-admin` | `RequireAdmin` | Abort 403 unless the user is an admin |
+| `require-current-terms` | `RequireCurrentTerms` | Abort 403 until the user accepts the current terms (no-op unless `cuztomisable.terms.enabled`) |
+| `throttler` | `Throttler` | Configurable per-action rate limiting, driven by `config/rate_limits.php` |
 
-```php
-Route::get('/admin', AdminController::class)
-    ->middleware('permission:manage-users');
-```
-
-Mobile requests (identified by `X-App-Platform: mobile`) automatically bypass CSRF via `RequireCsrfUnlessMobile` and are validated against the configured app list via `EnsureValidMobileAgent`.
+Two more run automatically for every API request rather than being applied per-route: `TokenFromCookie` (promotes a cookie-stored token into an `Authorization: Bearer` header) and `RequireCsrfUnlessMobile` (enforces CSRF for browsers, skips it for a verified mobile app via `EnsureValidMobileAgent`).
 
 ## Models
 
-| Model | Table | Description |
-|---|---|---|
-| `User` | `users` | Core user with soft deletes, admin flag, MFA, locking |
-| `Role` | `roles` | Assignable roles |
-| `Permission` | `permissions` | Granular permissions attached to roles |
-| `LoginAttempt` | `login_attempts` | Per-user login attempt tracking |
-| `PasswordHistory` | `password_histories` | Prevents reuse of recent passwords |
-| `UserAddress` | `user_addresses` | Addresses linked to users |
-| `UserPhone` | `user_phones` | Phone numbers linked to users |
-| `Invitation` | `invitations` | Registration invite tokens |
+All under `VanDmade\Cuztomisable\Models`: `Users\User` (the default concrete user), `Roles\Role` / `Permission` and their pivots, `Organizations\Organization` / `Organizations\User`, `Users\Code` (MFA code), `Users\Passwords\Reset` and `Users\Passwords\Password` (reuse history), `Users\Registration` (invite), `Users\IpAddress`, `Address`, `Phone`, `Image`, `Form` (saved wizard state), `Setting`, `Social\SocialAccount`, `Terms\TermsAndConditions` / `Terms\Acceptance`, `Logs\{User,Email,Text,Error}`, `Personal\{AccessToken,RefreshToken}`.
 
-## Helpers
+## Traits (`src/Concerns`)
 
-### Tablelify
+Compose these into a host app's own User model instead of using `Models\Users\User` directly, if you need a custom user model:
 
-Standardized paginated query builder. Supports sorting, searching, filtering, and per-page configuration from request parameters.
+- `CuztomisableUser` — login/lockout rules, permission/role resolution, the relationships a Cuztomisable-managed user needs
+- `BelongsToOrganizations` — many-to-many organization membership plus a "current organization" pointer
+- `HasOrganization` — auto-scopes a single-organization-owned model (e.g. `Role`) to the current organization
+- `Auditable` — tracks `created_by`
+- `SoftDeletes` — soft-delete plus `deleted_by` tracking
+- `NullsToEmpty` — normalizes `null`/`'null'` request values to `''` before validation (used by the base `CuztomisableRequest::validationData()`, since a `FormData` submission can't send a real `null` for an empty field)
+- `Validators\Phone` — shared phone-number validation rules for FormRequests
 
-```php
-use VanDmade\Cuztomisable\Helpers\Tablelify;
+## Frontend
 
-return Tablelify::run($query, $parameters, $searchableColumns);
-```
+A Vue 3 SPA wired through **Inertia.js**, not vue-router — `resources/js/cuztomisable.js` is the real entry point: it resolves pages from `resources/js/views/**/*.vue`, wraps them in a login or portal layout automatically, and implements Inertia-native navigation (`$route`/`$router`/`RouterLinkCompat`) instead of a client router. It also registers the shared `cz-*` component library (table, forms, inputs, modals, uploads, etc.), wires up the Vuex store, and handles auth-check/timezone-sync/guest-redirect on boot.
 
-The response includes `data`, `total`, `filtered_total`, `total_pages`, `current_page`, and `per_page`.
+## What's left to build
+
+- **OTP/TOTP authenticator support** — not built. A prior scaffold (empty model/services and a migration) was removed; this will be added back as a real feature later.
+- **`resources/js/routers/cuztomisable.js`** is dead code — a vue-router route table left over from before the switch to Inertia-native navigation. Nothing imports it. Safe to delete once confirmed no host app has come to depend on it being published.
+- **Terms & conditions default** — `cuztomisable.terms.enabled` ships as `true` in this repo for testing the acceptance flow; set it back to `false` (the documented default) before shipping to production, unless you actually want it on.
+
+## Testing
+
+The package has its own self-contained test suite (Orchestra Testbench) under `tests/`, run independently of the host app via `composer test` (see `TESTING.md` and `.github/workflows/tests.yml`). The host app additionally has its own integration test suite under `tests/Feature/Cuztomisable/`.
 
 ## Author
 

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Permission;
 use VanDmade\Cuztomisable\Models\Roles\Permission as RolePermission;
 
+/**
+ * CRUD for permissions.
+ */
 class PermissionService
 {
 

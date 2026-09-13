@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Database\Seeders\RolePermissionSeeder;
 use VanDmade\Cuztomisable\Database\Seeders\RoleSeeder;
 use VanDmade\Cuztomisable\Database\Seeders\SettingsSeeder;
 
+/**
+ * Publishes, migrates, and seeds Cuztomisable into a fresh host app.
+ */
 class InstallCommand extends Command
 {
 

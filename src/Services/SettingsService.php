@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Services;
 
 use VanDmade\Cuztomisable\Models\Setting;
 
+/**
+ * Reads/writes admin-editable settings and exposes public app config.
+ */
 class SettingsService
 {
 
@@ -80,6 +83,17 @@ class SettingsService
                 'address' => config('cuztomisable.account.address', false),
             ],
             'navigation' => config('cuztomisable.app.navigation', []),
+            // Only what the button needs to render - client_id/secret never leave the server.
+            'social' => [
+                'enabled' => config('cuztomisable.social.enabled', false),
+                'providers' => collect(config('cuztomisable.social.providers', []))
+                    ->map(fn ($provider, $key) => [
+                        'enabled' => (bool) ($provider['enabled'] ?? false),
+                        'logo' => (bool) ($provider['logo'] ?? true),
+                        'label' => $provider['label'] ?? ucfirst($key),
+                    ])
+                    ->all(),
+            ],
         ];
     }
 

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Blocks a request unless the user has the required permission(s).
+ */
 class CheckPermission
 {
 

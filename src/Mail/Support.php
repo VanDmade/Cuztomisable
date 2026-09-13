@@ -9,6 +9,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a support message on behalf of a user.
+ */
 class Support extends VanDmadeMailable implements ShouldQueue
 {
 

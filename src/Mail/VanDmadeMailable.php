@@ -8,6 +8,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Auth;
 use VanDmade\Cuztomisable\Events\EmailSent;
 
+/**
+ * Base mailable that tracks who triggered the send, for email_logs.
+ */
 abstract class VanDmadeMailable extends BaseMailable
 {
 

@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Models\Terms;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * A user's acceptance of a terms & conditions version.
+ */
 class Acceptance extends Model
 {
 

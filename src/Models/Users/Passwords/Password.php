@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Auth;
 
+/**
+ * A user's past password hash, kept to block reuse.
+ */
 class Password extends Model
 {
 

@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Concerns\Auditable;
 use VanDmade\Cuztomisable\Concerns\HasOrganization;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 
+/**
+ * An invite/registration link.
+ */
 class Registration extends Model
 {
 

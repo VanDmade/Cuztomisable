@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use VanDmade\Cuztomisable\Concerns\Auditable;
 
+/**
+ * A logged sent email.
+ */
 class Email extends Model
 {
 

@@ -10,6 +10,9 @@ use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Address;
 use VanDmade\Cuztomisable\Models\Phone;
 
+/**
+ * A tenant/organization.
+ */
 class Organization extends Model
 {
 

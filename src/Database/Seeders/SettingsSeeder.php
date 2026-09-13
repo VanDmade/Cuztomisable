@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Database\Seeders;
 use Illuminate\Database\Seeder;
 use VanDmade\Cuztomisable\Models\Setting;
 
+/**
+ * Seeds default values for the admin-editable settings.
+ */
 class SettingsSeeder extends Seeder
 {
     public function run(): void

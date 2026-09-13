@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use VanDmade\Cuztomisable\Models\Users;
 use Auth;
 
+/**
+ * A logged entry in a user's activity history.
+ */
 class User extends Model
 {
 

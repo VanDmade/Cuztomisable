@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Services;
 
 use VanDmade\Cuztomisable\Models\Form;
 
+/**
+ * Saves and retrieves a user's in-progress form/wizard state.
+ */
 class FormService
 {
 

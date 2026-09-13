@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Formats a user for API responses.
+ */
 class UserResource extends JsonResource
 {
 

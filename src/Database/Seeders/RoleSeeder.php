@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Database\Seeders;
 use Illuminate\Database\Seeder;
 use VanDmade\Cuztomisable\Models\Roles\Role;
 
+/**
+ * Seeds the built-in roles.
+ */
 class RoleSeeder extends Seeder
 {
     public function run(): void

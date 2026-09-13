@@ -8,6 +8,9 @@ use VanDmade\Cuztomisable\Models\Logs\Text;
 use VanDmade\Cuztomisable\Services\PhoneService;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * Lists logged sent text messages.
+ */
 class TextLogService
 {
 

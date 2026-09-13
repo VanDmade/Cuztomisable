@@ -21,6 +21,9 @@ use VanDmade\Cuztomisable\Models\Users\User;
 use VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider;
 use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
+/**
+ * Registers Cuztomisable's routes, middleware, config, and publishable assets.
+ */
 class CuztomisableServiceProvider extends ServiceProvider
 {
 
@@ -92,6 +95,8 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/text.php', 'cuztomisable.notifications.texts');
         $this->mergeConfigFrom(__DIR__.'/../config/rate_limits.php', 'cuztomisable.rate_limits');
         $this->mergeConfigFrom(__DIR__.'/../config/passwords.php', 'cuztomisable.account.passwords');
+        $this->mergeConfigFrom(__DIR__.'/../config/social.php', 'cuztomisable.social');
+        $this->configureSocialiteServices();
         $this->app->bind(SmsProviderInterface::class, config('cuztomisable.sms_provider', AwsSnsSmsProvider::class));
         // Separates the resources into sections to allow for ease of re-publishing and organization.
         $framework = [
@@ -133,6 +138,18 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/views/emails' => resource_path('views/vendor/cuztomisable'),
         ], 'cuztomisable-emails');
+    }
+
+    // Feeds each provider's credentials into Socialite from our own config instead of services.php
+    private function configureSocialiteServices(): void
+    {
+        foreach ((array) config('cuztomisable.social.providers', []) as $provider => $settings) {
+            config(["services.{$provider}" => [
+                'client_id' => $settings['client_id'] ?? null,
+                'client_secret' => $settings['client_secret'] ?? null,
+                'redirect' => $settings['redirect'] ?? url("/api/auth/{$provider}/callback"),
+            ]]);
+        }
     }
 
 }

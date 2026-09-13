@@ -20,6 +20,9 @@ use VanDmade\Cuztomisable\Services\PhoneService;
 use VanDmade\Cuztomisable\Services\RefreshTokenService;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * CRUD and account-management actions (lock, reset attempts, etc) for users.
+ */
 class UserService
 {
 

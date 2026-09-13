@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Address;
 
+/**
+ * CRUD and default-address logic for addresses.
+ */
 class AddressService
 {
 

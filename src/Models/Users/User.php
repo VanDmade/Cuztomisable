@@ -12,6 +12,9 @@ use VanDmade\Cuztomisable\Concerns\CuztomisableUser;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Database\Factories\UserFactory;
 
+/**
+ * The default concrete User model Cuztomisable ships.
+ */
 class User extends Authenticatable
 {
 

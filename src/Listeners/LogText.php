@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Listeners;
 use VanDmade\Cuztomisable\Events\TextSent;
 use VanDmade\Cuztomisable\Services\Logs\TextLogService;
 
+/**
+ * Logs a sent text message to text_logs, truncating links/codes first.
+ */
 class LogText
 {
 

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use VanDmade\Cuztomisable\Events\TextSent;
 use VanDmade\Cuztomisable\Sms\SmsProviderInterface;
 
+/**
+ * Queued job that sends a text message through the configured SMS provider.
+ */
 class SendText implements ShouldQueue
 {
 

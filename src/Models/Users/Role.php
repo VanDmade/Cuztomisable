@@ -9,6 +9,9 @@ use VanDmade\Cuztomisable\Concerns\Auditable;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Roles;
 
+/**
+ * The link between a user and a role.
+ */
 class Role extends Model
 {
 

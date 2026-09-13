@@ -9,6 +9,9 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a notification that a new user registered.
+ */
 class Registered extends VanDmadeMailable implements ShouldQueue
 {
 

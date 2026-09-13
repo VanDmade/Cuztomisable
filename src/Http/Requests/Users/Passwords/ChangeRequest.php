@@ -4,6 +4,9 @@ namespace VanDmade\Cuztomisable\Http\Requests\Users\Passwords;
 
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
+/**
+ * Validates changing a user's password.
+ */
 class ChangeRequest extends CuztomisableRequest
 {
 

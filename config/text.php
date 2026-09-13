@@ -1,5 +1,5 @@
 <?php
-
+// Text message delivery/logging settings.
 return [
     // Determines if sent text messages are logged to text_logs.
     'log' => true,

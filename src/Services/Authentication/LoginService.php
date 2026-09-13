@@ -3,11 +3,15 @@
 namespace VanDmade\Cuztomisable\Services\Authentication;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use VanDmade\Cuztomisable\Models\Users;
 use VanDmade\Cuztomisable\Services\RefreshTokenService;
 
+/**
+ * Handles logging in and establishing a session (password or social).
+ */
 class LoginService
 {
 
@@ -33,50 +37,58 @@ class LoginService
                 throw new Exception(__('cuztomisable/authentication.login.errors.invalid_credentials'), 401);
             }
             $user->canLogIn();
-            // Store IP Address to mark that the user has access to the account based on username/password
-            $ipAddress = $user->ipAddresses()->where('ip_address', '=', getIpAddress())->first();
-            if (!isset($ipAddress)) {
-                $ipAddress = new Users\IpAddress();
-                $ipAddress->user_id = $user->id;
-            }
-            $ipAddress->last_used_at = now();
-            $ipAddress->save();
-            $requiresMfa = $ipAddress->requireMfa();
-            $mfaToken = null;
-            if ($requiresMfa) {
-                // Disables all other pending MFA codes
-                $user->codes()
-                    ->whereNull('used_at')
-                    ->get()
-                    ->each
-                    ->delete();
-                $userCode = Users\Code::create([
-                    'user_id' => $user->id,
-                    'user_ip_address_id' => $ipAddress->id,
-                ]);
-                if (!isset($userCode->id)) {
-                    throw new Exception(__('cuztomisable/authentication.mfa.errors.not_created'), 500);
-                }
-                $mfaToken = $userCode->token;
-            }
-            // Unsets the attempts / timer
-            $user->attempts = 0;
-            $user->attempt_timer = null;
-            $user->save();
-            $result = [
-                'user' => $user,
-                'requires_mfa' => $requiresMfa,
-                'mfa_token' => $mfaToken,
-            ];
-            // Determines if a mobile app is calling the authentication or not
-            if ($isMobile && !$requiresMfa) {
-                $result['access_token'] = $user->createToken('mobile')->plainTextToken;
-                $result['refresh_token'] = $this->refreshTokenService->issue($user);
-            } elseif (!$requiresMfa) {
-                $result['cookie'] = $user->generateAuthCookie();
-            }
-            return $result;
+            return $this->establishSession($user, $isMobile);
         });
+    }
+
+    // Shared by password login and Socialite login: records the IP, decides whether this IP
+    // needs an MFA challenge, resets the attempt counter, and issues either the mobile
+    // access/refresh tokens or the cookie-based session token.
+    public function establishSession(Model $user, bool $isMobile = false): array
+    {
+        // Store IP Address to mark that the user has access to the account based on username/password
+        $ipAddress = $user->ipAddresses()->where('ip_address', '=', getIpAddress())->first();
+        if (!isset($ipAddress)) {
+            $ipAddress = new Users\IpAddress();
+            $ipAddress->user_id = $user->id;
+        }
+        $ipAddress->last_used_at = now();
+        $ipAddress->save();
+        $requiresMfa = $ipAddress->requireMfa();
+        $mfaToken = null;
+        if ($requiresMfa) {
+            // Disables all other pending MFA codes
+            $user->codes()
+                ->whereNull('used_at')
+                ->get()
+                ->each
+                ->delete();
+            $userCode = Users\Code::create([
+                'user_id' => $user->id,
+                'user_ip_address_id' => $ipAddress->id,
+            ]);
+            if (!isset($userCode->id)) {
+                throw new Exception(__('cuztomisable/authentication.mfa.errors.not_created'), 500);
+            }
+            $mfaToken = $userCode->token;
+        }
+        // Unsets the attempts / timer
+        $user->attempts = 0;
+        $user->attempt_timer = null;
+        $user->save();
+        $result = [
+            'user' => $user,
+            'requires_mfa' => $requiresMfa,
+            'mfa_token' => $mfaToken,
+        ];
+        // Determines if a mobile app is calling the authentication or not
+        if ($isMobile && !$requiresMfa) {
+            $result['access_token'] = $user->createToken('mobile')->plainTextToken;
+            $result['refresh_token'] = $this->refreshTokenService->issue($user);
+        } elseif (!$requiresMfa) {
+            $result['cookie'] = $user->generateAuthCookie();
+        }
+        return $result;
     }
 
     public function logout($user = null): void

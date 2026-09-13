@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Records who created a model, if it has a created_by column.
+ */
 trait Auditable
 {
 

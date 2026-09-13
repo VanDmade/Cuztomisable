@@ -8,6 +8,9 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use VanDmade\Cuztomisable\Services\Logs\ErrorLogService;
 
+/**
+ * Sends text messages via AWS SNS.
+ */
 class AwsSnsSmsProvider implements SmsProviderInterface
 {
 

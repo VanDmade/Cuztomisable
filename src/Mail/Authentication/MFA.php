@@ -10,6 +10,9 @@ use Illuminate\Queue\SerializesModels;
 use VanDmade\Cuztomisable\Models\Users\Code;
 use VanDmade\Cuztomisable\Mail\VanDmadeMailable;
 
+/**
+ * Emails a login MFA code.
+ */
 class MFA extends VanDmadeMailable implements ShouldQueue
 {
 

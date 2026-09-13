@@ -6,6 +6,9 @@ use Illuminate\Http\JsonResponse;
 use VanDmade\Cuztomisable\Models\Logs\User;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * Records and lists a user's activity history.
+ */
 class UserLogService
 {
 

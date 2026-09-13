@@ -7,6 +7,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Formats the response returned after a successful login.
+ */
 class AuthResource extends JsonResource
 {
 

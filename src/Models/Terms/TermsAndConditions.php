@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use VanDmade\Cuztomisable\Concerns\Auditable;
 
+/**
+ * A version of the terms & conditions.
+ */
 class TermsAndConditions extends Model
 {
 

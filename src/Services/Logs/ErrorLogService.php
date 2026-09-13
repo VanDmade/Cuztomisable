@@ -10,6 +10,9 @@ use VanDmade\Cuztomisable\Events\ErrorOccurred;
 use VanDmade\Cuztomisable\Models\Logs\Error;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * Records and lists application errors.
+ */
 class ErrorLogService
 {
 

@@ -10,6 +10,9 @@ use VanDmade\Cuztomisable\Events\TermsPublished;
 use VanDmade\Cuztomisable\Models\Terms\Acceptance;
 use VanDmade\Cuztomisable\Models\Terms\TermsAndConditions;
 
+/**
+ * Publishes terms & conditions and tracks who has accepted them.
+ */
 class TermsService
 {
 

@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use VanDmade\Cuztomisable\Models\Organizations\Organization;
 use Auth;
 
+/**
+ * A saved address.
+ */
 class Address extends Model
 {
 

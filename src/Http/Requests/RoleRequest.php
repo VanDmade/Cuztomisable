@@ -2,6 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Requests;
 
+/**
+ * Validates creating/updating a role.
+ */
 class RoleRequest extends CuztomisableRequest
 {
 

@@ -11,6 +11,9 @@ use VanDmade\Cuztomisable\Mail\Authentication\MFA as MFAMail;
 use VanDmade\Cuztomisable\Services\RefreshTokenService;
 use VanDmade\Cuztomisable\Services\Users\CodeService;
 
+/**
+ * Sends, verifies, and confirms MFA codes during login.
+ */
 class MfaService
 {
 

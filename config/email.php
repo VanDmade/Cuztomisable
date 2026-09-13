@@ -1,5 +1,5 @@
 <?php
-
+// Email delivery/logging settings.
 return [
     // Determines if sent emails are logged to email_logs.
     'log' => true,
@@ -12,11 +12,11 @@ return [
     // Optional default from address for package emails.
     'from' => [
         'address' => null,
-        'name'    => null,
+        'name' => null,
     ],
     // Optional default reply-to address for package emails.
     'reply_to' => [
         'address' => null,
-        'name'    => null,
+        'name' => null,
     ],
 ];

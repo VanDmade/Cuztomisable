@@ -9,6 +9,9 @@ use VanDmade\Cuztomisable\Models\Users\IpAddress;
 use VanDmade\Cuztomisable\Models\Logs;
 use VanDmade\Cuztomisable\Mail\Users\NewIpAddress as NewIpAddressMail;
 
+/**
+ * Fingerprints and notifies on a new IP address login.
+ */
 class IpAddressObserver
 {
 

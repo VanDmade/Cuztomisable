@@ -5,6 +5,9 @@ namespace VanDmade\Cuztomisable\Listeners;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Blocks email sent to a reserved @cuztomisable.com placeholder address.
+ */
 class PreventDefaultAdminEmail
 {
 

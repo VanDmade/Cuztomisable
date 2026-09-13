@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Formats the response returned when a login requires MFA.
+ */
 class MFAResource extends JsonResource
 {
 

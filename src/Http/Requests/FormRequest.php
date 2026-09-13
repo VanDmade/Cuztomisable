@@ -2,6 +2,9 @@
 
 namespace VanDmade\Cuztomisable\Http\Requests;
 
+/**
+ * Validates saving a user's in-progress form/wizard state.
+ */
 class FormRequest extends CuztomisableRequest
 {
 

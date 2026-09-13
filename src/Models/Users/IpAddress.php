@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 use VanDmade\Cuztomisable\Observers\Users\IpAddressObserver;
 
+/**
+ * An IP address a user has logged in from.
+ */
 #[ObservedBy([IpAddressObserver::class])]
 class IpAddress extends Model
 {

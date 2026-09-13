@@ -14,6 +14,9 @@ use VanDmade\Cuztomisable\Mail\Authentication\Passwords\Reset as ResetMail;
 use VanDmade\Cuztomisable\Mail\Support as SupportMail;
 use VanDmade\Cuztomisable\Models\Users;
 
+/**
+ * Handles the forgot/reset password flow.
+ */
 class PasswordService
 {
 

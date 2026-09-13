@@ -20,6 +20,9 @@ use VanDmade\Cuztomisable\Services\AddressService;
 use VanDmade\Cuztomisable\Services\PhoneService;
 use VanDmade\Cuztomisable\Services\TableService;
 
+/**
+ * Handles inviting, registering, and verifying new users.
+ */
 class RegistrationService
 {
 
