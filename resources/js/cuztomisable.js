@@ -60,6 +60,7 @@ const ROUTES = {
     invites: '/invites',
     roles: '/roles',
     permissions: '/permissions',
+    'error-logs': '/logs/error',
     settings: '/settings',
     message: '/message',
 };
@@ -76,6 +77,7 @@ const ROUTE_META = {
     invites: { authentication: true, permissions: 'invite-users' },
     roles: { authentication: true, permissions: 'manage-roles-permissions' },
     permissions: { authentication: true, permissions: 'manage-roles-permissions' },
+    'error-logs': { authentication: true, permissions: 'view-logs' },
     settings: { authentication: true, permissions: 'manage-settings' },
     message: { authentication: false, layout: 'login-layout' },
 };
@@ -119,6 +121,7 @@ function buildPath(name, params = {}) {
         case 'invites': return '/invites';
         case 'roles': return '/roles';
         case 'permissions': return '/permissions';
+        case 'error-logs': return '/logs/error';
         case 'settings': return '/settings';
         case 'message': return '/message';
         default: return ROUTES[name] ?? '/';
@@ -177,6 +180,8 @@ function parseRouteFromUrl(url) {
         route.name = 'roles';
     } else if (path === '/permissions') {
         route.name = 'permissions';
+    } else if (path === '/logs/error') {
+        route.name = 'error-logs';
     } else if (path === '/settings') {
         route.name = 'settings';
     } else if (path === '/message') {
@@ -430,7 +435,9 @@ export async function loadCuztomisableApp() {
                 },
             });
             await store.dispatch('checkAuth');
-            if (store.state.authenticated) {
+            // A manual override (timezone_auto === false) sticks until reset back to Automatic -
+            // the periodic sync must not silently overwrite that choice.
+            if (store.state.authenticated && store.state.user?.timezone_auto !== false) {
                 // Fire-and-forget - a stale timezone shouldn't block the app from mounting
                 syncTimezoneIfStale();
             }

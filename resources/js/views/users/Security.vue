@@ -3,34 +3,38 @@
         <cz-loading v-if="loading" :loading="loading" :large="false" :full="false" />
         <cz-form v-show="!loading" ref="userSecurityForm" :form="form" @save="save">
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-5">
                     <h5 class="card-title">Roles</h5>
                     <h6 class="card-subtitle mb-2 text-muted">Assign role-based access.</h6>
-                    <div class="checkbox-container" v-for="(role, index) in roles">
-                        <cz-checkbox
-                            :label="role.name"
-                            v-model="form.roles[role.id.toString()]"
-                            type="checkbox"
-                            :disabled="submitting"
-                            :input-true-value="role.id"
-                            :input-false-value="false"
-                            class="flex-1"
-                            hide-details />
+                    <div class="cz-checkbox-columns" :class="{ 'cz-checkbox-columns--2': roles.length > rolesColumnThreshold }">
+                        <div class="checkbox-container" v-for="(role, index) in roles">
+                            <cz-checkbox
+                                :label="role.name"
+                                v-model="form.roles[role.id.toString()]"
+                                type="checkbox"
+                                :disabled="submitting"
+                                :input-true-value="role.id"
+                                :input-false-value="false"
+                                class="flex-1"
+                                hide-details />
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-7">
                     <h5 class="card-title">Permissions</h5>
                     <h6 class="card-subtitle mb-2 text-muted">Adjust individual rights.</h6>
-                    <div class="checkbox-container" v-for="(permission, index) in permissions">
-                        <cz-checkbox
-                            :label="permission.name"
-                            v-model="form.permissions[permission.id.toString()]"
-                            type="checkbox"
-                            :disabled="submitting || partOfRole(permission.id)"
-                            :input-true-value="permission.id"
-                            :input-false-value="false"
-                            class="flex-1"
-                            hide-details />
+                    <div class="cz-checkbox-columns cz-checkbox-columns--2">
+                        <div class="checkbox-container" v-for="(permission, index) in permissions">
+                            <cz-checkbox
+                                :label="permission.name"
+                                v-model="form.permissions[permission.id.toString()]"
+                                type="checkbox"
+                                :disabled="submitting || partOfRole(permission.id)"
+                                :input-true-value="permission.id"
+                                :input-false-value="false"
+                                class="flex-1"
+                                hide-details />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -53,6 +57,9 @@ export default {
                 permissions: [],
             },
             snapshot: null,
+            // Below this many roles, a single column is short enough to scan at a glance -
+            // splitting it into two only pays off once the list gets long.
+            rolesColumnThreshold: 6,
         };
     },
     created: function() {

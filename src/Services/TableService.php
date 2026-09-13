@@ -127,16 +127,36 @@ class TableService
         $columns = is_array($columns) ? $columns : [$columns];
         foreach ($columns as $i => $column) {
             if (!($column instanceof Expression) && isset($column['direction'])) {
-                if (!is_array($allowedColumns) || in_array($column['column'], $allowedColumns, true)) {
-                    $query->orderBy($column['column'], $column['direction']);
+                $resolved = self::resolveColumn($column['column'], $allowedColumns);
+                if ($resolved !== null) {
+                    $query->orderBy($resolved, $column['direction']);
                 }
             } else {
-                if (!is_array($allowedColumns) || in_array($column, $allowedColumns, true)) {
-                    $query = $query->orderBy($column, $direction ?? 'asc');
+                $resolved = self::resolveColumn($column, $allowedColumns);
+                if ($resolved !== null) {
+                    $query = $query->orderBy($resolved, $direction ?? 'asc');
                 }
             }
         }
         return $query;
+    }
+
+    private static function resolveColumn(mixed $column, ?array $allowedColumns): mixed
+    {
+        if (!is_array($allowedColumns)) {
+            return $column;
+        }
+        if (in_array($column, $allowedColumns, true)) {
+            return $column;
+        }
+        if (is_string($column)) {
+            foreach ($allowedColumns as $allowed) {
+                if (is_string($allowed) && $allowed !== $column && str_ends_with($allowed, '.'.$column)) {
+                    return $allowed;
+                }
+            }
+        }
+        return null;
     }
 
     public static function response(

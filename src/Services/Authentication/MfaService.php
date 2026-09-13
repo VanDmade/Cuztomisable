@@ -38,6 +38,10 @@ class MfaService
             if (config('cuztomisable.login.multi_factor_authentication.recreate_code_on_resend', false)) {
                 $code->code = generateCode(config('cuztomisable.account.code.length', 6), 'cuztomisable', $code->id);
             }
+            // A resend should buy the user a fresh window to enter the code
+            if ($resending) {
+                $code->expires_at = now()->addSeconds(config('cuztomisable.account.code.expires_in', 300));
+            }
             $code->sent_at = now();
             $sendVia = config('cuztomisable.login.multi_factor_authentication.send_via');
             // A resend reuses whichever channel the code already went out on, or falls back to

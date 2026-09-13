@@ -1,5 +1,5 @@
 <template>
-    <div class="page" :class="{ 'container': breakpoint('lg'), 'container-fluid': breakpoint('md') || breakpoint('sm') }">
+    <div class="page container-fluid">
         <cz-loading :loading="loading || $store.state.loading"></cz-loading>
         <template v-if="!loading">
             <div class="card pa-6 mb-4 cz-user-summary">
@@ -10,36 +10,90 @@
                     v-model="form.image"
                     uploader />
                 <div class="cz-user-summary-info">
-                    <h5 class="card-title mb-1">{{ form.name || 'New User' }}</h5>
-                    <p class="note mb-0">{{ form.email || form.phone?.number || '—' }}</p>
-                    <div class="cz-user-summary-meta">
-                        <span v-if="form.locked" class="cz-user-badge cz-user-badge--danger">Locked</span>
-                        <span v-if="form.mfa" class="cz-user-badge cz-user-badge--success">MFA Enabled</span>
-                        <span class="note">Member since {{ form.created_at ? formatDate(form.created_at) : '—' }}</span>
-                        <span class="note">Last login: {{ form.last_login_at ? formatDate(form.last_login_at) : 'Never' }}</span>
+                    <div class="cz-user-summary-header">
+                        <div class="cz-user-summary-header-text">
+                            <h5 class="card-title mb-1 cz-user-summary-name">
+                                {{ form.name || 'New User' }}
+                                <span v-if="form.locked" class="cz-user-badge cz-user-badge--danger">Locked</span>
+                            </h5>
+                            <div class="cz-user-summary-contacts">
+                                <span v-if="form.email" class="cz-user-contact-wrap">
+                                    <span v-if="form.disable_emails" class="material-icons cz-user-contact-icon cz-user-contact-icon--danger" title="Emails disabled">block</span>
+                                    <a :href="'mailto:'+form.email"
+                                        class="cz-user-contact-link"
+                                        :class="{ 'cz-user-contact-link--danger': form.disable_emails }"
+                                        :title="form.disable_emails ? 'Emails disabled' : null">{{ form.email }}</a>
+                                    <button v-if="form.disable_emails && canManageContactPrefs"
+                                        type="button"
+                                        class="cz-user-contact-reset"
+                                        @click="openResetContactModal('email')">Reset</button>
+                                </span>
+                                <span v-if="form.phone?.number" class="cz-user-contact-wrap">
+                                    <span v-if="form.phone?.disable_messages" class="material-icons cz-user-contact-icon cz-user-contact-icon--danger" title="Texts disabled">block</span>
+                                    <a :href="'tel:'+form.phone.number"
+                                        class="cz-user-contact-link"
+                                        :class="{ 'cz-user-contact-link--danger': form.phone?.disable_messages }"
+                                        :title="form.phone?.disable_messages ? 'Texts disabled' : null">{{ form.phone.number }}</a>
+                                    <button v-if="form.phone?.disable_messages && canManageContactPrefs"
+                                        type="button"
+                                        class="cz-user-contact-reset"
+                                        @click="openResetContactModal('phone')">Reset</button>
+                                </span>
+                                <span v-if="!form.email && !form.phone?.number" class="note">—</span>
+                            </div>
+                        </div>
+                        <button v-if="canToggleLock"
+                            type="button"
+                            class="button button--secondary"
+                            :disabled="lockToggling"
+                            @click="toggleLocked">
+                            <span class="material-icons">{{ form.locked ? 'lock_open' : 'lock' }}</span>
+                            {{ form.locked ? 'Unlock Account' : 'Lock Account' }}
+                        </button>
                     </div>
+                    <div class="cz-user-summary-meta">
+                        <span v-if="form.mfa" class="cz-user-badge cz-user-badge--success">MFA Enabled</span>
+                    </div>
+                    <p class="note mb-0 cz-user-summary-line">Member since {{ form.created_at ? formatDate(form.created_at) : '—' }}</p>
+                    <p class="note mb-0 cz-user-summary-line">Last login: {{ form.last_login_at ? formatDate(form.last_login_at) : 'Never' }}</p>
                 </div>
             </div>
-            <div class="cz-tabs mb-4">
+            <cz-modal ref="resetContactModal" modal-width="400px" @close="resetContactType = null">
+                <h3 class="card-title">Re-enable {{ resetContactType === 'phone' ? 'Text Messages' : 'Emails' }}</h3>
+                <h6 class="card-subtitle mb-6 text-muted">
+                    This will re-enable {{ resetContactType === 'phone' ? 'text messages' : 'emails' }} for this account.
+                </h6>
                 <button type="button"
-                    class="cz-tab"
-                    :class="{ active: tab === 'details' }"
-                    @click="tab = 'details'">Details<span v-if="detailsDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
-                <button type="button"
-                    v-if="isMineOrHasPermission('reset-user-passwords') || (isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled)"
-                    class="cz-tab"
-                    :class="{ active: tab === 'security' }"
-                    @click="tab = 'security'">Security<span v-if="securityDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
-                <button type="button"
-                    v-if="$store.getters.hasPermission('manage-user-roles-permissions')"
-                    class="cz-tab"
-                    :class="{ active: tab === 'access' }"
-                    @click="tab = 'access'">Access<span v-if="accessDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
-                <button type="button"
-                    v-if="isMineOrHasPermission('view-user-logins')"
-                    class="cz-tab"
-                    :class="{ active: tab === 'logins' }"
-                    @click="tab = 'logins'">Login History</button>
+                    class="button button--primary button--block"
+                    :disabled="resettingContact"
+                    @click="confirmResetContact">Confirm</button>
+            </cz-modal>
+            <div class="cz-tabs-row mb-4">
+                <div class="cz-tabs">
+                    <button type="button"
+                        class="cz-tab"
+                        :class="{ active: tab === 'details' }"
+                        @click="tab = 'details'">Details<span v-if="detailsDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
+                    <button type="button"
+                        v-if="securityTabVisible"
+                        class="cz-tab"
+                        :class="{ active: tab === 'security' }"
+                        @click="tab = 'security'">Security<span v-if="securityDirty || accessDirty" class="cz-tab-dirty" title="Unsaved changes"></span></button>
+                    <button type="button"
+                        v-if="isMineOrHasPermission('view-user-logins')"
+                        class="cz-tab"
+                        :class="{ active: tab === 'logins' }"
+                        @click="tab = 'logins'">Login History</button>
+                    <button type="button"
+                        v-if="logsTabVisible"
+                        class="cz-tab"
+                        :class="{ active: tab === 'logs' }"
+                        @click="tab = 'logs'">Logs</button>
+                </div>
+                <button type="button" class="cz-tabs-go-back" @click="goBack()">
+                    <span class="material-icons">arrow_back</span>
+                    Back
+                </button>
             </div>
             <div v-show="tab === 'details'" class="card pa-6">
                 <cz-form ref="userForm" :form="form" @save="save">
@@ -79,37 +133,57 @@
                         :disabled="submitting"
                         :hasAddressTwo="$cuztomisable.registration.address.address_two"
                         :hasAddressThree="$cuztomisable.registration.address.address_three" />
+                    <hr class="mt-2 mb-4">
+                    <cz-checkbox
+                        label="Automatically detect timezone"
+                        subtitle="Uses whatever timezone this device reports. Turn off to set one manually."
+                        v-model="form.timezone_auto"
+                        type="checkbox"
+                        hide-details
+                        :disabled="submitting"
+                        class="mb-4" />
+                    <cz-select
+                        v-if="!form.timezone_auto"
+                        label="Timezone"
+                        v-model="form.timezone"
+                        :items="timezoneOptions"
+                        :errors="errors.timezone"
+                        :required="false"
+                        :auto-select-first="false"
+                        :disabled="submitting"
+                        class="mb-4" />
                     <div class="form-buttons">
                         <button v-if="isMineOrHasPermission('manage-users')"
                             type="submit"
                             class="button button--primary"
-                            :class="{ 'button--block': breakpoint('sm'), 'mr-4 button-width': !breakpoint('sm') }"
+                            :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }"
                             :disabled="submitting">Save Changes</button>
-                        <button type="button" class="button button--secondary" :class="{ 'button--block': breakpoint('sm'), 'button-width': !breakpoint('sm') }" @click="goBack()" :disabled="submitting">Go Back</button>
                     </div>
                 </cz-form>
             </div>
             <div v-show="tab === 'security'" class="card pa-6">
                 <component
-                    v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled"
+                    v-if="mfaSectionVisible"
                     is="user-mfa-form"
                     v-model="form.mfa"
                     v-on:message="message"
-                    :user="form?.id"
-                    class="mb-6"></component>
-                <hr v-if="isMineOrHasPermission('toggle-user-mfa') && $cuztomisable.multi_factor_authentication.enabled && isMineOrHasPermission('reset-user-passwords')" class="mb-6">
+                    :user="form?.id"></component>
+                <hr v-if="mfaSectionVisible && passwordSectionVisible" class="mt-4 mb-4">
                 <component
-                    v-if="isMineOrHasPermission('reset-user-passwords')"
+                    v-if="passwordSectionVisible"
                     is="user-password-form"
                     ref="user-password-form"
                     v-on:message="message"
+                    v-on:reload="get"
                     :user="form?.id"
                     :admin="$store.state.user?.admin"
-                    :change-password-sent-at="form.change_password_sent_at"></component>
-            </div>
-            <div v-show="tab === 'access'" class="card pa-6">
+                    :change-password-sent-at="form.change_password_sent_at"
+                    :email-verified="!!form.email_verified_at"
+                    :phone-verified="!!form.phone?.verified_at"
+                    :has-phone="!!form.phone?.number"></component>
+                <hr v-if="(mfaSectionVisible || passwordSectionVisible) && accessSectionVisible" class="mt-4 mb-4">
                 <component
-                    v-if="$store.getters.hasPermission('manage-user-roles-permissions') && form.id"
+                    v-if="accessSectionVisible"
                     is="user-security-form"
                     ref="user-security-form"
                     v-on:message="message"
@@ -124,6 +198,13 @@
                     :user="form?.id"
                     :admin="$store.state.user?.admin"></component>
             </div>
+            <div v-show="tab === 'logs'" class="card pa-6">
+                <component
+                    v-if="logsTabVisible && form.id"
+                    is="user-logs-form"
+                    ref="user-logs-form"
+                    :user="form?.id"></component>
+            </div>
         </template>
     </div>
 </template>
@@ -132,6 +213,7 @@ import Password from './Password.vue';
 import MFA from './MFA.vue';
 import RecentLogin from './RecentLogin.vue';
 import Security from './Security.vue';
+import Logs from './Logs.vue';
 export default {
     data: function() {
         return {
@@ -144,25 +226,71 @@ export default {
             // Snapshot of the Details fields right after load, so editing them (without saving)
             // can be detected and flagged on the tab.
             detailsSnapshot: null,
+            lockToggling: false,
+            resetContactType: null,
+            resettingContact: false,
         };
     },
     methods: {
+        openResetContactModal: function(type) {
+            this.resetContactType = type;
+            this.$refs.resetContactModal.open();
+        },
+        confirmResetContact: function() {
+            this.resettingContact = true;
+            const url = this.resetContactType === 'phone'
+                ? `/user/${this.form.id}/messages`
+                : `/user/${this.form.id}/emails`;
+            axios.patch(url).then(({ data }) => {
+                if (this.resetContactType === 'phone') {
+                    this.form.phone.disable_messages = false;
+                } else {
+                    this.form.disable_emails = false;
+                }
+                this.$message.push({ text: data.message });
+                this.$refs.resetContactModal.close();
+            }).catch(({ response }) => {
+                if (response?.data?.message) {
+                    this.$message.push({ text: response.data.message, color: 'danger' });
+                }
+            }).finally(() => {
+                setTimeout(() => {
+                    this.resettingContact = false;
+                }, 500);
+            });
+        },
+        toggleLocked: function() {
+            this.lockToggling = true;
+            axios.patch(`/user/${this.form.id}/locked`).then(({ data }) => {
+                this.form.locked = !data.locked;
+                this.$message.push({ text: data.message });
+            }).catch(({ response }) => {
+                if (response?.data?.message) {
+                    this.$message.push({ text: response.data.message, color: 'danger' });
+                }
+            }).finally(() => {
+                setTimeout(() => {
+                    this.lockToggling = false;
+                }, 500);
+            });
+        },
         get: function() {
             let id = this.$route.params.id;
             axios.get(`/user/${id}`).then(({ data }) => {
                 this.form = this.clone(data.user);
-                this.snapshotDetails();
             }).catch((error) => {
 
             }).finally(() => {
                 setTimeout(() => {
                     this.loading = false;
+                    // Waits for the Details tab
+                    this.$nextTick(() => this.snapshotDetails());
                 }, 1000);
             });
         },
         snapshotDetails: function() {
-            const { name, username, email, phone, address } = this.form;
-            this.detailsSnapshot = JSON.stringify({ name, username, email, phone, address });
+            const { name, username, email, phone, address, timezone, timezone_auto } = this.form;
+            this.detailsSnapshot = JSON.stringify({ name, username, email, phone, address, timezone, timezone_auto });
         },
         save: function() {
             let id = this.$route.params.id;
@@ -175,6 +303,8 @@ export default {
             formData.append('email', this.form.email ?? '');
             formData.append('phone', this.form.phone?.number ?? '');
             formData.append('country_code', this.form.phone?.country_code ?? '');
+            formData.append('timezone_auto', this.form.timezone_auto === false ? '0' : '1');
+            formData.append('timezone', this.form.timezone_auto === false ? (this.form.timezone ?? '') : '');
             if (this.$cuztomisable.registration.address !== false) {
                 formData.append('address', this.form.address?.address);
                 formData.append('address_two', this.form.address?.address_two);
@@ -219,9 +349,9 @@ export default {
                 let id = this.$route.params.id;
                 if (id == '' || typeof(id) == 'undefined') {
                     this.form = user ?? {};
-                    this.snapshotDetails();
                     setTimeout(() => {
                         this.loading = false;
+                        this.$nextTick(() => this.snapshotDetails());
                     }, 1000);
                 } else {
                     this.get();
@@ -237,14 +367,47 @@ export default {
             if (!this.detailsSnapshot) {
                 return false;
             }
-            const { name, username, email, phone, address } = this.form;
-            return JSON.stringify({ name, username, email, phone, address }) !== this.detailsSnapshot;
+            const { name, username, email, phone, address, timezone, timezone_auto } = this.form;
+            return JSON.stringify({ name, username, email, phone, address, timezone, timezone_auto }) !== this.detailsSnapshot;
+        },
+        timezoneOptions: function() {
+            const zones = typeof Intl.supportedValuesOf === 'function'
+                ? Intl.supportedValuesOf('timeZone')
+                : [this.form.timezone].filter(Boolean);
+            return zones.map(zone => ({ value: zone, text: zone.replace(/_/g, ' ') }));
+        },
+        mfaSectionVisible: function() {
+            return this.isMineOrHasPermission('toggle-user-mfa') && this.$cuztomisable.multi_factor_authentication.enabled;
+        },
+        passwordSectionVisible: function() {
+            if (!this.isMineOrHasPermission('reset-user-passwords')) {
+                return false;
+            }
+            const isSelf = this.form.id == this.$store.state.user?.id;
+            return !!this.$store.state.user?.admin || isSelf;
+        },
+        accessSectionVisible: function() {
+            return this.$store.getters.hasPermission('manage-user-roles-permissions') && !!this.form.id;
+        },
+        canManageContactPrefs: function() {
+            return this.$store.getters.hasPermission('manage-users');
+        },
+        securityTabVisible: function() {
+            return this.mfaSectionVisible || this.passwordSectionVisible || this.accessSectionVisible;
+        },
+        logsTabVisible: function() {
+            return !!this.$store.state.user?.admin;
         },
         securityDirty: function() {
             return this.$refs['user-password-form']?.dirty ?? false;
         },
         accessDirty: function() {
             return this.$refs['user-security-form']?.dirty ?? false;
+        },
+        canToggleLock: function() {
+            return !!this.form.id
+                && this.form.id != this.$store.state.user?.id
+                && this.$store.getters.hasPermission('manage-users');
         },
     },
     watch: {
@@ -279,6 +442,7 @@ export default {
         'user-security-form': Security,
         'user-mfa-form': MFA,
         'user-password-form': Password,
+        'user-logs-form': Logs,
     }
 };
 </script>

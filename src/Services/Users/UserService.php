@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use VanDmade\Cuztomisable\Events\NewUser;
+use VanDmade\Cuztomisable\Jobs\SendText;
 use VanDmade\Cuztomisable\Mail\Users\Passwords\Temporary as TemporaryMail;
 use VanDmade\Cuztomisable\Mail\Users\Verification as VerificationMail;
 use VanDmade\Cuztomisable\Services\AddressService;
@@ -37,7 +38,9 @@ class UserService
 
     public function updateTimezone(Model $user, string $timezone): bool
     {
-        if ($user->timezone === $timezone) {
+        // A manual override (set via the Details form) sticks until the user resets it back to
+        // Automatic - the periodic browser-detected sync must not silently clobber that choice.
+        if (!($user->timezone_auto ?? true) || $user->timezone === $timezone) {
             return false;
         }
         $user->timezone = $timezone;
@@ -98,7 +101,15 @@ class UserService
                 // A changed email inherits nothing from the old address's verified status
                 $user->email_verified_at = null;
             }
-            $user->timezone = $data['timezone'] ?? config('cuztomisable.account.default_timezone', 'America/New_York');
+            // Choosing a timezone manually here sticks until reset back to Automatic - otherwise
+            // the periodic browser-detected sync (see updateTimezone()) would just overwrite it.
+            $timezoneAuto = filter_var($data['timezone_auto'] ?? true, FILTER_VALIDATE_BOOLEAN);
+            $user->timezone_auto = $timezoneAuto;
+            if (!$timezoneAuto && !empty($data['timezone'])) {
+                $user->timezone = $data['timezone'];
+            } elseif ($user->timezone === null) {
+                $user->timezone = config('cuztomisable.account.default_timezone', 'America/New_York');
+            }
             if (config('cuztomisable.login.multi_factor_authentication.allowed', true) && !empty($data['mfa'])) {
                 $user->multi_factor_authentication = $data['mfa'] == '1';
             }
@@ -106,9 +117,17 @@ class UserService
             if ($emailChanged && config('cuztomisable.notifications.email_verification.enabled', true)) {
                 Mail::to($user->email)->send(new VerificationMail($user));
             }
+            $existingPhone = $user->defaultPhone;
+            $oldNumber = $existingPhone?->number;
+            $oldCountryCode = $existingPhone?->country_code;
             $this->applyContactAndImage($user, $data, $image, $clearImage);
             // Refreshes the user model to make sure everything is updated
             $user->refresh();
+            $phone = $user->defaultPhone;
+            $phoneChanged = $phone && ($phone->number !== $oldNumber || $phone->country_code != $oldCountryCode);
+            if ($phoneChanged && config('cuztomisable.notifications.phone_verification.enabled', true)) {
+                $this->resendPhoneVerification($actor, $user->id);
+            }
             return $user;
         });
     }
@@ -162,11 +181,52 @@ class UserService
     {
         return DB::transaction(function() use ($actor, $id) {
             $user = $this->resolveTarget($actor, $id);
+            if ($user->id == $actor->id) {
+                throw new Exception(__('cuztomisable/user.errors.lock_my_account'), 404);
+            }
             $locked = $user->locked;
             $user->locked = !$locked;
             $user->save();
             return $locked;
         });
+    }
+
+    public function resetAttempts(Model $actor, ?int $id): void
+    {
+        DB::transaction(function() use ($actor, $id) {
+            $user = $this->resolveTarget($actor, $id);
+            $user->attempts = 0;
+            $user->attempt_timer = null;
+            $user->locked = false;
+            $user->save();
+        });
+    }
+
+    public function resendEmailVerification(Model $actor, ?int $id): void
+    {
+        $user = $this->resolveTarget($actor, $id);
+        if (!is_null($user->email_verified_at)) {
+            throw new Exception(__('cuztomisable/user.errors.already_verified', ['type' => 'email']), 404);
+        }
+        Mail::to($user->email)->send(new VerificationMail($user));
+    }
+
+    public function resendPhoneVerification(Model $actor, ?int $id): void
+    {
+        $user = $this->resolveTarget($actor, $id);
+        $phone = $user->defaultPhone;
+        if (!isset($phone->id)) {
+            throw new Exception(__('cuztomisable/user.errors.no_phone_on_file'), 404);
+        }
+        if (!is_null($phone->verified_at)) {
+            throw new Exception(__('cuztomisable/user.errors.already_verified', ['type' => 'phone']), 404);
+        }
+        $verificationUrl = url('/verification/'.$user->token.'/phone?phone='.$phone->country_code.$phone->number);
+        $message = __('cuztomisable/text.registration.verification', [
+            'company' => env('APP_NAME'),
+            'url' => $verificationUrl,
+        ]);
+        SendText::dispatch($phone->country_code, $phone->number, $message);
     }
 
     public function toggleDelete(Model $actor, ?int $id): bool
@@ -267,6 +327,24 @@ class UserService
         return false;
     }
 
+    public function enableEmails(Model $actor, ?int $id): void
+    {
+        $user = $this->resolveTarget($actor, $id);
+        $user->disable_emails = false;
+        $user->save();
+    }
+
+    public function enablePhoneMessages(Model $actor, ?int $id): void
+    {
+        $user = $this->resolveTarget($actor, $id);
+        $phone = $user->defaultPhone;
+        if (!isset($phone->id)) {
+            throw new Exception(__('cuztomisable/user.errors.no_phone_on_file'), 404);
+        }
+        $phone->disable_messages = false;
+        $phone->save();
+    }
+
     public function unsubscribe(string $token, string $type, ?string $email, ?string $phone): bool
     {
         $user = config('auth.providers.users.model')::where('token', $token)->first();
@@ -293,9 +371,13 @@ class UserService
         return false;
     }
 
+    // Every caller of this is already reached through a route gated by the specific permission
+    // that action requires (manage-users, toggle-user-mfa, etc) - re-checking $actor->admin here
+    // on top of that used to silently fall back to acting on the actor's own account for any
+    // non-admin user granted one of those permissions directly, instead of the intended target.
     private function resolveTarget(Model $actor, ?int $id, bool $withTrashed = false): Model
     {
-        if (is_null($id) || !$actor->admin) {
+        if (is_null($id)) {
             $user = $actor;
         } else {
             $query = config('auth.providers.users.model')::where('id', '=', $id);

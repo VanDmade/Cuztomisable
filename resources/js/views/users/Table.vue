@@ -65,7 +65,7 @@
                 </div>
             </template>
         </cz-table>
-        <cz-modal ref="deleteUserModal" modal-width="380px">
+        <cz-modal ref="deleteUserModal" modal-width="380px" @close="id = null">
             <h3 class="card-title">Delete User?</h3>
             <h6 class="card-subtitle mb-6 text-muted">Send this user on a one-way trip to Deletionville.</h6>
             <div class="row">

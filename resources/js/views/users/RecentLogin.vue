@@ -17,33 +17,18 @@
                     <template v-if="$store.getters.hasPermission('clear-user-logins')">
                         <button type="button"
                             v-if="typeof(forgetting[id]) == 'undefined' || !forgetting[id].active"
-                            @click="setup('forget', id)"
+                            @click="setup(id)"
                             class="button button--danger"
                             :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Forget</button>
                         <button type="button"
                             v-else-if="forgetting[id].active ?? false"
-                            @click="proceed('forget', id)"
+                            @click="proceed(id)"
                             :disabled="submitting[id] ?? false"
                             class="button button--danger"
                             :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
                     </template>
                 </div>
-                <div v-else class="cz-table-data" :class="{ 'd-flex': !breakpoint('sm') }">
-                    <div :class="{ 'display-inline': !breakpoint('sm'), 'mr-2': !breakpoint('sm') }" style="flex: 10;">No</div>
-                    <template v-if="$store.getters.hasPermission('clear-user-logins')">
-                        <button type="button"
-                            v-if="typeof(deleting[id]) == 'undefined' || !deleting[id].active"
-                            @click="setup('delete', id)"
-                            class="button button--danger"
-                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Delete</button>
-                        <button type="button"
-                            v-else-if="deleting[id].active ?? false"
-                            @click="proceed('delete', id)"
-                            :disabled="submitting[id] ?? false"
-                            class="button button--danger"
-                            :class="{ 'button--block': breakpoint('sm'), 'button--small mr-1': !breakpoint('sm') }">Remove</button>
-                    </template>
-                </div>
+                <div v-else class="cz-table-data">No</div>
             </template>
         </cz-table>
     </div>
@@ -54,9 +39,8 @@ export default {
         return {
             submitting: [],
             forgetting: [],
-            deleting: [],
             headers: [
-                { name: 'IP Address', value: 'last_used_at', width: '225px' },
+                { name: 'IP Address', value: 'last_used_at', width: '320px' },
                 { name: 'Remembered', value: 'remember_until' },
             ]
         };
@@ -65,33 +49,28 @@ export default {
         reset: function() {
             this.$refs.userTable.query();
         },
-        setup: function(type, id) {
-            const isDelete = type == 'delete';
-            const key = isDelete ? 'deleting' : 'forgetting';
-            this[key][id] = {
+        setup: function(id) {
+            this.forgetting[id] = {
                 active: true,
                 timeout: setTimeout(() => {
-                    this[key][id] = false;
+                    this.forgetting[id] = false;
                 }, 2000),
             };
         },
-        proceed: function(type, id) {
+        proceed: function(id) {
             this.submitting[id] = true;
-            const isDelete = type == 'delete';
-            const key = isDelete ? 'deleting' : 'forgetting';
             // Safely clear the previous timeout if it exists
-            if (this[key][id]?.timeout) {
-                clearTimeout(this[key][id].timeout);
+            if (this.forgetting[id]?.timeout) {
+                clearTimeout(this.forgetting[id].timeout);
             }
-            const url = `/ip/${id}` + (!isDelete ? '/forget' : '');
-            axios.delete(url).then(() => {
+            axios.delete(`/ip/${id}/forget`).then(() => {
                 setTimeout(() => {
                     this.$refs.userTable.query();
                 }, 1000);
             }).finally(() => {
                 setTimeout(() => {
                     this.submitting[id] = false;
-                    this[key][id] = false;
+                    this.forgetting[id] = false;
                 }, 1000);
             });
         }

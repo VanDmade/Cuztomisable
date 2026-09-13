@@ -1,17 +1,37 @@
 <template>
     <div class="cz-form-input form-check"
         :class="{ 'cz-no-label': label == null || label == '' }">
-        <input
-            v-model="value"
-            type="checkbox"
-            :id="id"
-            class="form-check-input"
-            :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
-            :disabled="disabled"
-            :value="inputTrueValue"
-            :readonly="readonly"
-            @input="errorList = []">
-        <label v-if="!noLabel" class="form-check-label" :for="id">{{ label }}</label>
+        <template v-if="subtitle">
+            <div class="cz-checkbox-row">
+                <input
+                    v-model="value"
+                    type="checkbox"
+                    :id="id"
+                    class="form-check-input"
+                    :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+                    :disabled="disabled"
+                    :value="inputTrueValue"
+                    :readonly="readonly"
+                    @input="errorList = []">
+                <div v-if="!noLabel" class="cz-checkbox-text">
+                    <label class="form-check-label" :for="id">{{ label }}</label>
+                    <label class="note cz-checkbox-subtitle mb-0" :for="id">{{ subtitle }}</label>
+                </div>
+            </div>
+        </template>
+        <template v-else>
+            <input
+                v-model="value"
+                type="checkbox"
+                :id="id"
+                class="form-check-input"
+                :class="[{ 'is-invalid': errorList.length > 0, 'empty': value == '' || value == null }, inputClass]"
+                :disabled="disabled"
+                :value="inputTrueValue"
+                :readonly="readonly"
+                @input="errorList = []">
+            <label v-if="!noLabel" class="form-check-label" :for="id">{{ label }}</label>
+        </template>
         <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
             <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
         </ul>
@@ -52,6 +72,7 @@ export default {
     props: {
         modelValue: { type: [String, Number, Boolean], default: '' },
         label: { type: String, default: '' },
+        subtitle: { type: String, default: null },
         noLabel: { type: Boolean, default: false },
         inputTrueValue: { type: [String, Number, Boolean], default: null },
         inputFalseValue: { type: [String, Number, Boolean], default: null },

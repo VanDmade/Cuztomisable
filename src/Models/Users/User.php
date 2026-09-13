@@ -2,6 +2,7 @@
 
 namespace VanDmade\Cuztomisable\Models\Users;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,12 +10,8 @@ use VanDmade\Cuztomisable\Concerns\Auditable;
 use VanDmade\Cuztomisable\Concerns\BelongsToOrganizations;
 use VanDmade\Cuztomisable\Concerns\CuztomisableUser;
 use VanDmade\Cuztomisable\Concerns\SoftDeletes;
+use VanDmade\Cuztomisable\Database\Factories\UserFactory;
 
-/**
- * The default concrete User model Cuztomisable ships - table/fillable/casts only. All the
- * actual behavior (login rules, permissions, relationships) lives in CuztomisableUser, so a
- * host app can compose the same trait into its own User model instead of using this one.
- */
 class User extends Authenticatable
 {
 
@@ -31,6 +28,7 @@ class User extends Authenticatable
         'disable_emails',
         'password',
         'timezone',
+        'timezone_auto',
         'token',
         'locked',
         'change_password',
@@ -47,6 +45,7 @@ class User extends Authenticatable
     protected $casts = [
         'disable_emails' => 'boolean',
         'locked' => 'boolean',
+        'timezone_auto' => 'boolean',
         'change_password' => 'boolean',
         'change_password_sent_at' => 'datetime',
         'multi_factor_authentication' => 'boolean',
@@ -67,6 +66,11 @@ class User extends Authenticatable
         self::creating(function($model) {
             $model->token = generateCode(8);
         });
+    }
+
+    protected static function newFactory(): Factory
+    {
+        return UserFactory::new();
     }
 
 }

@@ -2,7 +2,7 @@
     <form :id="id" @submit.prevent="$emit('save')">
         <slot></slot>
         <cz-modal ref="fmFormModal">
-            <h3 class="mb-8 mt-4 text-center">{{ leaveMessage }}</h3>
+            <h3 class="card-title">{{ leaveMessage }}</h3>
             <div class="row">
                 <div class="col col-md-6 col-12">
                     <button type="button"
@@ -41,7 +41,7 @@ export default {
     },
     methods: {
         get: function() {
-            axios.get('/formora/'+this.$route.name).then(({ data }) => {
+            axios.get('/form/'+this.$route.name).then(({ data }) => {
                 let form = this.clone(this.form);
                 if (data.form != null) {
                     let keys = Object.keys(data.form);
@@ -69,13 +69,14 @@ export default {
                     }
                 }
                 formData.append('form', JSON.stringify(data));
-                axios.post('/formora/'+this.from.name, formData).then(({ data }) => {
+                axios.post('/form/'+this.from.name, formData).then(({ data }) => {
 
                 }).finally(() => {
                     this.redirect();
                 });
             } else {
-                // The user is not logged in, so no reason to save
+                // Already has a real account - their own save flow already persists this data,
+                // so there's nothing for the guest-progress table to do here.
                 this.redirect();
             }
         },

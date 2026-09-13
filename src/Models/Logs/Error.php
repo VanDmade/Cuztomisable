@@ -23,9 +23,14 @@ class Error extends Model
         'code',
         'debug_code',
         'parameters',
+        'closed_at',
+        'closed_by',
+        'closed_reason',
     ];
 
-    protected $casts = [];
+    protected $casts = [
+        'closed_at' => 'datetime',
+    ];
 
     protected $hidden = [
         'user_id',
@@ -59,6 +64,11 @@ class Error extends Model
     public function user()
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
+    }
+
+    public function closedBy()
+    {
+        return $this->belongsTo(config('auth.providers.users.model'), 'closed_by');
     }
 
 }

@@ -10,6 +10,10 @@ return [
     'undo' => 'The user was added backed into the system.',
     'locked' => 'This account has been locked.',
     'unlocked' => 'This account has been unlocked.',
+    'attempts_reset' => 'Login attempts have been reset and the account unlocked.',
+    'verification_resent' => 'The verification :type was resent.',
+    'emails_enabled' => 'Emails have been re-enabled for this user.',
+    'messages_enabled' => 'Text messages have been re-enabled for this user.',
     'account' => [
         'could_not_lock' => 'The account could not be locked. If you still want to lock the account, please reach out to an administrator',
         'self_locked' => 'You have locked your account and an email was sent to our administrators. We will reach out shortly to help you resolve this issue.',
@@ -65,12 +69,15 @@ return [
         'not_found' => 'The user was not found.',
         'locked' => 'Your account is currently locked.',
         'delete_my_account' => 'You cannot delete your own account.',
+        'lock_my_account' => 'You cannot lock your own account.',
         'incorrect_password' => 'Hmm... You are unable to change your password.',
         'password_changed_recently' => 'An administrator recently reset this user\'s password. Please try again later and ask the user to check their spam or junk folder.',
         'invalid_verification' => 'An error occurred while trying to verify your :type. Please try again, or request a new verification link if the issue continues. We\'re here to help if you need assistance.',
         'invalid_unsubscribe' => 'We couldn\'t process your unsubscribe request. The link may be invalid, expired, or already used.',
         'email_in_use' => 'This email address is already in use by another account. If this user already has an account, they can reset their password instead.',
         'no_force_change_allowed' => 'Hmm… You can’t change your password this way. It’s possible there was an error or the password has already been updated. Please refresh the page and try again.',
+        'already_verified' => 'That :type is already verified.',
+        'no_phone_on_file' => 'This user doesn\'t have a phone number on file.',
     ],
     'image' => [
         'errors' => [

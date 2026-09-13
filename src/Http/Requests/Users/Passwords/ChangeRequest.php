@@ -2,7 +2,6 @@
 
 namespace VanDmade\Cuztomisable\Http\Requests\Users\Passwords;
 
-use Illuminate\Support\Facades\Auth;
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
 class ChangeRequest extends CuztomisableRequest
@@ -52,7 +51,7 @@ class ChangeRequest extends CuztomisableRequest
             'current' => 'required',
             'invalidate_sessions' => 'boolean',
         ];
-        if ($this->has('force') && Auth::user()->admin) {
+        if ($this->has('force')) {
             unset($params['current']);
             $this->merge(['force' => true]);
             $params['force'] = 'required|boolean';

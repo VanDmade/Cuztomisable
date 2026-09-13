@@ -69,6 +69,7 @@ class UserRequest extends CuztomisableRequest
                 !config('cuztomisable.login.login_with.phone', false) ? 'required' : 'nullable',
             'email' => 'required|email',
             'timezone' => 'nullable',
+            'timezone_auto' => 'nullable|in:0,1',
             'phone' => $requirePhone.'|size:'.($size ?? 10),
             'country_code' => $requirePhone,
             'mfa' => 'nullable|in:0,1',

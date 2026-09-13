@@ -5,7 +5,8 @@
                 <slot name="header"></slot>
             </div>
             <div v-if="!disableSearch" class="col col-lg-4 col-md-6 col-12">
-                <div class="input-group cz-form-input">
+                <div class="input-group cz-form-input cz-table-search-group">
+                    <slot name="filters"></slot>
                     <input placeholder="Search" class="form-control cz-form-input" v-model="search" type="input" id="search" :disabled="disabled" />
                     <button type="button" class="button button--primary" @click="query">Refresh</button>
                 </div>

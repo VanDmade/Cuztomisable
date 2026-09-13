@@ -153,12 +153,14 @@ export default {
         },
         'value.country_code': {
             handler: function(code) {
-                if (!code) {
-                    if (this.value == '' || this.value == null) {
-                        this.value = { country_code: '', number: '' };
-                    }
-                    this.value.country_code = this.defaultCountryCode();
+                if (code) {
+                    return;
                 }
+                if (this.value == '' || this.value == null) {
+                    this.value = { country_code: this.defaultCountryCode(), number: '' };
+                    return;
+                }
+                this.value.country_code = this.defaultCountryCode();
             },
             deep: true,
         },

@@ -68,7 +68,7 @@
         <cz-modal ref="inviteModal" modal-width="600px">
             <invite-form v-on:close="$refs.inviteModal.close()" v-on:message="setMessage" v-on:redraw="$refs.inviteTable.query()" />
         </cz-modal>
-        <cz-modal ref="deleteInvitationModal" modal-width="380px">
+        <cz-modal ref="deleteInvitationModal" modal-width="380px" @close="id = null">
             <h3 class="card-title">Delete Registration Link?</h3>
             <h6 class="card-subtitle mb-6 text-muted">Cancel this invite and prevent registration.</h6>
             <div class="row">

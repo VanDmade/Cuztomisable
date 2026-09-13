@@ -26,7 +26,7 @@
             <h5 class="card-title" :class="{ 'mb-3': permissions.length != 0 }">Permission</h5>
             <h6 v-if="permissions.length == 0" class="card-subtitle mb-6 text-muted">The system doesn't seem to have any permissions yet.</h6>
             <div v-for="(permission, index) in permissions">
-                <div class="d-flex">
+                <div class="d-flex align-items-center">
                     <cz-checkbox
                         :label="permission.name"
                         v-model="form.permissions[permission.id.toString()]"
@@ -34,10 +34,9 @@
                         :disabled="submitting"
                         :input-true-value="permission.id"
                         :input-false-value="false"
-                        class="flex-1"
                         hide-details />
-                    <i v-if="minimized(permission.id)" @click="minimize[permission.id] = false" class="cursor--pointer material-icons">expand_less</i>
-                    <i v-else @click="minimize[permission.id] = true" class="cursor--pointer material-icons">expand_more</i>
+                    <i v-if="minimized(permission.id)" @click="minimize[permission.id] = false" class="cursor--pointer material-icons cz-permission-toggle">expand_less</i>
+                    <i v-else @click="minimize[permission.id] = true" class="cursor--pointer material-icons cz-permission-toggle">expand_more</i>
                 </div>
                 <p v-if="minimized(permission.id)" class="note cz-permission-description">{{ permission.subtitle }}</p>
             </div>
@@ -77,14 +76,12 @@ export default {
         get: function() {
             this.loading = true;
             axios.get(`/role/${this.id}`).then(({ data }) => {
-                const assignedPermissions = new Set(data.role.permissions.map(p => p.id));
+                const assignedPermissions = data.role.permissions.map(p => p.id);
                 delete data.role.permissions;
                 this.form = data.role;
                 const permissions = {};
-                for (const { id } of this.permissions) {
-                    if (assignedPermissions.has(id)) {
-                        permissions[id] = id;
-                    }
+                for (const id of assignedPermissions) {
+                    permissions[id] = id;
                 }
                 this.form.permissions = permissions;
             }).catch(({ response }) => {

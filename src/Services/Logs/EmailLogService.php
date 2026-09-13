@@ -36,7 +36,7 @@ class EmailLogService
         return $log;
     }
 
-    public function table(array $data): JsonResponse
+    public function table(array $data, ?int $userId = null): JsonResponse
     {
         $query = Email::select(
             'email_logs.id', 'email_logs.user_id', 'ru.name as recipient_name',
@@ -45,6 +45,9 @@ class EmailLogService
             'email_logs.subject', 'email_logs.created_at')
             ->leftJoin('users as ru', 'ru.id', '=', 'email_logs.user_id')
             ->leftJoin('users as cu', 'cu.id', '=', 'email_logs.created_by');
+        if (!is_null($userId)) {
+            $query->where('email_logs.user_id', '=', $userId);
+        }
         $parameters = [
             'allowed_columns' => [
                 'email_logs.id', 'email_logs.user_id', 'email_logs.created_by',

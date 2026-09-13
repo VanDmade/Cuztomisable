@@ -194,14 +194,15 @@ function splitPhoneNumber(?string $combined): array
 \******************************************************************************/
 function getIpAddress(): ?string
 {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return trim($_SERVER['HTTP_CLIENT_IP']);
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $request = app(\Illuminate\Http\Request::class);
+    if (!empty($request->server('HTTP_CLIENT_IP'))) {
+        return trim($request->server('HTTP_CLIENT_IP'));
+    } elseif (!empty($request->server('HTTP_X_FORWARDED_FOR'))) {
         // Note: This assumes trusted proxies are configured; otherwise, XFF can be spoofed.
-        $forwarded = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $forwarded = explode(',', $request->server('HTTP_X_FORWARDED_FOR'));
         return trim($forwarded[0] ?? '') ?: null;
     }
-    return isset($_SERVER['REMOTE_ADDR']) ? trim($_SERVER['REMOTE_ADDR']) : null;
+    return $request->ip();
 }
 
 /******************************************************************************\

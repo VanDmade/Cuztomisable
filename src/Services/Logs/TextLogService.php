@@ -38,7 +38,7 @@ class TextLogService
         return $log;
     }
 
-    public function table(array $data): JsonResponse
+    public function table(array $data, ?int $userId = null): JsonResponse
     {
         $query = Text::select(
             'text_logs.id', 'text_logs.user_id', 'ru.name as recipient_name',
@@ -47,6 +47,9 @@ class TextLogService
             'text_logs.created_at')
             ->leftJoin('users as ru', 'ru.id', '=', 'text_logs.user_id')
             ->leftJoin('users as cu', 'cu.id', '=', 'text_logs.created_by');
+        if (!is_null($userId)) {
+            $query->where('text_logs.user_id', '=', $userId);
+        }
         $parameters = [
             'allowed_columns' => [
                 'text_logs.id', 'text_logs.user_id', 'text_logs.created_by',

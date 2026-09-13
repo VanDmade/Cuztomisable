@@ -1,9 +1,9 @@
 <template>
     <div id="mfa-form">
-        <div class="cz-mfa-toggle-row">
+        <div class="cz-account-row">
             <div>
-                <h3 class="card-title mb-0">Multi-Factor Auth</h3>
-                <h6 class="card-subtitle mb-0 text-muted">Add two-step verification for extra security.</h6>
+                <h6 class="card-title mb-1">Multi-Factor Auth</h6>
+                <p class="note mb-0">Add two-step verification for extra security.</p>
             </div>
             <div class="form-check form-switch cz-mfa-toggle">
                 <input

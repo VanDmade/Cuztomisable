@@ -12,14 +12,15 @@
                     </p>
                 </div>
             </div>
-            <cz-form v-if="!sent" ref="mfaSelectForm" class="auth-card__form" :form="form" @save="send">
+            <cz-form v-if="!sent && !autoSending" ref="mfaSelectForm" class="auth-card__form" :form="form" @save="send">
                 <div class="mfa-email" :class="send_via.phone != null ? 'mb-3' : 'mb-6'" v-if="send_via.email != null">
                     <cz-checkbox
                         :label="send_via.email"
                         v-model="form.email"
                         type="radio"
                         :errors="errors.email"
-                        :disabled="submitting" />
+                        :disabled="submitting"
+                        hide-details />
                 </div>
                 <div class="mfa-phone mb-6" v-if="send_via.phone != null">
                     <cz-checkbox
@@ -27,7 +28,8 @@
                         v-model="form.phone"
                         type="radio"
                         :errors="errors.phone"
-                        :disabled="submitting" />
+                        :disabled="submitting"
+                        hide-details />
                 </div>
                 <div class="form-buttons">
                     <button type="submit" class="button button--primary button--block" :disabled="submitting || (!form.email && !form.phone && !resending)">Send</button>
@@ -40,9 +42,11 @@
                     v-model="form.code"
                     type="input"
                     :errors="errors.code"
-                    :disabled="submitting" />
+                    :disabled="submitting"
+                    hide-details />
                 <cz-checkbox
-                    label="Remember device? (Do not use on a public or shared device)"
+                    label="Remember device?"
+                    subtitle="Do not use on a public or shared device"
                     v-model="form.remember"
                     type="checkbox"
                     :errors="errors.remember"
@@ -138,9 +142,11 @@ export default {
             this.$router.push({ name: 'login' });
         },
         resolveToken: function() {
+            const pathMatch = window.location.pathname.match(/^\/mfa\/([^/]+)/);
+            const pathToken = pathMatch ? decodeURIComponent(pathMatch[1]) : null;
             const routeToken = this.$route?.params?.token;
             const pageToken = this.$page?.props?.token;
-            const value = routeToken ?? pageToken ?? null;
+            const value = pathToken ?? routeToken ?? pageToken ?? null;
             return value ? String(value).trim() : '';
         },
         setToken: function() {

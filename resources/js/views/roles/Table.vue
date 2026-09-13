@@ -45,7 +45,7 @@
                 v-on:message="setMessage"
                 v-on:redraw="$refs.roleTable.query()" />
         </cz-modal>
-        <cz-modal ref="deleteRoleModal" modal-width="380px">
+        <cz-modal ref="deleteRoleModal" modal-width="380px" @close="id = null">
             <h3 class="card-title">Delete Role?</h3>
             <h6 class="card-subtitle mb-6 text-muted">About to delete this role. Any users still assigned to it are about to feel very unauthorized.</h6>
             <div class="row">

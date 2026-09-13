@@ -44,7 +44,7 @@
                 v-on:message="setMessage"
                 v-on:redraw="$refs.permissionTable.query()" />
         </cz-modal>
-        <cz-modal ref="deletePermissionModal" modal-width="380px">
+        <cz-modal ref="deletePermissionModal" modal-width="380px" @close="id = null">
             <h3 class="card-title">Delete Permission?</h3>
             <h6 class="card-subtitle mb-6 text-muted">About to delete this permission. Hope you’re sure…</h6>
             <div class="row">

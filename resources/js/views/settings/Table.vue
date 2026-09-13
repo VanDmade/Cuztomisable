@@ -22,7 +22,7 @@
                     @click="edit(setting.key)">Edit</button>
             </div>
         </div>
-        <cz-modal ref="settingModal" modal-width="600px">
+        <cz-modal ref="settingModal" modal-width="700px">
             <settings-form :setting-key="activeKey" v-on:close="$refs.settingModal.close()" v-on:message="setMessage" v-on:redraw="load" />
         </cz-modal>
     </div>

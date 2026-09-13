@@ -4,6 +4,7 @@ namespace VanDmade\Cuztomisable;
 
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\ServiceProvider;
@@ -47,6 +48,11 @@ class CuztomisableServiceProvider extends ServiceProvider
                 Middleware\TokenFromCookie::class,
                 Middleware\RequireCsrfUnlessMobile::class,
                 Middleware\EnsureValidMobileAgent::class,
+                // Without this, an Eloquent-typed route parameter (e.g. Registration $registration)
+                // never gets resolved from the database at all - the container just instantiates
+                // an empty, unsaved model to satisfy the type-hint instead of 404ing or binding the
+                // real row, which then gets silently INSERTed as a new row the moment it's saved.
+                SubstituteBindings::class,
             ])
             ->group(__DIR__.'/../routes/api.php');
 
@@ -65,6 +71,11 @@ class CuztomisableServiceProvider extends ServiceProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 ShareErrorsFromSession::class,
+                // Promotes the cookie-stored token to a Bearer Authorization header, same as the
+                // API group, so the auth:sanctum gate on the protected page routes below can
+                // actually resolve the signed-in user from it.
+                Middleware\TokenFromCookie::class,
+                SubstituteBindings::class,
             ])->group(__DIR__.'/../routes/web.php');
         }
     }

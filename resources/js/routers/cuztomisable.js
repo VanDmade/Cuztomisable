@@ -63,6 +63,11 @@ const routes = [
         meta: { authentication: true, permissions: 'manage-roles-permissions' },
         component: () => import('../views/permissions/Table.vue'),
     },{
+        name: 'error-logs',
+        path: '/logs/error',
+        meta: { authentication: true, permissions: 'view-logs' },
+        component: () => import('../views/logs/Table.vue'),
+    },{
         name: 'message',
         path: '/message',
         meta: { authentication: false, layout: 'login-layout' },

@@ -20,8 +20,12 @@ class PhoneService
             'user_id' => $user->id,
             'default' => true,
         ]);
+        $countryCode = $countryCode ?? config('cuztomisable.locations.default_country_code', 1);
+        if ($phone->exists && ($phone->number !== $number || $phone->country_code != $countryCode)) {
+            $phone->verified_at = null;
+        }
         $phone->number = $number;
-        $phone->country_code = $countryCode ?? config('cuztomisable.locations.default_country_code', 1);
+        $phone->country_code = $countryCode;
         $phone->save();
         return $phone;
     }

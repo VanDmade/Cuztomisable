@@ -94,6 +94,66 @@ class UserController extends CuztomisableController
         }
     }
 
+    public function resetAttempts(Request $request, $id = null): JsonResponse
+    {
+        try {
+            $this->userService->resetAttempts($request->user(), $id !== null ? (int) $id : null);
+            return $this->success([
+                'message' => __('cuztomisable/user.attempts_reset'),
+            ]);
+        } catch (Throwable $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function resendEmailVerification(Request $request, $id = null): JsonResponse
+    {
+        try {
+            $this->userService->resendEmailVerification($request->user(), $id !== null ? (int) $id : null);
+            return $this->success([
+                'message' => __('cuztomisable/user.verification_resent', ['type' => 'email']),
+            ]);
+        } catch (Throwable $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function resendPhoneVerification(Request $request, $id = null): JsonResponse
+    {
+        try {
+            $this->userService->resendPhoneVerification($request->user(), $id !== null ? (int) $id : null);
+            return $this->success([
+                'message' => __('cuztomisable/user.verification_resent', ['type' => 'text']),
+            ]);
+        } catch (Throwable $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function enableEmails(Request $request, $id = null): JsonResponse
+    {
+        try {
+            $this->userService->enableEmails($request->user(), $id !== null ? (int) $id : null);
+            return $this->success([
+                'message' => __('cuztomisable/user.emails_enabled'),
+            ]);
+        } catch (Throwable $error) {
+            return $this->error($error);
+        }
+    }
+
+    public function enablePhoneMessages(Request $request, $id = null): JsonResponse
+    {
+        try {
+            $this->userService->enablePhoneMessages($request->user(), $id !== null ? (int) $id : null);
+            return $this->success([
+                'message' => __('cuztomisable/user.messages_enabled'),
+            ]);
+        } catch (Throwable $error) {
+            return $this->error($error);
+        }
+    }
+
     public function toggleDelete(Request $request, $id = null): JsonResponse
     {
         try {

@@ -1,5 +1,5 @@
 <template>
-    <aside class="app-sidebar">
+    <aside v-if="hasContent" class="app-sidebar">
         <nav class="sidebar-nav">
             <template v-if="navigation && navigation.length">
                 <router-link
@@ -13,8 +13,8 @@
                     <span class="material-icons" aria-hidden="true">{{ item.icon }}</span>
                 </router-link>
             </template>
-            <template v-if="$store.getters.hasPermission('view-users|manage-users|invite-users|manage-roles-permissions')">
-                <div class="sidebar-divider"></div>
+            <template v-if="hasAdminLinks">
+                <div v-if="navigation && navigation.length" class="sidebar-divider"></div>
                 <router-link
                     v-if="$store.getters.hasPermission('view-users|manage-users')"
                     :to="{ name: 'users' }"
@@ -48,6 +48,14 @@
                     <span class="material-icons" aria-hidden="true">verified_user</span>
                 </router-link>
                 <router-link
+                    v-if="$store.getters.hasPermission('view-logs')"
+                    :to="{ name: 'error-logs' }"
+                    class="sidebar-link"
+                    :class="{ 'sidebar-link--active': $route.name === 'error-logs' }"
+                    data-tooltip="Error Logs">
+                    <span class="material-icons" aria-hidden="true">bug_report</span>
+                </router-link>
+                <router-link
                     v-if="$store.getters.hasPermission('manage-settings')"
                     :to="{ name: 'settings' }"
                     class="sidebar-link"
@@ -61,6 +69,16 @@
 </template>
 <script>
 export default {
+    computed: {
+        hasAdminLinks: function() {
+            return this.$store.getters.hasPermission(
+                'view-users|manage-users|invite-users|manage-roles-permissions|view-logs|manage-settings'
+            );
+        },
+        hasContent: function() {
+            return !!(this.navigation && this.navigation.length) || this.hasAdminLinks;
+        },
+    },
     props: {
         navigation: {
             type: Array,

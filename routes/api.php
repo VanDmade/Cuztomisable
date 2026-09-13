@@ -14,6 +14,7 @@ use VanDmade\Cuztomisable\Http\Controllers\Users\AddressController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\RegistrationController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\LoginController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\UserController;
+use VanDmade\Cuztomisable\Http\Controllers\Users\LogController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\MFAController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\PasswordController as RegistrationPasswordController;
 
@@ -65,6 +66,14 @@ Route::controller(SettingsController::class)->group(function() {
     // the controller itself checks auth/permission for anything not marked public.
     Route::get('/settings/{key}', 'get');
 });
+Route::controller(FormController::class)->group(function() {
+    // Guest-accessible - lets someone save their in-progress registration/wizard form before
+    // they have an account yet, so navigating away doesn't lose it. The controller itself
+    // resolves the owner from Auth::id() (null for a guest, matching Form's own nullable
+    // user_id), so this stays safe to expose without auth:sanctum here.
+    Route::post('/form/{page}', 'save')
+        ->middleware('throttler:form.save,ip,actor,params=page,request=current');
+});
 Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], function() {
     Route::controller(SettingsController::class)->group(function() {
         Route::patch('/settings/timezone', 'updateTimezone');
@@ -72,8 +81,6 @@ Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], functi
     Route::controller(FormController::class)->group(function() {
         Route::get('/form/{page}', 'get')
             ->middleware('throttler:form.get,ip,actor,params=page');
-        Route::post('/form/{page}', 'save')
-            ->middleware('throttler:form.save,ip,actor,params=page,request=current');
     });
     Route::controller(AccessController::class)->group(function() {
         Route::get('/user/{id}/access', 'get')
@@ -105,10 +112,31 @@ Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], functi
                 ->middleware('throttler:users.toggle_delete,actor,params=id');
             Route::patch('/user/{id}/locked', 'toggleLocked')
                 ->middleware('throttler:users.toggle_locked,actor,params=id');
+            Route::patch('/user/{id}/attempts', 'resetAttempts')
+                ->middleware('throttler:users.reset_attempts,actor,params=id');
+            Route::post('/user/{id}/verify/email', 'resendEmailVerification')
+                ->middleware('throttler:users.resend_verification,actor,params=id');
+            Route::post('/user/{id}/verify/phone', 'resendPhoneVerification')
+                ->middleware('throttler:users.resend_verification,actor,params=id');
+            Route::patch('/user/{id}/emails', 'enableEmails')
+                ->middleware('throttler:users.enable_emails,actor,params=id');
+            Route::patch('/user/{id}/messages', 'enablePhoneMessages')
+                ->middleware('throttler:users.enable_messages,actor,params=id');
         });
         Route::patch('/user/{id}/mfa', 'toggleMfa')
             ->middleware(['permission:toggle-user-mfa', 'throttler:users.toggle_mfa,actor,params=id']);
     });
+    Route::controller(LogController::class)
+        ->middleware(['permission:manage-users'])
+        ->group(function() {
+            Route::get('/user/{id}/logs/user', 'userLogs');
+            Route::get('/user/{id}/logs/email', 'emailLogs');
+            Route::get('/user/{id}/logs/text', 'textLogs');
+        });
+    Route::get('/logs/error', [LogController::class, 'errorLogs'])
+        ->middleware(['permission:view-logs']);
+    Route::patch('/logs/error/{id}/close', [LogController::class, 'closeErrors'])
+        ->middleware(['permission:view-logs']);
     Route::middleware(['permission:invite-users'])->group(function() {
         Route::controller(RegistrationController::class)->group(function() {
             Route::get('/invites', 'table');

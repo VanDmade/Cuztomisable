@@ -16,7 +16,7 @@
             <div class="modal-dialog cz-modal-dialog" :style="{ 'max-width': modalWidth }">
                 <div class="modal-content cz-modal-content">
                     <div class="modal-body cz-modal-body">
-                        <slot></slot>
+                        <slot v-if="isOpen"></slot>
                     </div>
                 </div>
             </div>

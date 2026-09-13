@@ -37,9 +37,9 @@ class FormController extends CuztomisableController
     public function save(FormRequest $request, string $page): JsonResponse
     {
         try {
-            if (!Auth::check()) {
-                throw new Exception(__('cuztomisable/global.unauthenticated'), 401);
-            }
+            // Guest-accessible (see routes/api.php) - Auth::id() is null here for a guest, which
+            // Form's own nullable user_id already accounts for, so someone filling out a
+            // multi-step signup doesn't lose their progress just for not having an account yet.
             $data = $request->validated();
             return $this->success([
                 'form' => $this->formService->save(Auth::id(), $page, $data),

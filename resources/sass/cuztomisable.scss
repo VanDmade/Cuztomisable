@@ -57,6 +57,10 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: auto;
+    // Without this, overscrolling past the top of the page (mouse wheel or trackpad) is
+    // interpreted by the browser as a back-navigation gesture. "contain" (not "none") still
+    // lets the overscroll bounce happen visually - it just stops it from triggering navigation.
+    overscroll-behavior-y: contain;
 }
 input:-webkit-autofill {
     box-shadow: 0 0 0 1000px white inset !important;
@@ -165,14 +169,45 @@ input:-webkit-autofill {
 .card-title {
     margin-bottom: 12px;
 }
-// Matches Bootstrap's .form-check indent (padding-start: 1.5em) so text sitting below a
-// checkbox lines up with its label instead of the checkbox square.
 .cz-permission-description {
-    // rem, not em - this text inherits a smaller font-size from .note, so 1.5em would resolve
-    // relative to that instead of the root size Bootstrap's own checkbox indent is based on.
-    padding-left: 1.5rem;
+    padding-left: 0;
 }
-.cz-password-admin-row {
+.cz-permission-toggle {
+    margin-left: 8px;
+}
+.cz-form-input.form-check {
+    // Bootstrap's .form-check reserves 1.5em of left padding to make room for the floated
+    // checkbox square - drops the row flush left instead, canceling the input's compensating
+    // negative margin so it doesn't shift out of the box. That same padding/margin pairing was
+    // also the only thing separating the square from its label, so it needs to come back as an
+    // explicit gap instead, or the two sit flush against each other.
+    padding-left: 0;
+    padding-right: 1.5rem;
+    .form-check-input {
+        margin-left: 0;
+        margin-right: 8px;
+    }
+}
+.cz-checkbox-row {
+    // A subtitle makes the label block two lines, so the checkbox square is switched from
+    // Bootstrap's float-based layout (which top-aligns it to the first line) to flex, centering
+    // it against the label+subtitle block as a whole instead.
+    display: flex;
+    align-items: center;
+    .form-check-input {
+        float: none;
+        margin-left: 0;
+        flex-shrink: 0;
+    }
+    .cz-checkbox-text {
+        margin-left: 8px;
+    }
+}
+// Shared by every compact "title + description, action on the right" row on the account
+// settings pages - Admin Controls, Change Password, and the MFA toggle. Named distinctly from
+// .cz-settings-row (the generic key/value Settings admin page) - they used to share a name and
+// that page's border-bottom/:last-child rules were bleeding into these rows too.
+.cz-account-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -183,12 +218,6 @@ input:-webkit-autofill {
     .button {
         flex-shrink: 0;
     }
-}
-.cz-mfa-toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
 }
 .cz-mfa-toggle {
     margin: 0;
@@ -206,8 +235,21 @@ input:-webkit-autofill {
 }
 .cz-user-summary {
     display: flex;
+    // Overrides Bootstrap's .card, which this element also carries and which defaults to
+    // flex-direction: column - without this the avatar stacks above the name/email instead of
+    // sitting beside it.
+    flex-direction: row;
     align-items: center;
     gap: 20px;
+    // cz-image's own wrapper divs inherit their parent's full width by default, which here means
+    // the whole flex row's width - constrained to the actual avatar size so the name/email block
+    // doesn't get pushed out to wherever that oversized box happens to end. !important because
+    // Image.vue's own scoped .lazy-image-wrapper rule ties this on plain specificity.
+    .cz-image-container, .image-container {
+        width: 72px !important;
+        height: 72px !important;
+        flex-shrink: 0;
+    }
     .cz-user-summary-image {
         width: 72px;
         height: 72px;
@@ -217,6 +259,70 @@ input:-webkit-autofill {
     }
     .cz-user-summary-info {
         min-width: 0;
+        width: 100%;
+    }
+    .cz-user-summary-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        .cz-user-summary-header-text {
+            min-width: 0;
+        }
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            .material-icons {
+                font-size: 18px;
+            }
+        }
+    }
+    .cz-user-summary-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cz-user-summary-contacts {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .cz-user-contact-link {
+        color: $color-muted;
+        font-size: 0.9rem;
+        &:hover {
+            color: $color-primary;
+        }
+        &--danger,
+        &--danger:hover {
+            color: $color-danger;
+        }
+    }
+    .cz-user-contact-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .cz-user-contact-icon {
+        font-size: 1.1rem;
+        &--danger {
+            color: $color-danger;
+        }
+    }
+    .cz-user-contact-reset {
+        border: none;
+        background: none;
+        padding: 0;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: $color-primary;
+        cursor: pointer;
+        text-decoration: underline;
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     }
     .cz-user-summary-meta {
         display: flex;
@@ -224,6 +330,9 @@ input:-webkit-autofill {
         align-items: center;
         gap: 12px;
         margin-top: 6px;
+    }
+    .cz-user-summary-line {
+        margin-top: 2px;
     }
 }
 .cz-user-badge {
@@ -241,11 +350,109 @@ input:-webkit-autofill {
         color: $color-success;
     }
 }
+// Attaches to the front of the search/refresh input-group (see cz-table-search-group) so
+// Filters, Search, and Refresh read as one connected control. Bootstrap's default .form-control
+// height leaves too little room for a button's text to look centered against it, so both are
+// raised to a taller shared height instead.
+.cz-table-search-group {
+    $group-height: 46px;
+    .form-control {
+        height: $group-height;
+    }
+    .button {
+        height: $group-height;
+        padding-top: 0;
+        padding-bottom: 0;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+    }
+    .cz-filter-wrap {
+        position: relative;
+        display: inline-flex;
+    }
+    .cz-filter-toggle {
+        gap: 6px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        .material-icons {
+            font-size: 18px;
+        }
+        &--active {
+            background-color: $color-accent;
+        }
+    }
+}
+.cz-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.35);
+    font-size: 0.6875rem;
+    line-height: 1;
+}
+.cz-filter-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 20;
+    min-width: 200px;
+    padding: 16px;
+    border-radius: 8px;
+    background: $color-white;
+    border: 1px solid $color-border;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+.button--small {
+    padding: 4px 12px;
+    font-size: 0.8125rem;
+}
+.cz-checkbox-columns {
+    // Grid, not CSS multi-column (column-count) - multi-column fragments a checkbox's floated
+    // input/label pairing across the column break in a way break-inside: avoid doesn't reliably
+    // prevent, leaving the checkbox square visually detached from its (wrapped) label text.
+    &--2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 24px;
+    }
+}
+.cz-tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 2px solid $color-border;
+    .cz-tabs-go-back {
+        flex-shrink: 0;
+        margin-bottom: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: none;
+        background: none;
+        padding: 0 12px 0 0;
+        font-weight: 600;
+        color: $color-muted;
+        cursor: pointer;
+        .material-icons {
+            font-size: 18px;
+        }
+        &:hover {
+            color: $color-text;
+        }
+    }
+}
 .cz-tabs {
     display: flex;
-    gap: 4px;
-    border-bottom: 2px solid $color-border;
-    overflow-x: auto;
+    // Wraps to a second line instead of scrolling - a scrollable tab bar hides tabs off-screen
+    // with no visible affordance that there's more, wrapping keeps every tab visible always.
+    flex-wrap: wrap;
+    gap: 4px 4px;
     .cz-tab {
         border: none;
         background: none;
@@ -940,6 +1147,14 @@ input:-webkit-autofill {
     .navbar-text {
         color: var(--color-text) !important;
     }
+    // .navbar-dark (PortalLayout's teal header) shares this .portal-navbar class with the plain
+    // white variant above - without this override its "logged in as / logout" text and icon
+    // inherit that variant's dark text color instead of staying white.
+    &.navbar-dark {
+        .navbar-text, .nav-link, .navbar-text .material-icons, .nav-link .material-icons {
+            color: #fff !important;
+        }
+    }
     .nav-link .material-icons,
     .dropdown-item .material-icons {
         color: inherit !important;
@@ -1179,43 +1394,25 @@ input:-webkit-autofill {
         color: $color-muted;
         margin-bottom: 4px;
     }
-    .cz-wysiwyg-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2px;
-        padding: 4px;
-        border: 1px solid $color-border;
-        border-bottom: none;
-        border-top-left-radius: 0.375rem;
-        border-top-right-radius: 0.375rem;
-        background: #f8f9fa;
-        button {
-            border: none;
-            background: none;
-            padding: 4px 10px;
-            font-size: 0.85rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            color: #2B2B2B;
-            &:hover {
-                background: rgba(0, 0, 0, 0.06);
+    .cz-quill-editor {
+        .ql-toolbar.ql-snow {
+            border: 1px solid $color-border;
+            border-bottom: none;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+            background: #f8f9fa;
+        }
+        .ql-container.ql-snow {
+            border: 1px solid $color-border;
+            border-bottom-left-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+            font-size: 1rem;
+        }
+        .ql-editor {
+            min-height: inherit;
+            p {
+                margin: 0 0 0.5rem;
             }
-        }
-    }
-    .cz-wysiwyg-divider {
-        width: 1px;
-        margin: 2px 4px;
-        background: $color-border;
-    }
-    .cz-wysiwyg-editor {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        overflow-y: auto;
-        &:focus {
-            outline: none;
-        }
-        p {
-            margin: 0 0 0.5rem;
         }
     }
 }
@@ -1950,8 +2147,9 @@ input:-webkit-autofill {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
-    // Transparent, not a hardcoded white, so the table always matches whatever container it's
-    // placed in (a plain page, a card, a modal) instead of risking a visible seam against it.
+    // Bootstrap's $table-bg defaults to var(--bs-body-bg) here, so cells need the CSS var reset
+    // too, not just the <table>'s own background, or they pick up the page background color.
+    --bs-table-bg: transparent;
     background: transparent;
 
     .cz-table-header {

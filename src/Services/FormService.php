@@ -15,7 +15,7 @@ class FormService
             ->first();
     }
 
-    public function save(int $userId, string $page, array $data): Form
+    public function save(?int $userId, string $page, array $data): Form
     {
         $payload = [
             'to' => $data['to'] ?? null,
