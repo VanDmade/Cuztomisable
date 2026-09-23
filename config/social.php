@@ -1,11 +1,11 @@
 <?php
 // Social login providers. "enabled" is a master on/off switch; each provider also has its own.
-// Google is on by default, the rest are off until turned on and given real credentials.
+// All providers are off by default until turned on and given real credentials.
 return [
     'enabled' => true,
     'providers' => [
         'google' => [
-            'enabled' => true,
+            'enabled' => false,
             'logo' => true,
             'label' => 'Continue with Google',
             'client_id' => env('GOOGLE_CLIENT_ID'),

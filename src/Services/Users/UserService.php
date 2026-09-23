@@ -56,7 +56,8 @@ class UserService
         $query = config('auth.providers.users.model')::select('users.id', 'users.name', 'users.email',
             'users.username', 'ip.last_used_at', 'p.number as phone', 'p.country_code',
             'p.verified_at as phone_verified_at', 'users.email_verified_at',
-            'users.admin', 'users.locked', 'users.multi_factor_authentication as mfa')
+            'users.admin', 'users.locked', 'users.multi_factor_authentication as mfa',
+            DB::raw("CASE WHEN img.path IS NOT NULL THEN CONCAT('".rtrim(config('app.url'), '/')."/storage/', img.path) ELSE NULL END as image"))
             ->leftJoin('phones as p', function ($join) {
                 $join->on('p.user_id', '=', 'users.id')
                     ->where('p.default', '=', true);
@@ -65,6 +66,13 @@ class UserService
                 $join->on('ip.user_id', '=', 'users.id')
                     // Grabs the latest login attempt for this user
                     ->whereRaw('ip.id=(SELECT temp.id FROM user_ip_addresses as temp WHERE temp.user_id=ip.user_id ORDER BY temp.last_used_at DESC LIMIT 1)');
+            })
+            // Only joins the currently-active (non-deleted, still-on-disk) image -
+            // the table lists a URL directly since it bypasses UserResource/profile().
+            ->leftJoin('images as img', function ($join) {
+                $join->on('img.id', '=', 'users.image_id')
+                    ->whereNull('img.deleted_at')
+                    ->whereNull('img.removed_from_storage_at');
             })
             ->where(function ($query) {
                 $query->whereNotNull('users.id');

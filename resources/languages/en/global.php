@@ -20,6 +20,11 @@ return [
         'in' => 'Please refresh and try again!',
         'boolean' => 'The value must be true or false.',
         'unique' => 'This field must be unique.',
+        'string' => 'This field must be text.',
+        'min' => 'This field is too short.',
+        'max' => 'This field is too long.',
+        'image' => 'Please upload a valid image file.',
+        'mimes' => 'This file type isn\'t supported.',
         'phone' => [
             'size' => 'Please enter a valid phone number.',
         ],
