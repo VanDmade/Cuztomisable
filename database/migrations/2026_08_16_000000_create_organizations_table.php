@@ -11,10 +11,22 @@ return new class extends Migration
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
             $table->timestamps();
             $table->softDeletes();
+            $table->bigInteger('created_by')->unsigned()->nullable();
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('set null');
+            $table->bigInteger('deleted_by')->unsigned()->nullable();
+            $table->foreign('deleted_by')
+                ->references('id')
+                ->on('users')
+                ->onUpdate('cascade')
+                ->onDelete('set null');
+            $table->string('name');
+            $table->string('slug')->unique();
         });
     }
 

@@ -20,7 +20,7 @@ use VanDmade\Cuztomisable\Http\Controllers\Authentication\SocialiteController;
 use VanDmade\Cuztomisable\Http\Controllers\Authentication\PasswordController as RegistrationPasswordController;
 
 Route::controller(SettingsController::class)->group(function() {
-    Route::get('/cuztomisable/settings', 'all');
+    Route::get('/'.ltrim(config('cuztomisable.app.settings_url', 'cuztomisable/settings'), '/'), 'all');
 });
 Route::controller(LoginController::class)->group(function() {
     Route::post('/login', 'login')

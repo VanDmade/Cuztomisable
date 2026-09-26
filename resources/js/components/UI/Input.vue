@@ -16,7 +16,9 @@
             :placeholder="placeholder"
             :maxlength="max != null ? max : 1000000"
             :autocomplete="autocomplete"
+            :style="append ? { paddingRight: appendWidth + 'px' } : null"
             @input="errorList = []">
+        <span v-if="append" ref="append" class="cz-form-input-append">{{ append }}</span>
         <button
             v-if="type == 'password'"
             type="button"
@@ -41,9 +43,19 @@ export default {
             id: 'cz-input_'+Math.random().toString(16).slice(2),
             errorList: [],
             showPassword: false,
+            appendWidth: 0,
         }
     },
+    mounted: function() {
+        this.measureAppend();
+    },
     methods: {
+        measureAppend: function() {
+            // Pads the input so typed text never runs underneath the appended text
+            this.$nextTick(() => {
+                this.appendWidth = this.$refs.append ? this.$refs.append.offsetWidth + 20 : 0;
+            });
+        },
         formatValue: function(value) {
             // Checks for a format and then modifies the input 
             if (this.format != null && this.format.indexOf('X') !== false) {
@@ -83,6 +95,9 @@ export default {
                 this.errorList = errors;
             },
         },
+        append: function() {
+            this.measureAppend();
+        },
         format: {
             immediate: true,
             handler: function(format) {
@@ -105,6 +120,8 @@ export default {
         max: { type: [String, Number], default: null },
         link: { type: [String, Object], default: null },
         linkText: { type: String, default: '' },
+        // Text shown inside the end of the input, e.g. a unit like "mi"
+        append: { type: String, default: null },
     }
 }
 </script>

@@ -19,7 +19,18 @@ class OrganizationScope implements Scope
             // The whole feature is off for this app - nothing to scope
             return;
         }
-        $organizationId = Auth::user()?->organization_id;
+        if (!Auth::check()) {
+            // No authenticated user to scope by at all - console commands, seeders, queued jobs,
+            // etc. There's no per-request tenant context here, so these are inherently
+            // administrative and see everything, same as a platform admin would.
+            return;
+        }
+        $user = Auth::user();
+        if ($user?->admin) {
+            // Platform admins aren't scoped to a single organization - they see across all tenants.
+            return;
+        }
+        $organizationId = $user?->organization_id;
         if (is_null($organizationId)) {
             // Force false to prevent any data returned that shouldn't be
             $builder->whereRaw('1 = 0');

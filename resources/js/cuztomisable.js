@@ -263,7 +263,8 @@ async function syncTimezoneIfStale() {
 export async function loadCuztomisableApp() {
     let settings = {};
     try {
-        const res = await axios.get('/cuztomisable/settings');
+        const settingsUrl = import.meta.env.VITE_CUZTOMISABLE_SETTINGS || 'cuztomisable/settings';
+        const res = await axios.get('/' + settingsUrl.replace(/^\/+/, ''));
         settings = res.data ?? {};
     } catch (err) {
         console.warn('[Cuztomisable] Failed to load settings:', err);

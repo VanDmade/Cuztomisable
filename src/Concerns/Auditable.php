@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Records who created a model, if it has a created_by column.
+ * Records who created and last updated a model, if it has created_by/updated_by columns.
  */
 trait Auditable
 {
@@ -21,6 +21,11 @@ trait Auditable
                 $model->{$model->getCreatedByColumn()} = Auth::check() ? Auth::id() : null;
             }
         });
+        static::updating(function($model) {
+            if (Schema::hasColumn($model->getTable(), $model->getUpdatedByColumn())) {
+                $model->{$model->getUpdatedByColumn()} = Auth::check() ? Auth::id() : null;
+            }
+        });
     }
 
     public function createdBy(): BelongsTo
@@ -31,15 +36,34 @@ trait Auditable
         );
     }
 
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(
+            config('auth.providers.users.model'),
+            $this->getUpdatedByColumn()
+        );
+    }
+
     public function getCreatedByColumn(): string
     {
         return defined(static::class.'::CREATED_BY') ?
             constant(static::class.'::CREATED_BY') : 'created_by';
     }
 
+    public function getUpdatedByColumn(): string
+    {
+        return defined(static::class.'::UPDATED_BY') ?
+            constant(static::class.'::UPDATED_BY') : 'updated_by';
+    }
+
     protected function usesCreatedByColumn(): bool
     {
         return Schema::hasColumn($this->getTable(), $this->getCreatedByColumn());
+    }
+
+    protected function usesUpdatedByColumn(): bool
+    {
+        return Schema::hasColumn($this->getTable(), $this->getUpdatedByColumn());
     }
 
 }

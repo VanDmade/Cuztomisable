@@ -1,5 +1,5 @@
 <template>
-    <nav v-if="show" class="portal-navbar mb-6 shadow">
+    <nav v-if="show" class="portal-navbar">
         <div class="portal-navbar-shell container-fluid">
             <div class="portal-navbar-top">
                 <router-link class="navbar-brand pa-0 portal-navbar-brand" :to="brand.to || { name: 'portal' }" @click="closeMenus">
@@ -17,12 +17,12 @@
                         :aria-expanded="menuOpen ? 'true' : 'false'"
                         aria-label="Toggle navigation"
                         @click="toggleMenu">
-                        ☰
+                        <span class="material-icons" aria-hidden="true">{{ menuOpen ? 'close' : 'menu' }}</span>
                     </button>
                 </div>
                 <div class="portal-navbar-desktop">
                     <div class="portal-navbar-left">
-                        <template v-for="(item, index) in visibleLinks" :key="item.key || item.text || index">
+                        <template v-for="(item, index) in desktopLinks" :key="item.key || item.text || index">
                             <div v-if="!hasChildren(item)" class="portal-navbar-item">
                                 <router-link
                                     v-if="item.route"
@@ -224,6 +224,9 @@ export default {
         },
         visibleLinks: function() {
             return this.links.filter((item) => item && item.visible !== false);
+        },
+        desktopLinks: function() {
+            return this.visibleLinks.filter((item) => !item.mobileOnly);
         },
     },
     props: {

@@ -15,7 +15,7 @@
                 </div>
             </template>
             <template v-slot:image="item">
-                <img class="cz-table-image" :src="item.image != null ? $url + item.image.path : defaultImage">
+                <img class="cz-table-image" :src="item.image != null ? $url + item.image.path : $url + 'profile.png'">
             </template>
             <template v-slot:name="item">
                 <div class="cz-table-data">
@@ -92,7 +92,6 @@ export default {
             id: null,
             submitting: false,
             url: '/users',
-            defaultImage: '/cuztomisable/profile.png',
             headers: [
                 { name: '', value: 'image', sortable: false, width: '42px' },
                 { name: 'Name', value: 'name', width: '340px' },

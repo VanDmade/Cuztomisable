@@ -1554,7 +1554,6 @@ input:-webkit-autofill {
     justify-content: space-between;
     align-items: flex-start;
     gap: 8px;
-    margin-top: 4px;
 }
 .cz-form-errors {
     list-style: none;
@@ -1600,6 +1599,24 @@ input:-webkit-autofill {
     to {
         transform: rotate(360deg);
     }
+}
+// Text appended inside the end of a cz-input (the input's right padding is set to fit it)
+.cz-form-input-append {
+    position: absolute;
+    top: 0;
+    right: 0.75rem;
+    // Matches the input's fixed height rather than the wrapper's (which includes the error footer)
+    height: calc(3.5rem + 2px);
+    // Same vertical padding as the input, so it lines up with the typed value under the label
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    color: $color-secondary;
+    opacity: 0.7;
+    pointer-events: none;
+    white-space: nowrap;
 }
 .cz-messages {
     position: fixed;
@@ -2450,4 +2467,255 @@ input:-webkit-autofill {
 .cz-settings-row-info {
     flex: 1;
     min-width: 0;
+}
+// Date / time pickers (cz-datepicker, cz-timepicker, cz-datetimepicker - see UI/Datetime.vue)
+.cz-picker {
+    .cz-picker-input {
+        cursor: pointer;
+        padding-right: 76px;
+        caret-color: transparent;
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+    .cz-picker-actions {
+        position: absolute;
+        top: 0;
+        right: 4px;
+        // Matches the input's fixed height rather than the wrapper's (which includes the error footer)
+        height: calc(3.5rem + 2px);
+        display: flex;
+        align-items: center;
+    }
+    .cz-picker-action {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: none;
+        padding: 0 6px;
+        cursor: pointer;
+        color: $color-muted;
+        .material-icons {
+            font-size: 20px;
+        }
+        &:hover:not(:disabled) {
+            color: $color-text;
+        }
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    }
+    &.cz-picker--open .cz-picker-input {
+        border: 1px solid $color-secondary !important;
+        box-shadow: 0 0 0 0.25rem rgba($color-secondary, 0.25);
+    }
+}
+.cz-picker-panel {
+    position: absolute;
+    top: calc(3.5rem + 6px);
+    left: 0;
+    z-index: 1060;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    box-shadow: 0 10px 30px rgba($color-text, 0.15);
+    padding: 12px;
+    max-width: calc(100vw - 16px);
+    &--up {
+        top: auto;
+        bottom: calc(100% + 4px);
+    }
+    &--right {
+        left: auto;
+        right: 0;
+    }
+}
+.cz-picker-body {
+    display: flex;
+    gap: 16px;
+    @media (max-width: $xsmall) {
+        flex-direction: column;
+    }
+}
+.cz-picker-calendar {
+    width: 280px;
+    max-width: 100%;
+}
+.cz-picker-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.cz-picker-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: $border-radius;
+    background: none;
+    color: $color-text;
+    cursor: pointer;
+    &:hover:not(:disabled) {
+        background: $color-light;
+    }
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+.cz-picker-select {
+    flex: 1;
+    min-width: 0;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    background: $color-white;
+    color: $color-text;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    &:focus {
+        outline: none;
+        border-color: $color-secondary;
+        box-shadow: 0 0 0 0.2rem rgba($color-secondary, 0.25);
+    }
+}
+.cz-picker-weekdays,
+.cz-picker-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.cz-picker-weekdays span {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-muted;
+    padding: 4px 0;
+}
+.cz-picker-day {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: $color-text;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: $transition;
+    &:hover:not(:disabled) {
+        background: rgba($color-primary, 0.1);
+    }
+    &:focus-visible {
+        outline: 2px solid $color-primary;
+        outline-offset: 1px;
+    }
+    &.is-outside {
+        color: $color-muted;
+        opacity: 0.6;
+    }
+    &.is-today {
+        font-weight: 700;
+        box-shadow: inset 0 0 0 1px $color-primary;
+    }
+    &.is-selected {
+        background: $color-primary;
+        color: $color-white;
+        opacity: 1;
+        &:hover {
+            background: $color-primary;
+        }
+    }
+    &:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+}
+.cz-picker-time {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+.cz-picker-time-display {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $color-text;
+    padding: 4px 0 8px;
+    border-bottom: 1px solid $color-border;
+    margin-bottom: 8px;
+}
+.cz-picker-columns {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+.cz-picker-column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 44px;
+    height: 240px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    &--meridiem {
+        height: auto;
+        overflow: visible;
+    }
+}
+.cz-picker-option {
+    flex-shrink: 0;
+    border: none;
+    border-radius: $border-radius;
+    background: none;
+    color: $color-text;
+    font-size: 0.875rem;
+    padding: 6px 4px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    &:hover:not(:disabled) {
+        background: rgba($color-primary, 0.1);
+    }
+    &:focus-visible {
+        outline: 2px solid $color-primary;
+        outline-offset: -2px;
+    }
+    &.is-selected {
+        background: $color-primary;
+        color: $color-white;
+    }
+    &:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+}
+.cz-picker-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid $color-border;
+    .cz-picker-done {
+        margin-left: auto;
+    }
+}
+.cz-picker-link {
+    border: none;
+    background: none;
+    padding: 0;
+    color: $color-link;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
 }

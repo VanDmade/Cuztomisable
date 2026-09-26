@@ -1,76 +1,28 @@
 <template>
     <div id="portal-layout" class="layout">
         <cz-loading :loading="$store.state.loading" message="Loading..."></cz-loading>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary portal-navbar" v-if="$store.state.authenticated">
-            <div class="position-relative container-fluid">
-                <router-link class="navbar-brand pa-0" :to="{ path: appHome }"><img :src="$url+'banner-white.png'" style="height: 32px;"></router-link>
-                <button class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navigation"
-                    aria-controls="navigation"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse portal-navbar-collapse" id="navigation">
-                    <div class="navbar-nav me-auto d-lg-none">
-                        <div v-if="screenSize == 'medium'" class="navbar-text text-white text-center h4 mb-0 mt-3">
-                            <img class="collapsed-profile-image" style="cursor: pointer;" :src="$store.state.user?.image || $url+'profile.png'" @click="collapseNavbar(); $router.push({ name: 'profile' })">
-                            <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
-                        </div>
-                        <template v-if="navigation && navigation.length">
-                            <li class="nav-item" v-for="(item, index) in navigation" :key="`${item.route || item.text || 'nav'}-${index}`">
-                                <router-link class="nav-link d-inline-flex align-items-center" :class="$route.name == item.route ? 'active active-nav' : ''" :to="item.path || { name: item.route }" @click.native="collapseNavbar">
-                                    <span v-if="item.icon" class="material-icons me-1" aria-hidden="true">{{ item.icon }}</span>
-                                    <span>{{ item.text }}</span>
-                                </router-link>
-                            </li>
-                        </template>
-                        <template v-if="$store.getters.hasPermission('view-users|manage-users|invite-users|manage-roles-permissions')">
-                            <hr v-if="screenSize == 'medium'" class="mobile-logout-divider">
-                            <li v-if="screenSize == 'medium'" class="nav-item d-flex flex-column pt-2">
-                                <div class="d-inline-flex align-items-center admin-section-title" style="color: #fff !important; opacity: 1 !important;">
-                                    <span class="material-icons me-1" aria-hidden="true">admin_panel_settings</span>
-                                    <span>Administrator</span>
-                                </div>
-                                <div class="d-flex flex-column mb-2">
-                                    <router-link v-if="$store.getters.hasPermission('view-users|manage-users')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }"><span class="material-icons me-1" aria-hidden="true">group</span><span>Users</span></router-link>
-                                    <router-link v-if="$store.getters.hasPermission('invite-users')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }"><span class="material-icons me-1" aria-hidden="true">mail</span><span>Invitations</span></router-link>
-                                    <router-link v-if="$store.getters.hasPermission('manage-roles-permissions')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }"><span class="material-icons me-1" aria-hidden="true">security</span><span>Roles</span></router-link>
-                                    <router-link v-if="$store.getters.hasPermission('manage-roles-permissions')" class="nav-link d-inline-flex align-items-center admin-section-link" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }"><span class="material-icons me-1" aria-hidden="true">verified_user</span><span>Permissions</span></router-link>
-                                </div>
-                            </li>
-                            <li v-else class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="material-icons me-1" aria-hidden="true">admin_panel_settings</span>
-                                    <span>Administrator</span>
-                                </a>
-                                <ul class="dropdown-menu bg-white text-dark">
-                                    <li v-if="$store.getters.hasPermission('view-users|manage-users')"><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'users' ? 'active' : ''" :to="{ name: 'users' }"><span class="material-icons me-1" aria-hidden="true">group</span><span>Users</span></router-link></li>
-                                    <li v-if="$store.getters.hasPermission('invite-users')"><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'invites' ? 'active' : ''" :to="{ name: 'invites' }"><span class="material-icons me-1" aria-hidden="true">mail</span><span>Invitations</span></router-link></li>
-                                    <template v-if="$store.getters.hasPermission('manage-roles-permissions')">
-                                        <li v-if="$store.getters.hasPermission('view-users|manage-users|invite-users')"><hr class="dropdown-divider"></li>
-                                        <li><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'roles' ? 'active' : ''" :to="{ name: 'roles' }"><span class="material-icons me-1" aria-hidden="true">security</span><span>Roles</span></router-link></li>
-                                        <li><router-link class="dropdown-item d-inline-flex align-items-center" :class="$route.name == 'permissions' ? 'active' : ''" :to="{ name: 'permissions' }"><span class="material-icons me-1" aria-hidden="true">verified_user</span><span>Permissions</span></router-link></li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template>
-                    </div>
-                    <div class="navbar-nav ms-auto">
-                        <span v-if="screenSize == 'large'" class="navbar-text text-white d-inline-flex align-items-center pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
-                            <img class="profile-image" :src="$store.state.user?.image || $url+'profile.png'" @click="$router.push({ name: 'profile' })">
-                            <span class="pl-2">{{ $store.state.user?.name }}</span>
-                        </span>
-                        <hr v-if="screenSize == 'medium'" class="mobile-logout-divider">
-                        <a href="#" class="nav-link d-inline-flex align-items-center text-white" role="button" aria-label="Logout" @click.prevent="logout">
-                            <span class="material-icons" aria-hidden="true">logout</span>
-                        </a>
-                    </div>
+        <app-navbar
+            v-if="$store.state.authenticated"
+            class="navbar-dark bg-primary"
+            :show="$store.state.authenticated"
+            :brand="{ image: $url + 'banner-white.png', to: { path: appHome } }"
+            :links="navLinks"
+            :mobile-breakpoint="992">
+            <template #right="{ isMobile, closeMenu }">
+                <div v-if="!isMobile" class="navbar-text text-white d-inline-flex align-items-center pl-0 pt-0 pb-0 pr-6 mr-4" style="border-right: 1px solid #fff">
+                    <img class="profile-image" :src="$store.state.user?.image || $url+'profile.png'" @click="$router.push({ name: 'profile' })">
+                    <span class="pl-2">{{ $store.state.user?.name }}</span>
                 </div>
-            </div>
-        </nav>
+                <div v-else class="navbar-text text-white text-center h4 mb-0 mt-3">
+                    <img class="collapsed-profile-image" style="cursor: pointer;" :src="$store.state.user?.image || $url+'profile.png'" @click="closeMenu(); $router.push({ name: 'profile' })">
+                    <span class="collapsed-profile-name">{{ $store.state.user?.name }}</span>
+                </div>
+                <hr v-if="isMobile" class="mobile-logout-divider">
+                <a href="#" class="nav-link d-inline-flex align-items-center text-white" role="button" aria-label="Logout" @click.prevent="logout(); closeMenu()">
+                    <span class="material-icons" aria-hidden="true">logout</span>
+                </a>
+            </template>
+        </app-navbar>
         <div class="portal-wrapper">
             <app-sidebar v-if="$store.state.authenticated && screenSize === 'large'" :navigation="navigation"></app-sidebar>
             <div class="portal-content">
@@ -91,6 +43,7 @@
 </template>
 <script>
 import ForceChangePasswordForm from '../../components/ChangePassword.vue';
+import AppNavbar from '../../components/navigation/Navbar.vue';
 import AppSidebar from '../../components/navigation/Sidebar.vue';
 import loading from '../../utils/loading.js';
 
@@ -119,9 +72,6 @@ export default {
         }
         this.$nextTick(() => {
             window.addEventListener('resize', this.onResize);
-            this.$watch('$route', () => {
-                this.collapseNavbar();
-            });
         })
     },
     beforeDestroy: function() { 
@@ -140,13 +90,6 @@ export default {
         },
         onResize: function() {
             this.screenSize = window.innerWidth <= 992 ? 'medium' : 'large';
-        },
-        collapseNavbar: function() {
-            // Always collapse immediately on link click
-            const nav = document.getElementById('navigation');
-            if (nav && nav.classList.contains('show')) {
-                nav.classList.remove('show');
-            }
         },
         startInactivityWatcher: function() {
             this.resetInactivityTimer();
@@ -209,6 +152,36 @@ export default {
             }
             return [];
         },
+        navLinks: function() {
+            const links = this.navigation.map((item) => ({
+                text: item.text,
+                icon: item.icon,
+                route: item.route,
+                href: item.path,
+            }));
+            const canManageRoles = this.$store.getters.hasPermission('manage-roles-permissions');
+            const canSeeUsers = this.$store.getters.hasPermission('view-users|manage-users');
+            const canInvite = this.$store.getters.hasPermission('invite-users');
+            const adminChildren = [];
+            if (canSeeUsers) {
+                adminChildren.push({ route: 'users', text: 'Users', icon: 'group' });
+            }
+            if (canInvite) {
+                adminChildren.push({ route: 'invites', text: 'Invitations', icon: 'mail' });
+            }
+            if (canManageRoles) {
+                if (adminChildren.length) {
+                    adminChildren.push({ divider: true });
+                }
+                adminChildren.push({ route: 'roles', text: 'Roles', icon: 'security' });
+                adminChildren.push({ route: 'permissions', text: 'Permissions', icon: 'verified_user' });
+            }
+            if (adminChildren.length) {
+                // Desktop already has this in the sidebar - only show it here in the mobile menu.
+                links.push({ text: 'Administrator', icon: 'admin_panel_settings', children: adminChildren, mobileOnly: true });
+            }
+            return links;
+        },
     },
     watch: {
         '$store.state.authenticated': {
@@ -238,6 +211,7 @@ export default {
     },
     components: {
         'force-change-password-form': ForceChangePasswordForm,
+        'app-navbar': AppNavbar,
         'app-sidebar': AppSidebar,
     }
 }
@@ -251,6 +225,28 @@ export default {
 }
 .portal-navbar {
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+/* Flex children default to min-width:auto, which refuses to shrink below content's
+   natural width - without this, a long name + profile image + logout icon blows out
+   past the navbar (and page) width instead of shrinking/wrapping like the rest of it. */
+.portal-navbar :deep(.portal-navbar-shell),
+.portal-navbar :deep(.portal-navbar-top),
+.portal-navbar :deep(.portal-navbar-desktop),
+.portal-navbar :deep(.portal-navbar-right) {
+    min-width: 0;
+}
+.portal-navbar :deep(.portal-navbar-right) {
+    flex-shrink: 1;
+}
+.portal-navbar :deep(.portal-navbar-right .navbar-text) {
+    min-width: 0;
+    overflow: hidden;
+}
+.portal-navbar :deep(.portal-navbar-right .navbar-text span:last-child) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
 }
 .portal-wrapper {
     display: flex;

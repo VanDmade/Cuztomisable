@@ -11,6 +11,9 @@ return [
         // The route authenticated users land on after login or when they visit a guest-only
         // page (e.g. /login) while already authenticated.
         'home' => env('APP_HOME', '/portal'),
+        // Public endpoint the frontend boots its settings from. The JS side reads the same value
+        // through VITE_CUZTOMISABLE_SETTINGS="${CUZTOMISABLE_SETTINGS}" in the host .env.
+        'settings_url' => env('CUZTOMISABLE_SETTINGS', 'cuztomisable/settings'),
         // User-agent checks for requests from mobile apps. Example UA: AppName/v1.0 (Android)
         'mobile_agent' => [
             // Require user-agent matching for X-App-Platform: mobile requests
