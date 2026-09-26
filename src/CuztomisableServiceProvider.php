@@ -86,7 +86,8 @@ class CuztomisableServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(EventServiceProvider::class);
-        if (!$this->app->configurationIsCached() && !env('AUTH_MODEL')) {
+        $model = config('auth.providers.users.model');
+        if (!$this->app->configurationIsCached() && !(is_string($model) && is_a($model, User::class, true))) {
             config(['auth.providers.users.model' => User::class]);
         }
         $this->mergeConfigFrom(__DIR__.'/../config/cuztomisable.php', 'cuztomisable');
