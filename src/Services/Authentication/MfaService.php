@@ -60,7 +60,7 @@ class MfaService
                 }
                 $code->sent_via = SentVia::Text;
                 $message = __('cuztomisable/text.mfa', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                     'code' => $code->code,
                 ]);
                 SendText::dispatch($phone->country_code, $phone->number, $message);

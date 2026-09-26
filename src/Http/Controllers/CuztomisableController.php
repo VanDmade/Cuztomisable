@@ -26,7 +26,7 @@ class CuztomisableController extends BaseController
 
     public function error(Throwable $error, array $parameters = []): JsonResponse
     {
-        $debug = env('APP_DEBUG', false);
+        $debug = config('app.debug', false);
         $debugCode = uniqid();
         // Sets the message in a variable to remove server, SQL, and code errors that will make no sense to the user
         $message = isset($parameters['message']) ? $parameters['message'] : $error->getMessage();

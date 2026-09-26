@@ -29,7 +29,7 @@ class InstallCommand extends Command
         $this->ensureVariablesScss($files);
         $this->migrateAndSeed();
         // This is the defaults unless the user setup their own environment variables
-        $email = env('CUZTOMISABLE_ADMIN', 'admin@cuztomisable.com');
+        $email = (config('cuztomisable.admin_email') ?: 'admin@cuztomisable.com');
         $password = 'password';
         $this->newLine();
         $this->components->info('Cuztomisable installed - migrated, seeded, ready to log in.');

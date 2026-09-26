@@ -31,11 +31,11 @@ class AwsSnsSmsProvider implements SmsProviderInterface
             return;
         }
         $this->client = new SnsClient([
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'region' => config('cuztomisable.aws.region', 'us-east-1'),
             'version' => 'latest',
             'credentials' => [
-                'key' => env('AWS_ACCESS_KEY_ID', null),
-                'secret' => env('AWS_SECRET_ACCESS_KEY', null),
+                'key' => config('cuztomisable.aws.key'),
+                'secret' => config('cuztomisable.aws.secret'),
             ],
             'http' => [
                 // Can be removed whenever not on local development

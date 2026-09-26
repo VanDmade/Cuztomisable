@@ -79,7 +79,7 @@ class SettingsService
             ],
             'registration' => [
                 'disabled' => config('cuztomisable.account.registration.disabled', false),
-                'disable_message' => __('cuztomisable/authentication.registration.disabled', ['email' => env('CUZTOMISABLE_ADMIN')]),
+                'disable_message' => __('cuztomisable/authentication.registration.disabled', ['email' => config('cuztomisable.admin_email')]),
                 'address' => config('cuztomisable.account.address', false),
             ],
             'navigation' => config('cuztomisable.app.navigation', []),

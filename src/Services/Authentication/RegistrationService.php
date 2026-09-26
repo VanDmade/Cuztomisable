@@ -142,7 +142,7 @@ class RegistrationService
                 $user->save();
                 // The creator will receive an email of the registration
                 $sendRegisteredTo = $registration->createdBy->email ?? null;
-            } elseif (filter_var($email = env('CUZTOMISABLE_ADMIN', null), FILTER_VALIDATE_EMAIL)) {
+            } elseif (filter_var($email = config('cuztomisable.admin_email'), FILTER_VALIDATE_EMAIL)) {
                 // The main administrator of the site will receive an email of the registration
                 $sendRegisteredTo = $email;
             }
@@ -163,7 +163,7 @@ class RegistrationService
                 isset($registration->code)) {
                 // Sends the phone verification text to the user
                 $smsMessage = __('cuztomisable/text.registration.verification', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
                 SendText::dispatch($phone->country_code, $phone->number, $smsMessage);
@@ -238,7 +238,7 @@ class RegistrationService
                 Mail::to($registration->email)->send(new InvitationMail($registration));
             } else {
                 $smsMessage = __('cuztomisable/text.registration.invited', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
                 SendText::dispatch($data['country_code'], $data['phone'], $smsMessage);
@@ -270,7 +270,7 @@ class RegistrationService
                 Mail::to($registration->email)->send(new InvitationMail($registration));
             } else {
                 $smsMessage = __('cuztomisable/text.registration.invited', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                     'url' => url('/registration/'.$registration->code),
                 ]);
                 [$countryCode, $number] = splitPhoneNumber($registration->phone);

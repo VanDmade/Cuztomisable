@@ -166,7 +166,7 @@ class PasswordService
             $user->locked = true;
             $user->save();
             // Sends admin an email that a user locked their own account
-            Mail::to(env('CUZTOMISABLE_ADMIN'))->send(
+            Mail::to(config('cuztomisable.admin_email'))->send(
                 new SupportMail($user, __('cuztomisable/user.account.self_locked'))
             );
             return 'self_locked';
@@ -181,7 +181,7 @@ class PasswordService
             $phone = $reset->user->mobilePhone;
             if (isset($phone->id)) {
                 $message = __('cuztomisable/text.passwords.reset', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                     'url' => url('/password/forgot/'.$reset->token),
                 ]);
                 SendText::dispatch($phone->country_code, $phone->number, $message);

@@ -57,7 +57,7 @@ class IpAddressObserver
             $phone = $user->mobilePhone;
             if (isset($phone->id) && !$phone->disable_messages) {
                 $message = __('cuztomisable/text.new_ip_address', [
-                    'company' => env('APP_NAME'),
+                    'company' => config('app.name'),
                 ]);
                 SendText::dispatch($phone->country_code, $phone->number, $message);
             }

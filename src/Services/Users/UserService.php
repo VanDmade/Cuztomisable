@@ -234,7 +234,7 @@ class UserService
         }
         $verificationUrl = url('/verification/'.$user->token.'/phone?phone='.$phone->country_code.$phone->number);
         $message = __('cuztomisable/text.registration.verification', [
-            'company' => env('APP_NAME'),
+            'company' => config('app.name'),
             'url' => $verificationUrl,
         ]);
         SendText::dispatch($phone->country_code, $phone->number, $message);

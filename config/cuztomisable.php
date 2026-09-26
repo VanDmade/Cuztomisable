@@ -2,6 +2,16 @@
 return [
     // SmsProviderInterface implementation used to send text messages.
     'sms_provider' => \VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider::class,
+    // .env values are read here rather than with env() in the code - once `php artisan config:cache`
+    // (or optimize) runs, env() returns null everywhere outside config files.
+    // Address for admin notifications and the default admin login seeded by cuztomisable:install.
+    'admin_email' => env('CUZTOMISABLE_ADMIN'),
+    // Credentials for the AWS SNS text message provider.
+    'aws' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
     // API Resource classes used to shape outgoing JSON - override with a host app's own
     // subclass to include/exclude different fields, resolved via UserResource::forUser().
     'resources' => [

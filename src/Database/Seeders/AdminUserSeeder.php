@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         $userModel = config('auth.providers.users.model');
-        $email = env('CUZTOMISABLE_ADMIN', 'admin@cuztomisable.com');
+        $email = (config('cuztomisable.admin_email') ?: 'admin@cuztomisable.com');
         $username = 'admin';
         $password = 'password';
         $user = $userModel::updateOrCreate(
