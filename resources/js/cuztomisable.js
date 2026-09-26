@@ -26,6 +26,7 @@ import Modal from './components/UI/Modal.vue';
 import Message from './components/UI/Message.vue';
 import TermsGate from './components/UI/TermsGate.vue';
 import CookieConsent from './components/UI/CookieConsent.vue';
+import DateTime from './components/UI/Datetime.vue';
 import notify from './utils/notify';
 import loading from './utils/loading';
 import LoginLayout from './views/layouts/LoginLayout.vue';
@@ -312,6 +313,7 @@ export async function loadCuztomisableApp() {
                 'cz-image': Image,
                 'cz-autofill': Autofill,
                 'cz-delete': Delete,
+                'cz-datetime': DateTime,
             };
             Object.entries(globalComponents).forEach(([name, comp]) => {
                 app.component(name, comp);

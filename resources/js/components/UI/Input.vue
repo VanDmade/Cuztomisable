@@ -10,6 +10,7 @@
                 'is-invalid': errorList.length > 0,
                 'empty': value === '' || value === null || value === undefined,
                 'cz-form-control--has-toggle': type == 'password',
+                'cz-form-control--has-append': !!append,
             }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"

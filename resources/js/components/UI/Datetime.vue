@@ -175,6 +175,15 @@ export default {
             now: new Date(),
         }
     },
+    created: function() {
+        // Fills an empty picker with defaultValue (e.g. 'now') so new records start pre-filled
+        if (!this.hasValue && this.defaultValue) {
+            const value = this.normalizeBound(this.defaultValue, false);
+            if (value) {
+                this.emitValue(value);
+            }
+        }
+    },
     methods: {
         parse: function(value) {
             const out = { date: null, hour: null, minute: null, second: 0 };
@@ -602,6 +611,8 @@ export default {
         defaultTime: { type: String, default: '00:00' },
         // An empty picker starts on the current date/time instead of defaultTime
         startAtNow: { type: Boolean, default: false },
+        // Value emitted on creation when the model is empty; accepts 'now' like min/max
+        defaultValue: { type: String, default: null },
         weekStart: { type: Number, default: 0 },
         yearRange: { type: Array, default: () => [100, 50] },
         locale: { type: String, default: 'en-US' },

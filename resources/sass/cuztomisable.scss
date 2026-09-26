@@ -1489,6 +1489,10 @@ input:-webkit-autofill {
     > label {
         z-index: 2;
     }
+    // Matches the disabled textarea's grey so the strip behind the label doesn't show as white
+    &.cz-form-textarea--disabled::before {
+        background: var(--bs-secondary-bg);
+    }
 }
 .form-floating > .cz-form-select.empty ~ label,
 .form-floating > .cz-form-control.empty ~ label {
@@ -1500,10 +1504,11 @@ input:-webkit-autofill {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
-.form-floating > .cz-form-select.empty.is-invalid ~ label,
-.form-floating > .cz-form-control.empty.is-invalid ~ label,
-.form-floating > .form-select.empty.is-invalid ~ label,
-.form-floating > .form-control.empty.is-invalid ~ label {
+// :not(:focus) so an errored field's label still floats up when it's focused
+.form-floating > .cz-form-select.empty.is-invalid:not(:focus) ~ label,
+.form-floating > .cz-form-control.empty.is-invalid:not(:focus) ~ label,
+.form-floating > .form-select.empty.is-invalid:not(:focus) ~ label,
+.form-floating > .form-control.empty.is-invalid:not(:focus) ~ label {
     transform: none !important;
     height: calc(3.5rem + 2px) !important;
     display: flex !important;
@@ -1617,6 +1622,14 @@ input:-webkit-autofill {
     opacity: 0.7;
     pointer-events: none;
     white-space: nowrap;
+}
+// On error the appended text turns red instead of showing Bootstrap's invalid icon
+.cz-form-control--has-append.is-invalid {
+    background-image: none;
+}
+.cz-form-control.is-invalid ~ .cz-form-input-append {
+    color: $color-danger;
+    opacity: 1;
 }
 .cz-messages {
     position: fixed;

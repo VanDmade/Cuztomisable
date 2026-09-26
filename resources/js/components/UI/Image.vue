@@ -56,7 +56,9 @@ export default {
     },
     methods: {
         changed: function() {
-            return (this.src != this.url || typeof(this.modelValue?.id) != 'undefined') && this.url != (this.$url+this.default);
+            // A string v-model is an already-saved image's URL, so it can be cleared from the moment it loads
+            const saved = typeof(this.modelValue) == 'string' && this.modelValue !== '';
+            return (this.src != this.url || typeof(this.modelValue?.id) != 'undefined' || saved) && this.url != (this.$url+this.default);
         },
         setImageDimensions: function() {
             const img = this.$refs[this.elementId+'-img'];

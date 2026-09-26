@@ -7,7 +7,7 @@
         </ul>
     </div>
     <div v-else class="form-floating cz-form-input cz-form-textarea"
-        :class="{ 'cz-no-label': label == null || label == '' }">
+        :class="{ 'cz-no-label': label == null || label == '', 'cz-form-textarea--disabled': disabled }">
         <textarea
             v-model="value"
             :id="id"
