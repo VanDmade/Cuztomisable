@@ -153,11 +153,13 @@ export default {
             return [];
         },
         navLinks: function() {
+            // Desktop shows these in the sidebar - only the mobile menu needs them in the navbar
             const links = this.navigation.map((item) => ({
                 text: item.text,
                 icon: item.icon,
                 route: item.route,
                 href: item.path,
+                mobileOnly: true,
             }));
             const canManageRoles = this.$store.getters.hasPermission('manage-roles-permissions');
             const canSeeUsers = this.$store.getters.hasPermission('view-users|manage-users');

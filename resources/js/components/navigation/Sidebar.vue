@@ -7,7 +7,7 @@
                     :key="index"
                     :to="item.path || { name: item.route }"
                     class="sidebar-link"
-                    :class="{ 'sidebar-link--active': $route.name === item.route }"
+                    :class="{ 'sidebar-link--active': item.route ? $route.name === item.route : $route.path === item.path }"
                     :data-tooltip="item.text"
                     @click.native="$emit('navigate')">
                     <span class="material-icons" aria-hidden="true">{{ item.icon }}</span>
