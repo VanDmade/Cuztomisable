@@ -51,7 +51,8 @@ class ImageService
         if (empty($image)) {
             throw new Exception('The image was not found.', 404);
         }
-        $disk = Storage::disk($this->disk);
+        // The disk the image was actually saved on - not necessarily the current default
+        $disk = Storage::disk($image->disk ?: $this->disk);
         $path = $image->path;
         // If a URL is requested
         if ($url) {
@@ -142,7 +143,8 @@ class ImageService
         }
         $path = $image->path;
         if ($removeCompletely) {
-            $disk = Storage::disk($this->disk);
+            // The disk the image was actually saved on - not necessarily the current default
+            $disk = Storage::disk($image->disk ?: $this->disk);
             if ($disk->exists($path)) {
                 // Removes the image from the bucket
                 $disk->delete($path);

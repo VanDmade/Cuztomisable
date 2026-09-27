@@ -448,7 +448,8 @@ export async function loadCuztomisableApp() {
             if (store.state.authenticated && AUTH_GUEST_ROUTE_NAMES.has(routeState.name)) {
                 // Must happen after mount - router.visit() reads Inertia's page state,
                 // which is only initialized once the App component has been mounted.
-                await visit('/portal', true);
+                // Signed-in users landing on login/registration go to the app's home page (VITE_APP_HOME)
+                await visit(import.meta.env.VITE_APP_HOME ?? '/portal', true);
             }
             return { app, store };
         },
