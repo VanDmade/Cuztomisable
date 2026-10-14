@@ -73,8 +73,9 @@ class TableService
         if (isset($parameters['additional']['group_by'])) {
             $query = $query->groupBy($parameters['additional']['group_by']);
         }
-        // Total rows prior to search / filters
-        $total = (clone $query)->count();
+        // Total rows prior to search / filters (count() only counts the first group on a grouped query)
+        $base = clone $query;
+        $total = (method_exists($base, 'toBase') ? $base->toBase() : $base)->getCountForPagination();
         $query = $query->where(function ($query) use ($search, $searchColumns) {
             if (!is_null($search) && $search !== '') {
                 foreach ($searchColumns as $column) {
@@ -171,7 +172,8 @@ class TableService
         mixed $filteredTotal = 0
     ): JsonResponse {
         $totalEntriesReturned = sizeof($data);
-        $totalResults = !is_null($search) ? $filteredTotal : $total;
+        // Pages follow what actually matched, so filters without a search still paginate correctly
+        $totalResults = $filteredTotal ?? $total;
         $safeSize = (is_numeric($size) && (int) $size > 0) ? (int) $size : null;
         $totalPages = $size == 'all' || $safeSize === null ? 1 :
             (int) ceil(($totalResults ?? $totalEntriesReturned) / $safeSize);
