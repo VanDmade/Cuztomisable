@@ -13,11 +13,12 @@ use VanDmade\Cuztomisable\Models\Questionnaire\Question;
 use VanDmade\Cuztomisable\Questionnaire\OptionSource;
 
 /**
- * Runs the sign-up questionnaire: sends out the questions in the user's language, checks and stores their answers,
- * copies each answer onto the record the question points at, and marks the questionnaire done.
+ * Runs the questionnaire: sends out the questions the user hasn't answered yet in their language, checks and stores
+ * their answers, and copies each answer onto the record the question points at.
  *
- * Answers given before the questionnaire is finished can still be changed. After that the stored answer is the
- * user's first answer for good, while the target column carries on with whatever they change it to.
+ * Any question without an answer is asked - new and existing accounts alike, and questions added later on. Once a
+ * question is answered it's done for good: the stored answer is the user's first answer, while the target column
+ * carries on with whatever the app later changes it to. Nothing is stored on the users table by the package.
  */
 final class QuestionnaireService
 {
@@ -27,10 +28,17 @@ final class QuestionnaireService
         return (bool) config('cuztomisable.questionnaire.enabled', false);
     }
 
-    /** Whether the user still has to finish the questionnaire before using the app. */
+    /** Whether the user still has required questions to answer before using the app. */
     public function needsToComplete(Model $user): bool
     {
-        return $this->enabled() && $user->questionnaire_completed_at === null && $this->questions()->isNotEmpty();
+        return $this->enabled() && $this->pending($user)->where('required', true)->isNotEmpty();
+    }
+
+    /** The questions in use that the user hasn't answered yet, in the order they're asked. */
+    public function pending(Model $user): Collection
+    {
+        $answered = Answer::where('user_id', $user->id)->pluck('questionnaire_question_id')->flip();
+        return $this->questions()->reject(fn(Question $question) => $answered->has($question->id))->values();
     }
 
     /** The questions in use, in the order they're asked. @return Collection<int, Question> */
@@ -39,12 +47,10 @@ final class QuestionnaireService
         return Question::where('active', true)->orderBy('order')->orderBy('id')->get();
     }
 
-    /** Every active question as the app shows it, with the user's answer so far. */
+    /** The questions the user still has to answer, as the app shows them. */
     public function forUser(Model $user): array
     {
-        $answers = Answer::where('user_id', $user->id)->get()->keyBy('questionnaire_question_id');
-        return $this->questions()->map(function(Question $question) use ($answers) {
-            $answer = $answers->get($question->id);
+        return $this->pending($user)->map(function(Question $question) {
             return [
                 'key' => $question->key,
                 'type' => $question->type,
@@ -61,7 +67,6 @@ final class QuestionnaireService
                 'placeholder' => $this->translate($question->setting('placeholder')),
                 'min' => $question->setting('min'),
                 'max' => $question->setting('max'),
-                'answer' => $answer ? ['value' => $answer->value, 'other' => $answer->other] : null,
             ];
         })->values()->all();
     }
@@ -77,8 +82,8 @@ final class QuestionnaireService
     }
 
     /**
-     * Stores the given answers (keyed by question key), copies them onto their target columns, and finishes the
-     * questionnaire once every required question has an answer.
+     * Stores the given answers (keyed by question key) and copies them onto their target columns. A question that
+     * already has an answer is skipped - answers are final.
      *
      * @param array<string, mixed> $answers An answer is the value itself, or ['other' => true] for "I can't find it"
      * @return array{completed: bool, other: string[]}
@@ -103,25 +108,22 @@ final class QuestionnaireService
         if ($errors) {
             throw ValidationException::withMessages($errors);
         }
-        $finished = $user->questionnaire_completed_at !== null;
-        DB::transaction(function() use ($user, $questions, $clean, $finished) {
+        $answered = Answer::where('user_id', $user->id)->pluck('questionnaire_question_id')->flip();
+        DB::transaction(function() use ($user, $questions, $clean, $answered) {
             foreach ($clean as $key => [$value, $other]) {
                 $question = $questions->get($key);
-                $existing = Answer::where('user_id', $user->id)->where('questionnaire_question_id', $question->id)->first();
-                // Once the questionnaire is done the first answer stays as it was
-                if (!$existing || !$finished) {
-                    Answer::updateOrCreate(
-                        ['user_id' => $user->id, 'questionnaire_question_id' => $question->id],
-                        ['value' => $value, 'other' => $other]
-                    );
+                if ($answered->has($question->id)) {
+                    continue;
                 }
+                Answer::create([
+                    'user_id' => $user->id,
+                    'questionnaire_question_id' => $question->id,
+                    'value' => $value,
+                    'other' => $other,
+                ]);
                 if (!$other) {
                     $this->writeTarget($user, $question, $value);
                 }
-            }
-            if (!$finished && $this->allRequiredAnswered($user, $questions)) {
-                $user->questionnaire_completed_at = now();
-                $user->save();
             }
         });
         $other = Answer::where('user_id', $user->id)->where('other', true)
@@ -132,7 +134,7 @@ final class QuestionnaireService
             ->values()
             ->all();
         return [
-            'completed' => $user->questionnaire_completed_at !== null,
+            'completed' => !$this->needsToComplete($user),
             'other' => $other,
         ];
     }
@@ -267,13 +269,6 @@ final class QuestionnaireService
             [$question->target_key => $user->id],
             [$question->target_column => is_array($value) ? json_encode($value) : $value]
         );
-    }
-
-    private function allRequiredAnswered(Model $user, Collection $questions): bool
-    {
-        $required = $questions->where('required', true)->pluck('id');
-        $answered = Answer::where('user_id', $user->id)->whereIn('questionnaire_question_id', $required)->count();
-        return $answered >= $required->count();
     }
 
     private function translateOptions(array $options): array

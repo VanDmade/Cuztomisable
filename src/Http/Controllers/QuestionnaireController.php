@@ -27,7 +27,7 @@ class QuestionnaireController extends CuztomisableController
             $user = $request->user();
             return $this->success([
                 'enabled' => $this->questionnaireService->enabled(),
-                'completed' => $user->questionnaire_completed_at !== null,
+                'completed' => !$this->questionnaireService->needsToComplete($user),
                 'questions' => $this->questionnaireService->forUser($user),
             ]);
         } catch (Throwable $error) {

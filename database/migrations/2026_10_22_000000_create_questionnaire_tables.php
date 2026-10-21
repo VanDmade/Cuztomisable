@@ -4,8 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// The sign-up questionnaire: the questions an app asks (text comes from language keys), every user's first answer to
-// each, and when the user finished it. See docs/13-questionnaire.md.
+// The questionnaire: the questions an app asks (text comes from language keys) and every user's answer to each. The
+// package adds nothing to the users table - answers are copied onto the host app's own columns. See
+// docs/13-questionnaire.md.
 return new class extends Migration
 {
     public function up(): void
@@ -47,16 +48,10 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(['user_id', 'questionnaire_question_id'], 'questionnaire_answers_user_question_unique');
         });
-        Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('questionnaire_completed_at')->nullable();
-        });
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('questionnaire_completed_at');
-        });
         Schema::dropIfExists('questionnaire_answers');
         Schema::dropIfExists('questionnaire_questions');
     }

@@ -4,6 +4,8 @@ namespace VanDmade\Cuztomisable\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+use VanDmade\Cuztomisable\Services\QuestionnaireService;
 
 /**
  * Formats a user for API responses.
@@ -36,8 +38,12 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'last_login_at' => $this->lastIpAddress?->last_used_at,
             'change_password_sent_at' => $this->change_password_sent_at,
-            // Lets the frontend send the user to the sign-up questionnaire before anything else
-            'questionnaire_completed' => $this->questionnaire_completed_at !== null,
+            // Lets the frontend send the signed-in user to the questionnaire when questions are waiting - only
+            // worked out for them, so lists of users don't run it for every row
+            'questionnaire_completed' => $this->when(
+                $this->id === Auth::id(),
+                fn() => !app(QuestionnaireService::class)->needsToComplete($this->resource)
+            ),
         ];
     }
 

@@ -11,9 +11,8 @@ a week when they joined, and 10 now".
 |---|---|---|
 | Settings | `config/questionnaire.php` → `cuztomisable.questionnaire` | On/off, required or not, option sources, writable tables |
 | Questions | `questionnaire_questions` table | One row per question, seeded by the host app. Text fields hold **language keys** |
-| First answers | `questionnaire_answers` table | The user's first answer to each question, kept as-is once the questionnaire is finished |
+| Answers | `questionnaire_answers` table | The user's answer to each question - final once given |
 | Current values | The question's `target_table.target_column` | Updated every time the answer is saved, so the app can change it later |
-| Finished | `users.questionnaire_completed_at` | Set once every required question has an answer |
 
 The questions live in the database rather than the config so a host app can seed them, reorder them or switch
 them off without a code change, but every piece of text is still a language key, so each language gets its own
@@ -115,8 +114,12 @@ An answer is the value itself (`true`, `"weekly"`, `42`, `["sour", "herbal"]`), 
 `POST` returns `completed` and `other` - the keys of questions answered with "I can't find it", so the app can
 follow up when it's done (Mixing Maverick offers to create the drink the user couldn't find).
 
-Until the questionnaire is finished, answers can be changed and the first-answer record follows them. After
-that, the first-answer record stays as it was and only the target column changes.
+A question is asked until the user answers it - new accounts and existing ones alike, and a question added
+later is asked on its own. Once answered it's final: re-sending an answer for it is skipped, and the answer on
+record stays as the user's first answer while the host app changes the target column however it likes.
+
+The package adds nothing to the `users` table. "Done" is worked out from the answers: no active, required
+question left without one.
 
 ## Making it required
 
