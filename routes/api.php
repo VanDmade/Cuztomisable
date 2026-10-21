@@ -4,6 +4,7 @@ use VanDmade\Cuztomisable\Http\Controllers\OrganizationController;
 use VanDmade\Cuztomisable\Http\Controllers\SettingsController;
 use VanDmade\Cuztomisable\Http\Controllers\TermsController;
 use VanDmade\Cuztomisable\Http\Controllers\PermissionController;
+use VanDmade\Cuztomisable\Http\Controllers\QuestionnaireController;
 use VanDmade\Cuztomisable\Http\Controllers\RoleController;
 use VanDmade\Cuztomisable\Http\Controllers\FormController;
 use VanDmade\Cuztomisable\Http\Controllers\Users\AccessController;
@@ -195,6 +196,14 @@ Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], functi
             ->middleware('throttler:addresses.default,actor,params=id');
         Route::delete('/address/{id}', 'toggleDelete')
             ->middleware('throttler:addresses.toggle_delete,actor,params=id');
+    });
+    // Sign-up questionnaire - see docs/13-questionnaire.md
+    Route::controller(QuestionnaireController::class)->group(function() {
+        Route::get('/questionnaire', 'show');
+        Route::get('/questionnaire/{key}/options', 'options')
+            ->middleware('throttler:questionnaire.options,actor');
+        Route::post('/questionnaire', 'save')
+            ->middleware('throttler:questionnaire.save,actor');
     });
     Route::controller(TermsController::class)->group(function() {
         Route::get('/terms/status', 'status');

@@ -16,6 +16,7 @@ use VanDmade\Cuztomisable\Http\Controllers\BrandingController;
 use VanDmade\Cuztomisable\Middleware\CheckPermission;
 use VanDmade\Cuztomisable\Middleware\RequireAdmin;
 use VanDmade\Cuztomisable\Middleware\RequireCurrentTerms;
+use VanDmade\Cuztomisable\Middleware\RequireQuestionnaire;
 use VanDmade\Cuztomisable\Middleware\Throttler;
 use VanDmade\Cuztomisable\Models\Users\User;
 use VanDmade\Cuztomisable\Sms\AwsSnsSmsProvider;
@@ -35,6 +36,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $router->aliasMiddleware('require-admin', RequireAdmin::class);
         $router->aliasMiddleware('throttler', Throttler::class);
         $router->aliasMiddleware('require-current-terms', RequireCurrentTerms::class);
+        $router->aliasMiddleware('require-questionnaire', RequireQuestionnaire::class);
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views/emails', 'cuztomisable');
         if ($this->app->runningInConsole()) {
@@ -97,6 +99,7 @@ class CuztomisableServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/rate_limits.php', 'cuztomisable.rate_limits');
         $this->mergeConfigFrom(__DIR__.'/../config/passwords.php', 'cuztomisable.account.passwords');
         $this->mergeConfigFrom(__DIR__.'/../config/social.php', 'cuztomisable.social');
+        $this->mergeConfigFrom(__DIR__.'/../config/questionnaire.php', 'cuztomisable.questionnaire');
         $this->configureSocialiteServices();
         $this->app->bind(SmsProviderInterface::class, config('cuztomisable.sms_provider', AwsSnsSmsProvider::class));
         // Separates the resources into sections to allow for ease of re-publishing and organization.

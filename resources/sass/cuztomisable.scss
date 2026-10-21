@@ -2305,6 +2305,8 @@ input:-webkit-autofill {
             vertical-align: middle;
             img.cz-table-image {
                 height: 42px;
+                // Keeps the thumbnail off the table's left edge - image columns are 58px wide to make room
+                margin-left: 16px;
                 border-radius: $border-radius * 0.5;
                 @media (max-width: 768px) {
                     margin: 12px;

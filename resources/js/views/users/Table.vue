@@ -93,7 +93,7 @@ export default {
             submitting: false,
             url: '/users',
             headers: [
-                { name: '', value: 'image', sortable: false, width: '42px' },
+                { name: '', value: 'image', sortable: false, width: '58px' },
                 { name: 'Name', value: 'name', width: '340px' },
                 { name: 'Phone', value: 'phone', sortable: false, width: '20%' },
                 { name: 'Last Accessed', value: 'last_used_at', width: '20%' },

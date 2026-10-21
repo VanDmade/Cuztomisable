@@ -15,6 +15,10 @@
             <button type="button" v-show="false" :id="'open-'+id" @click="open"></button>
             <div class="modal-dialog cz-modal-dialog" :style="{ 'max-width': modalWidth }">
                 <div class="modal-content cz-modal-content">
+                    <!-- Static modals have to be finished or dismissed from inside, so they get no X -->
+                    <button v-if="!static" type="button" class="cz-modal-close" aria-label="Close" @click="close">
+                        <span class="material-icons">close</span>
+                    </button>
                     <div class="modal-body cz-modal-body">
                         <slot v-if="isOpen"></slot>
                     </div>
@@ -77,5 +81,25 @@ export default {
 <style>
     .modal-dialog {
         max-width: none;
+    }
+    .cz-modal-content {
+        position: relative;
+    }
+    .cz-modal-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        display: flex;
+        padding: 4px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: #6B7280;
+        cursor: pointer;
+    }
+    .cz-modal-close:hover {
+        background: rgba(0, 0, 0, 0.08);
+        color: #111827;
     }
 </style>

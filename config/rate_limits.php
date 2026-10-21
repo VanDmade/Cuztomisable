@@ -6,4 +6,9 @@ return [
         'attempts' => 5,
         'decay_seconds' => 60,
     ],
+    // Choices are searched as the user types, and answers can be saved one question at a time
+    'questionnaire' => [
+        'options' => ['attempts' => 60, 'decay_seconds' => 60],
+        'save' => ['attempts' => 30, 'decay_seconds' => 60],
+    ],
 ];

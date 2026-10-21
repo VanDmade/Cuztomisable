@@ -86,6 +86,7 @@ Merge-only config files (not published, edit host-side `config/cuztomisable.php`
 | `passwords.php` | `cuztomisable.account.passwords` | Forgot/reset delivery channels, timing between resends, password-reuse rules |
 | `rate_limits.php` | `cuztomisable.rate_limits` | Per-action throttle attempts/decay, with a `default` fallback |
 | `social.php` | `cuztomisable.social` | Master social-login switch, and per-provider enabled flag, button label, logo flag, and `client_id`/`client_secret`/`redirect` |
+| `questionnaire.php` | `cuztomisable.questionnaire` | Sign-up questionnaire on/off and required, its intro text/image, option sources, writable tables - see [docs/13-questionnaire.md](docs/13-questionnaire.md) |
 
 ## API surface
 
@@ -99,6 +100,7 @@ All routes are registered under `/api` by the service provider, behind a middlew
 | Password reset | forgot → send code → verify → reset, guest-only |
 | Registration/invites | self-registration by code, admin-issued invites (`invite-users`) |
 | Terms & conditions | current terms, acceptance status/accept, admin publish/manage (`manage-terms`) |
+| Sign-up questionnaire | questions with the user's answers, searching a question's choices, saving answers ([docs](docs/13-questionnaire.md)) |
 | Organizations | list, current, switch (`organizations.enabled`) |
 | Settings | public read, admin write (`GET/POST /settings`) |
 | Roles & permissions | full CRUD (`manage-roles-permissions`) |
@@ -120,13 +122,14 @@ Registered as route-middleware aliases by the service provider:
 | `permission` | `CheckPermission` | Abort 403 unless the user has the given permission(s) |
 | `require-admin` | `RequireAdmin` | Abort 403 unless the user is an admin |
 | `require-current-terms` | `RequireCurrentTerms` | Abort 403 until the user accepts the current terms (no-op unless `cuztomisable.terms.enabled`) |
+| `require-questionnaire` | `RequireQuestionnaire` | Abort 403 until the user finishes the sign-up questionnaire (no-op unless it's enabled and `required`) |
 | `throttler` | `Throttler` | Configurable per-action rate limiting, driven by `config/rate_limits.php` |
 
 Two more run automatically for every API request rather than being applied per-route: `TokenFromCookie` (promotes a cookie-stored token into an `Authorization: Bearer` header) and `RequireCsrfUnlessMobile` (enforces CSRF for browsers, skips it for a verified mobile app via `EnsureValidMobileAgent`).
 
 ## Models
 
-All under `VanDmade\Cuztomisable\Models`: `Users\User` (the default concrete user), `Roles\Role` / `Permission` and their pivots, `Organizations\Organization` / `Organizations\User`, `Users\Code` (MFA code), `Users\Passwords\Reset` and `Users\Passwords\Password` (reuse history), `Users\Registration` (invite), `Users\IpAddress`, `Address`, `Phone`, `Image`, `Form` (saved wizard state), `Setting`, `Social\SocialAccount`, `Terms\TermsAndConditions` / `Terms\Acceptance`, `Logs\{User,Email,Text,Error}`, `Personal\{AccessToken,RefreshToken}`.
+All under `VanDmade\Cuztomisable\Models`: `Users\User` (the default concrete user), `Roles\Role` / `Permission` and their pivots, `Organizations\Organization` / `Organizations\User`, `Users\Code` (MFA code), `Users\Passwords\Reset` and `Users\Passwords\Password` (reuse history), `Users\Registration` (invite), `Users\IpAddress`, `Address`, `Phone`, `Image`, `Form` (saved wizard state), `Setting`, `Social\SocialAccount`, `Terms\TermsAndConditions` / `Terms\Acceptance`, `Questionnaire\Question` / `Questionnaire\Answer`, `Logs\{User,Email,Text,Error}`, `Personal\{AccessToken,RefreshToken}`.
 
 ## Traits (`src/Concerns`)
 

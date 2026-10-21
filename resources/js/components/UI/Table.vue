@@ -1,10 +1,10 @@
 <template>
     <div class="cz-table-page">
         <div class="row mb-4">
-            <div class="col col-12" :class="{ 'col-lg-8 col-md-6': !disableSearch }">
+            <div class="col col-12" :class="{ 'col-xl-6 col-lg-5': !disableSearch }">
                 <slot name="header"></slot>
             </div>
-            <div v-if="!disableSearch" class="col col-lg-4 col-md-6 col-12">
+            <div v-if="!disableSearch" class="col col-xl-6 col-lg-7 col-12">
                 <div class="input-group cz-form-input cz-table-search-group">
                     <slot name="filters"></slot>
                     <input placeholder="Search" class="form-control cz-form-input" v-model="search" type="input" id="search" :disabled="disabled" />

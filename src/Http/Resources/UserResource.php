@@ -36,6 +36,8 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'last_login_at' => $this->lastIpAddress?->last_used_at,
             'change_password_sent_at' => $this->change_password_sent_at,
+            // Lets the frontend send the user to the sign-up questionnaire before anything else
+            'questionnaire_completed' => $this->questionnaire_completed_at !== null,
         ];
     }
 
