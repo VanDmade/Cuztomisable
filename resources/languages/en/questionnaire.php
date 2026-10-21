@@ -1,11 +1,6 @@
 <?php
 
 return [
-    'intro' => [
-        'title' => 'A few quick questions',
-        'subtitle' => 'Help us set things up for you',
-        'description' => 'Answer these once and we\'ll tailor the app to you. You can change your answers later.',
-    ],
     'other' => 'I can\'t find it',
     'saved' => 'Your answers were saved.',
     'completed' => 'Thanks - you\'re all set!',

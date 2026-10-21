@@ -9,7 +9,7 @@ a week when they joined, and 10 now".
 
 | Piece | Where | What it holds |
 |---|---|---|
-| Settings + intro | `config/questionnaire.php` → `cuztomisable.questionnaire` | On/off, required or not, the intro's title / subtitle / description / image, option sources, writable tables |
+| Settings | `config/questionnaire.php` → `cuztomisable.questionnaire` | On/off, required or not, option sources, writable tables |
 | Questions | `questionnaire_questions` table | One row per question, seeded by the host app. Text fields hold **language keys** |
 | First answers | `questionnaire_answers` table | The user's first answer to each question, kept as-is once the questionnaire is finished |
 | Current values | The question's `target_table.target_column` | Updated every time the answer is saved, so the app can change it later |
@@ -29,11 +29,6 @@ return [
     'enabled' => env('CUZTOMISABLE_QUESTIONNAIRE', true),
     // When true, the require-questionnaire middleware blocks the API until it's finished
     'required' => true,
-    // Language keys for the intro shown before the first question
-    'title' => 'questionnaire.intro.title',
-    'subtitle' => 'questionnaire.intro.subtitle',
-    'description' => 'questionnaire.intro.description',
-    'image' => null,
     // Choices that come from your own data - see "Option sources"
     'sources' => [
         'drinks' => App\Questionnaire\Sources\Drinks::class,
@@ -110,7 +105,7 @@ All behind `auth:sanctum`.
 
 | Route | What it does |
 |---|---|
-| `GET /questionnaire` | `enabled`, `completed`, the translated `intro`, and every active question with the user's `answer` so far |
+| `GET /questionnaire` | `enabled`, `completed`, and every active question in `order`, with the user's `answer` so far |
 | `GET /questionnaire/{key}/options?search=` | A question's choices - searched, for a source question |
 | `POST /questionnaire` | `answers: { key: value }`. Any subset, so the app can save one screen at a time |
 
@@ -134,6 +129,6 @@ that, the first-answer record stays as it was and only the target column changes
 
 ## Language files
 
-The package's own messages (errors, "I can't find it", the default intro) are in
+The package's own messages (errors, "I can't find it") are in
 `resources/languages/en/questionnaire.php`, published to `lang/en/cuztomisable/questionnaire.php`. The questions'
 text lives in the host app's own language files.

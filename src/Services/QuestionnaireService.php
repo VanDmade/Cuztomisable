@@ -33,18 +33,7 @@ final class QuestionnaireService
         return $this->enabled() && $user->questionnaire_completed_at === null && $this->questions()->isNotEmpty();
     }
 
-    /** The intro shown before the first question, translated. */
-    public function intro(): array
-    {
-        return [
-            'title' => $this->translate(config('cuztomisable.questionnaire.title')),
-            'subtitle' => $this->translate(config('cuztomisable.questionnaire.subtitle')),
-            'description' => $this->translate(config('cuztomisable.questionnaire.description')),
-            'image' => config('cuztomisable.questionnaire.image'),
-        ];
-    }
-
-    /** @return Collection<int, Question> */
+    /** The questions in use, in the order they're asked. @return Collection<int, Question> */
     public function questions(): Collection
     {
         return Question::where('active', true)->orderBy('order')->orderBy('id')->get();

@@ -28,7 +28,6 @@ class QuestionnaireController extends CuztomisableController
             return $this->success([
                 'enabled' => $this->questionnaireService->enabled(),
                 'completed' => $user->questionnaire_completed_at !== null,
-                'intro' => $this->questionnaireService->intro(),
                 'questions' => $this->questionnaireService->forUser($user),
             ]);
         } catch (Throwable $error) {
