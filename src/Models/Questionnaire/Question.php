@@ -4,13 +4,16 @@ namespace VanDmade\Cuztomisable\Models\Questionnaire;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use VanDmade\Cuztomisable\Concerns\SoftDeletes;
 
 /**
- * One sign-up questionnaire question. Its text fields hold language keys, and target_table / target_column say where
- * the answer is also written on the user's record.
+ * One questionnaire question. Its text fields hold language keys, and target_table / target_column say where the
+ * answer is also written on the user's record. Deleting one is a soft delete, so the answers to it stay on record.
  */
 class Question extends Model
 {
+
+    use SoftDeletes;
 
     public const TYPES = ['boolean', 'select', 'multi_select', 'text', 'number', 'date'];
 
@@ -39,6 +42,7 @@ class Question extends Model
         'settings' => 'array',
         'required' => 'boolean',
         'active' => 'boolean',
+        'deleted_at' => 'datetime',
     ];
 
     public function answers(): HasMany

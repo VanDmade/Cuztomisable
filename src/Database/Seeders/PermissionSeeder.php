@@ -74,6 +74,11 @@ class PermissionSeeder extends Seeder
                 'description' => 'Allows uploading and publishing terms & conditions versions, and viewing which users have accepted.',
             ],
             [
+                'name' => 'Manage Questionnaire',
+                'slug' => 'manage-questionnaire',
+                'description' => 'Allows adding, editing, ordering and switching off the questions new and existing users are asked.',
+            ],
+            [
                 'name' => 'Manage Settings',
                 'slug' => 'manage-settings',
                 'description' => 'Blanket access to every admin-editable setting (config/cuztomisable.php\'s "settings" array) - covers a key even if it has no dedicated permission of its own.',

@@ -9,7 +9,7 @@ a week when they joined, and 10 now".
 
 | Piece | Where | What it holds |
 |---|---|---|
-| Settings | `config/questionnaire.php` → `cuztomisable.questionnaire` | On/off, required or not, option sources, writable tables |
+| Settings | `config/questionnaire.php` → `cuztomisable.questionnaire` | On/off, required or not, option sources, the tables and columns answers may be written into |
 | Questions | `questionnaire_questions` table | One row per question, seeded by the host app. Text fields hold **language keys** |
 | Answers | `questionnaire_answers` table | The user's answer to each question - final once given |
 | Current values | The question's `target_table.target_column` | Updated every time the answer is saved, so the app can change it later |
@@ -32,31 +32,40 @@ return [
     'sources' => [
         'drinks' => App\Questionnaire\Sources\Drinks::class,
     ],
-    // Answers may only be written into these tables
-    'writable_tables' => ['users'],
+    // The only tables and columns answers may be written into - nothing else is ever touched
+    'allowed_tables' => [
+        'users' => ['over_21', 'favorite_drink_id'],
+        'runner_profiles' => ['weekly_miles'],
+    ],
 ];
 ```
 
 ## Questions
 
-Seed them from the host app. `key` is the stable name everything else refers to, so seed with
-`updateOrCreate(['key' => ...])` and the seeder can be re-run safely.
+List them in the host app's `config/cuztomisable/questionnaire.php` under `questions`, keyed by question key and in
+the order they're asked, then load them with the package seeder (call it from your `DatabaseSeeder`):
+
+```
+php artisan db:seed --class="VanDmade\Cuztomisable\Database\Seeders\QuestionnaireSeeder"
+```
+
+It matches questions by key, so re-running it updates them, and questions added in the admin area that aren't in the
+config are left alone. Questions can also be added, edited, reordered and deleted in the admin area (`manage-questionnaire`).
 
 ```php
-use VanDmade\Cuztomisable\Models\Questionnaire\Question;
-
-Question::updateOrCreate(['key' => 'weekly_miles'], [
-    'order' => 7,
-    'type' => 'number',
-    'title' => 'questionnaire.weekly_miles.title',
-    'description' => 'questionnaire.weekly_miles.description',
-    'settings' => ['min' => 0, 'max' => 500],
-    // The answer is also written to runner_profiles.weekly_miles where user_id is the user
-    'target_table' => 'runner_profiles',
-    'target_column' => 'weekly_miles',
-    'target_key' => 'user_id',
-    'required' => true,
-]);
+'questions' => [
+    'weekly_miles' => [
+        'type' => 'number',
+        'title' => 'questionnaire.weekly_miles.title',
+        'description' => 'questionnaire.weekly_miles.description',
+        'settings' => ['min' => 0, 'max' => 500],
+        // The answer is also written to runner_profiles.weekly_miles where user_id is the user
+        'target_table' => 'runner_profiles',
+        'target_column' => 'weekly_miles',
+        'target_key' => 'user_id',
+        'required' => true,
+    ],
+],
 ```
 
 | Column | Notes |
@@ -67,7 +76,7 @@ Question::updateOrCreate(['key' => 'weekly_miles'], [
 | `options` | Fixed choices for `select` / `multi_select`: `[{"value": "weekly", "label": "questionnaire.frequency.weekly"}]` |
 | `source` | Or a key from `cuztomisable.questionnaire.sources` for choices from your own data |
 | `settings` | `allow_other` + `other_label` (an "I can't find it" choice), `placeholder`, `min` / `max` (numbers, or the max length of text) |
-| `target_table`, `target_column` | Where the current value lives. Leave empty to only keep the first answer |
+| `target_table`, `target_column` | Where the current value lives - must be listed in `allowed_tables`, or nothing is written. Leave empty to only keep the first answer |
 | `target_key` | The column on `target_table` holding the user's id - `id` when the target is `users` itself. A missing row is created |
 | `required`, `active` | Optional questions don't hold up finishing; inactive ones aren't asked |
 

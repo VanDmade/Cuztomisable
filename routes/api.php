@@ -204,6 +204,14 @@ Route::group(['middleware' => ['auth:sanctum', 'require-current-terms']], functi
             ->middleware('throttler:questionnaire.options,actor');
         Route::post('/questionnaire', 'save')
             ->middleware('throttler:questionnaire.save,actor');
+        // Managing the questions - admin area
+        Route::middleware(['permission:manage-questionnaire'])->group(function() {
+            Route::get('/questionnaire/questions', 'adminList');
+            Route::post('/questionnaire/questions/order', 'adminReorder');
+            Route::get('/questionnaire/question/{id}', 'adminGet');
+            Route::post('/questionnaire/question/{id?}', 'adminSave');
+            Route::delete('/questionnaire/question/{id}', 'adminDelete');
+        });
     });
     Route::controller(TermsController::class)->group(function() {
         Route::get('/terms/status', 'status');

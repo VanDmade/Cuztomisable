@@ -178,6 +178,12 @@ export default {
                 adminChildren.push({ route: 'roles', text: 'Roles', icon: 'security' });
                 adminChildren.push({ route: 'permissions', text: 'Permissions', icon: 'verified_user' });
             }
+            if (this.$store.getters.hasPermission('manage-questionnaire')) {
+                if (adminChildren.length) {
+                    adminChildren.push({ divider: true });
+                }
+                adminChildren.push({ route: 'questionnaire', text: 'Questionnaire', icon: 'quiz' });
+            }
             if (adminChildren.length) {
                 // Desktop already has this in the sidebar - only show it here in the mobile menu.
                 links.push({ text: 'Administrator', icon: 'admin_panel_settings', children: adminChildren, mobileOnly: true });

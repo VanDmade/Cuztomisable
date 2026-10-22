@@ -4,6 +4,7 @@ namespace VanDmade\Cuztomisable\Services;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -139,6 +140,141 @@ final class QuestionnaireService
         ];
     }
 
+    /* ---------------- Admin ---------------- */
+
+    /** Every question, in use or not, with its text translated and how many people have answered it. */
+    public function adminList(): array
+    {
+        return Question::withCount('answers')->orderBy('order')->orderBy('id')->get()
+            ->map(fn(Question $question) => [
+                'id' => $question->id,
+                'key' => $question->key,
+                'order' => $question->order,
+                'type' => $question->type,
+                'title' => $this->translate($question->title),
+                'title_key' => $question->title,
+                'target' => $question->target_table ? $question->target_table.'.'.$question->target_column : null,
+                'required' => $question->required,
+                'active' => $question->active,
+                'answers' => $question->answers_count,
+            ])->values()->all();
+    }
+
+    /** What the admin form can pick from - question types, option sources and the tables answers may go into. */
+    public function adminChoices(): array
+    {
+        return [
+            'types' => Question::TYPES,
+            'sources' => array_keys((array) config('cuztomisable.questionnaire.sources', [])),
+            // table => the columns allowed on it
+            'tables' => $this->allowedTables(),
+        ];
+    }
+
+    /** A question as the admin form edits it - the stored language keys, with its settings laid flat. */
+    public function adminGet(int $id): array
+    {
+        $question = Question::findOrFail($id);
+        return [
+            'id' => $question->id,
+            'key' => $question->key,
+            'order' => $question->order,
+            'type' => $question->type,
+            'title' => $question->title,
+            'subtitle' => $question->subtitle,
+            'description' => $question->description,
+            'image' => $question->image,
+            'source' => $question->source,
+            'options' => array_map(fn($option) => [
+                'value' => is_bool($option['value']) ? ($option['value'] ? 'true' : 'false') : (string) $option['value'],
+                'label' => $option['label'] ?? '',
+            ], $question->options ?? []),
+            'allow_other' => (bool) $question->setting('allow_other', false),
+            'other_label' => $question->setting('other_label'),
+            'placeholder' => $question->setting('placeholder'),
+            'min' => $question->setting('min'),
+            'max' => $question->setting('max'),
+            'target_table' => $question->target_table,
+            'target_column' => $question->target_column,
+            'target_key' => $question->target_key,
+            'required' => $question->required,
+            'active' => $question->active,
+        ];
+    }
+
+    /** Puts the questions in the given order - ids first to last. */
+    public function adminReorder(array $ids): void
+    {
+        DB::transaction(function() use ($ids) {
+            foreach (array_values($ids) as $position => $id) {
+                Question::whereKey($id)->update(['order' => $position + 1]);
+            }
+        });
+    }
+
+    /**
+     * Soft-deletes a question - it's no longer asked or listed, and the answers to it stay. Its key gets a suffix so
+     * the key can be used again for a new question.
+     */
+    public function adminDelete(int $id): void
+    {
+        DB::transaction(function() use ($id) {
+            $question = Question::findOrFail($id);
+            $question->key = mb_substr($question->key, 0, 200).'__deleted_'.$question->id;
+            $question->save();
+            $question->softDelete();
+        });
+    }
+
+    /** Adds or updates a question from the admin form. */
+    public function adminSave(array $data, ?int $id = null): Question
+    {
+        $question = $id ? Question::findOrFail($id) : new Question();
+        // Form posts send empty fields as empty text - those are stored as nothing
+        $data = array_map(fn($value) => $value === '' ? null : $value, $data);
+        // A new image is uploaded and its address stored; otherwise the one already there is kept (or removed)
+        if (($data['image_file'] ?? null) instanceof UploadedFile) {
+            $upload = app(ImageService::class)->upload($data['image_file'], 'questionnaire');
+            if (!$upload) {
+                throw new Exception(__('cuztomisable/questionnaire.admin.errors.image_failed'), 422);
+            }
+            $data['image'] = $upload->full_url;
+        }
+        $choices = in_array($data['type'], ['select', 'multi_select'], true);
+        $settings = array_filter([
+            'allow_other' => !empty($data['allow_other']) ? true : null,
+            'other_label' => $data['other_label'] ?? null,
+            'placeholder' => $data['placeholder'] ?? null,
+            'min' => $data['min'] ?? null,
+            'max' => $data['max'] ?? null,
+        ], fn($value) => $value !== null && $value !== '');
+        $question->fill([
+            'key' => $data['key'],
+            'order' => (int) $data['order'],
+            'type' => $data['type'],
+            'title' => $data['title'],
+            'subtitle' => $data['subtitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            'image' => $data['image'] ?? null,
+            'source' => $choices ? ($data['source'] ?? null) : null,
+            // A yes / no question's choices are true and false, not the words typed in
+            'options' => $choices || $data['type'] === 'boolean'
+                ? (empty($data['options']) || !empty($data['source']) ? null : array_map(fn($option) => [
+                    'value' => $data['type'] === 'boolean' ? filter_var($option['value'], FILTER_VALIDATE_BOOLEAN) : $option['value'],
+                    'label' => $option['label'],
+                ], $data['options']))
+                : null,
+            'settings' => $settings ?: null,
+            'target_table' => $data['target_table'] ?? null,
+            'target_column' => !empty($data['target_table']) ? ($data['target_column'] ?? null) : null,
+            'target_key' => $data['target_key'],
+            'required' => (bool) ($data['required'] ?? false),
+            'active' => (bool) ($data['active'] ?? false),
+        ]);
+        $question->save();
+        return $question;
+    }
+
     private function find(string $key): Question
     {
         $question = Question::where('active', true)->where('key', $key)->first();
@@ -247,6 +383,20 @@ final class QuestionnaireService
         return $answer;
     }
 
+    /** config('cuztomisable.questionnaire.allowed_tables'), as table => list of column names. */
+    public function allowedTables(): array
+    {
+        return collect((array) config('cuztomisable.questionnaire.allowed_tables', []))
+            ->map(fn($columns) => array_values((array) $columns))
+            ->all();
+    }
+
+    /** Whether answers may be written into this table's column. */
+    public function allowedColumn(?string $table, ?string $column): bool
+    {
+        return $table !== null && $column !== null && in_array($column, $this->allowedTables()[$table] ?? [], true);
+    }
+
     /** Copies the answer onto the column the question points at, creating the row if the table needs one. */
     private function writeTarget(Model $user, Question $question, mixed $value): void
     {
@@ -254,7 +404,7 @@ final class QuestionnaireService
             return;
         }
         $table = $question->target_table;
-        if (!in_array($table, (array) config('cuztomisable.questionnaire.writable_tables', []), true) ||
+        if (!$this->allowedColumn($table, $question->target_column) ||
             !Schema::hasColumn($table, $question->target_column) ||
             !Schema::hasColumn($table, $question->target_key)) {
             throw new Exception(__('cuztomisable/questionnaire.errors.invalid_target', ['key' => $question->key]), 500);

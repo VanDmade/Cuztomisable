@@ -1878,7 +1878,8 @@ input:-webkit-autofill {
         border-color: $color-secondary;
     }
     .cz-upload-description {
-        font-size: 0.6em;
+        // Same size as the .notes text used for hints elsewhere
+        font-size: 12px;
         color: #666;
         margin-top: 1em;
     }
@@ -2089,7 +2090,8 @@ input:-webkit-autofill {
     }
 }
 .input-group > .form-control.cz-form-control-color {
-    height: inherit;
+    // Same height as the floating-label inputs beside it - "inherit" fell back to Bootstrap's shorter color input
+    height: calc(3.5rem + 2px);
     flex: 0 0 4em;
 }
 .cz-form-phone {

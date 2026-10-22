@@ -63,6 +63,7 @@ const ROUTES = {
     permissions: '/permissions',
     'error-logs': '/logs/error',
     settings: '/settings',
+    questionnaire: '/questionnaire',
     message: '/message',
 };
 const ROUTE_META = {
@@ -80,6 +81,7 @@ const ROUTE_META = {
     permissions: { authentication: true, permissions: 'manage-roles-permissions' },
     'error-logs': { authentication: true, permissions: 'view-logs' },
     settings: { authentication: true, permissions: 'manage-settings' },
+    questionnaire: { authentication: true, permissions: 'manage-questionnaire' },
     message: { authentication: false, layout: 'login-layout' },
 };
 function normalizePath(pathname = '/') {
@@ -124,6 +126,7 @@ function buildPath(name, params = {}) {
         case 'permissions': return '/permissions';
         case 'error-logs': return '/logs/error';
         case 'settings': return '/settings';
+        case 'questionnaire': return '/questionnaire';
         case 'message': return '/message';
         default: return ROUTES[name] ?? '/';
     }
@@ -185,6 +188,8 @@ function parseRouteFromUrl(url) {
         route.name = 'error-logs';
     } else if (path === '/settings') {
         route.name = 'settings';
+    } else if (path === '/questionnaire') {
+        route.name = 'questionnaire';
     } else if (path === '/message') {
         route.name = 'message';
     }

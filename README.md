@@ -86,7 +86,7 @@ Merge-only config files (not published, edit host-side `config/cuztomisable.php`
 | `passwords.php` | `cuztomisable.account.passwords` | Forgot/reset delivery channels, timing between resends, password-reuse rules |
 | `rate_limits.php` | `cuztomisable.rate_limits` | Per-action throttle attempts/decay, with a `default` fallback |
 | `social.php` | `cuztomisable.social` | Master social-login switch, and per-provider enabled flag, button label, logo flag, and `client_id`/`client_secret`/`redirect` |
-| `questionnaire.php` | `cuztomisable.questionnaire` | Sign-up questionnaire on/off and required, option sources, writable tables - see [docs/13-questionnaire.md](docs/13-questionnaire.md) |
+| `questionnaire.php` | `cuztomisable.questionnaire` | Sign-up questionnaire on/off and required, option sources, the tables and columns answers may be written into - see [docs/13-questionnaire.md](docs/13-questionnaire.md) |
 
 ## API surface
 

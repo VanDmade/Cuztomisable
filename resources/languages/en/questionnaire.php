@@ -4,6 +4,24 @@ return [
     'other' => 'I can\'t find it',
     'saved' => 'Your answers were saved.',
     'completed' => 'Thanks - you\'re all set!',
+    'admin' => [
+        'saved' => 'The question was saved.',
+        'reordered' => 'The questions were reordered.',
+        'deleted' => 'The question was deleted. Answers already given to it are kept.',
+        'errors' => [
+            'choices_required' => 'Add at least one choice, or pick where the choices come from.',
+            'column_missing' => 'The :table table has no column with that name.',
+            'column_not_allowed' => 'Answers can\'t be saved to that column of :table - it isn\'t listed in the questionnaire\'s allowed_tables.',
+            'image_failed' => 'The image could not be uploaded.',
+        ],
+        'attributes' => [
+            'option_value' => 'choice value',
+            'option_label' => 'choice label',
+            'target_table' => 'table',
+            'target_column' => 'column',
+            'target_key' => 'ID',
+        ],
+    ],
     'errors' => [
         'must_complete' => 'Please finish the questionnaire before continuing.',
         'unknown_question' => 'That question doesn\'t exist.',

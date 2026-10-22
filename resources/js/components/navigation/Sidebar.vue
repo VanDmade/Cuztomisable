@@ -56,6 +56,14 @@
                     <span class="material-icons" aria-hidden="true">bug_report</span>
                 </router-link>
                 <router-link
+                    v-if="$store.getters.hasPermission('manage-questionnaire')"
+                    :to="{ name: 'questionnaire' }"
+                    class="sidebar-link"
+                    :class="{ 'sidebar-link--active': $route.name === 'questionnaire' }"
+                    data-tooltip="Questionnaire">
+                    <span class="material-icons" aria-hidden="true">quiz</span>
+                </router-link>
+                <router-link
                     v-if="$store.getters.hasPermission('manage-settings')"
                     :to="{ name: 'settings' }"
                     class="sidebar-link"
@@ -72,7 +80,7 @@ export default {
     computed: {
         hasAdminLinks: function() {
             return this.$store.getters.hasPermission(
-                'view-users|manage-users|invite-users|manage-roles-permissions|view-logs|manage-settings'
+                'view-users|manage-users|invite-users|manage-roles-permissions|view-logs|manage-questionnaire|manage-settings'
             );
         },
         hasContent: function() {

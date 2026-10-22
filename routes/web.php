@@ -26,4 +26,5 @@ Route::middleware(['auth:sanctum'])->group(function() {
     Route::get('/permissions', fn() => Inertia::render('permissions/Table'))->name('page.permissions');
     Route::get('/logs/error', fn() => Inertia::render('logs/Table'))->name('page.logs.error');
     Route::get('/settings', fn() => Inertia::render('settings/Table'))->name('page.settings');
+    Route::get('/questionnaire', fn() => Inertia::render('questionnaire/Table'))->name('page.questionnaire');
 });
