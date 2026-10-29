@@ -274,11 +274,15 @@ export default {
             }
         },
         'form.target_table': function(table) {
-            if (this.loading) return;
+            if (this.loading) {
+                return;
+            }
             // The users table's own id is the user, anything else points back at it
             this.form.target_key = table === 'users' || table === NONE ? 'id' : 'user_id';
             // A column from the old table isn't one of the new table's
-            if (!(this.choices.tables?.[table] ?? []).includes(this.form.target_column)) this.form.target_column = '';
+            if (!(this.choices.tables?.[table] ?? []).includes(this.form.target_column)) {
+                this.form.target_column = '';
+            }
         },
     },
     props: {

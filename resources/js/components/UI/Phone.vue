@@ -91,7 +91,9 @@ export default {
                 return this.modelValue;
             },
             set: function (value) {
-                if (!value) return;
+                if (!value) {
+                    return;
+                }
                 value.mobile = this.isMobile;
                 value.default = this.isDefault;
                 if (typeof(value.country_code) !== 'undefined' && value.country_code == '') {

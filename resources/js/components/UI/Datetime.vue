@@ -209,20 +209,30 @@ export default {
         },
         build: function(date, hour, minute, second) {
             const time = `${pad(hour)}:${pad(minute)}` + (this.seconds ? `:${pad(second)}` : '');
-            if (this.mode === 'date') return date;
-            if (this.mode === 'time') return time;
+            if (this.mode === 'date') {
+                return date;
+            }
+            if (this.mode === 'time') {
+                return time;
+            }
             return `${date} ${time}`;
         },
         resolveBound: function(value) {
-            if (value !== 'now') return value;
+            if (value !== 'now') {
+                return value;
+            }
             const now = this.now;
             return this.build(fromDate(now), now.getHours(), now.getMinutes(), now.getSeconds());
         },
         normalizeBound: function(value, isMax) {
             const parts = this.parse(this.resolveBound(value));
-            if (this.hasDate && !parts.date) return null;
+            if (this.hasDate && !parts.date) {
+                return null;
+            }
             if (this.hasTime && parts.hour == null) {
-                if (this.mode === 'time') return null;
+                if (this.mode === 'time') {
+                    return null;
+                }
                 // A date-only bound on a datetime picker covers that whole day
                 parts.hour = isMax ? 23 : 0;
                 parts.minute = isMax ? 59 : 0;
@@ -231,8 +241,12 @@ export default {
             return this.build(parts.date, parts.hour, parts.minute, parts.second);
         },
         clamp: function(value) {
-            if (this.minValue && value < this.minValue) return this.minValue;
-            if (this.maxValue && value > this.maxValue) return this.maxValue;
+            if (this.minValue && value < this.minValue) {
+                return this.minValue;
+            }
+            if (this.maxValue && value > this.maxValue) {
+                return this.maxValue;
+            }
             return value;
         },
         emitValue: function(value) {
@@ -293,7 +307,9 @@ export default {
         position: function() {
             const input = this.$refs.input;
             const panel = this.$refs.panel;
-            if (!input || !panel) return;
+            if (!input || !panel) {
+                return;
+            }
             const rect = input.getBoundingClientRect();
             const below = window.innerHeight - rect.bottom;
             this.dropUp = below < panel.offsetHeight + 8 && rect.top > below;
@@ -309,8 +325,12 @@ export default {
             });
         },
         clampDate: function(iso) {
-            if (this.minDate && iso < this.minDate) return this.minDate;
-            if (this.maxDate && iso > this.maxDate) return this.maxDate;
+            if (this.minDate && iso < this.minDate) {
+                return this.minDate;
+            }
+            if (this.maxDate && iso > this.maxDate) {
+                return this.maxDate;
+            }
             return iso;
         },
         shiftMonth: function(delta) {
@@ -367,7 +387,9 @@ export default {
             this.emitValue(this.build(date, time.hour, time.minute, time.second));
         },
         selectMeridiem: function(meridiem) {
-            if (meridiem === this.currentMeridiem) return;
+            if (meridiem === this.currentMeridiem) {
+                return;
+            }
             this.selectTime({ hour: (this.currentTime.hour + 12) % 24 });
         },
         setNow: function() {

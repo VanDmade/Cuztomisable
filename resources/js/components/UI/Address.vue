@@ -94,7 +94,9 @@ export default {
                 return this.modelValue;
             },
             set: function (value) {
-                if (!value) return;
+                if (!value) {
+                    return;
+                }
                 value.shipping = this.isShipping;
                 value.billing = this.isBilling;
                 if (typeof(value.country) !== 'undefined' && value.country == '') {

@@ -162,7 +162,9 @@ function parseRouteFromUrl(url) {
     } else if (path.startsWith('/registration')) {
         route.name = 'registration';
         const code = path.split('/')[2];
-        if (code) route.params.code = code;
+        if (code) {
+            route.params.code = code;
+        }
     } else if (path === '/forgot') {
         route.name = 'forgot';
     } else if (path.startsWith('/reset/')) {
@@ -409,20 +411,28 @@ export async function loadCuztomisableApp() {
                             value = parts[1];
                         }
                         const format = '(XXX) XXX-XXXX';
-                        if (!value) return value;
+                        if (!value) {
+                            return value;
+                        }
                         const digits = value.replace(/\D/g, '');
                         let formatted = '', i = 0;
                         for (const c of format) {
                             formatted += c === 'X' ? (digits[i++] ?? '') : c;
-                            if (i >= digits.length) break;
+                            if (i >= digits.length) {
+                                break;
+                            }
                         }
                         return (code ? `+${code} ` : '') + formatted;
                     },
                     formatDate: function(input, type = 'en-US', options = {}) {
-                        if (!input) return '';
+                        if (!input) {
+                            return '';
+                        }
                         const normalized = input.replace(' ', 'T').replace('Z', '') + 'Z';
                         const date = new Date(normalized);
-                        if (isNaN(date.getTime())) return input;
+                        if (isNaN(date.getTime())) {
+                            return input;
+                        }
                         const hasTime = /\d{2}:\d{2}/.test(input);
                         const defaults = hasTime
                             ? { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' }

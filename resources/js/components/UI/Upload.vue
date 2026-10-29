@@ -87,7 +87,9 @@ export default {
             // In single mode clear everything; in multiple mode the existing
             // thumbnails stay — we only append (or reject) the new ones.
             if (!this.multiple) {
-                if (container) container.innerHTML = '';
+                if (container) {
+                    container.innerHTML = '';
+                }
                 this.previewSrc = this.default;
             }
             var _this = this;
@@ -271,7 +273,9 @@ export default {
             handler: function(value) {
                 if (value == '') {
                     const container = document.getElementById(this.id + '-container');
-                    if (container) container.innerHTML = '';
+                    if (container) {
+                        container.innerHTML = '';
+                    }
                     this.previewSrc = this.default;
                     this.total = 0;
                     this.selected = false;

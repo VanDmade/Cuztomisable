@@ -35,15 +35,21 @@ export default {
                 return this.value;
             }
             const value = Number(this.value) || 0;
-            if (value >= 1000000) return (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-            if (value >= 10000) return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            if (value >= 1000000) {
+                return (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+            }
+            if (value >= 10000) {
+                return (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+            }
             return value.toLocaleString();
         },
         change: function() {
             return this.previous === null || this.previous === undefined ? null : (Number(this.value) || 0) - Number(this.previous);
         },
         changeText: function() {
-            if (this.change === 0) return 'No change';
+            if (this.change === 0) {
+                return 'No change';
+            }
             const sign = this.change > 0 ? '+' : '−';
             const amount = Math.abs(this.change).toLocaleString();
             // A percentage only means something when there was something to compare against
@@ -51,7 +57,9 @@ export default {
             return `${sign}${amount}${percent}`;
         },
         deltaClass: function() {
-            if (!this.change) return 'cz-stat-tile__delta--flat';
+            if (!this.change) {
+                return 'cz-stat-tile__delta--flat';
+            }
             return (this.change > 0) === this.upIsGood ? 'cz-stat-tile__delta--good' : 'cz-stat-tile__delta--bad';
         },
         sparkMax: function() {

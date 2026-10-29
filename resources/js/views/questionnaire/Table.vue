@@ -123,7 +123,9 @@ export default {
             event.dataTransfer.setData('text/plain', String(index));
         },
         drop: function(index) {
-            if (this.dragIndex === null || this.dragIndex === index) return;
+            if (this.dragIndex === null || this.dragIndex === index) {
+                return;
+            }
             const moved = this.questions.splice(this.dragIndex, 1)[0];
             this.questions.splice(index, 0, moved);
             this.saveOrder();

@@ -41,7 +41,9 @@ export default {
     },
     mounted: function() {
         const target = document.getElementById(this.elementId);
-        if (!target) return;
+        if (!target) {
+            return;
+        }
         const observer = new IntersectionObserver(([entry], obs) => {
             if (entry.isIntersecting) {
                 setTimeout(() => {

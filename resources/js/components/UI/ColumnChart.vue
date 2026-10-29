@@ -108,7 +108,9 @@ export default {
         // Round, readable top of the scale, never 0 (so an empty chart still has an axis)
         max: function() {
             const top = Math.max(0, ...this.labels.map((label, i) => this.total(i)));
-            if (top <= 4) return 4;
+            if (top <= 4) {
+                return 4;
+            }
             const magnitude = Math.pow(10, Math.floor(Math.log10(top)));
             const step = [1, 2, 2.5, 5, 10].find((n) => n * magnitude >= top / 4) * magnitude;
             return Math.ceil(top / step) * step;
@@ -160,8 +162,12 @@ export default {
             return this.labels[i] + ': ' + this.series.map((item) => (item.name ? item.name + ' ' : '') + (item.values[i] ?? 0)).join(', ');
         },
         compact: function(value) {
-            if (value >= 1000000) return (value / 1000000).toFixed(value % 1000000 ? 1 : 0) + 'M';
-            if (value >= 1000) return (value / 1000).toFixed(value % 1000 ? 1 : 0) + 'K';
+            if (value >= 1000000) {
+                return (value / 1000000).toFixed(value % 1000000 ? 1 : 0) + 'M';
+            }
+            if (value >= 1000) {
+                return (value / 1000).toFixed(value % 1000 ? 1 : 0) + 'K';
+            }
             return String(Math.round(value * 10) / 10);
         },
     },
