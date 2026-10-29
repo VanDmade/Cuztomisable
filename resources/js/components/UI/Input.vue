@@ -11,6 +11,7 @@
                 'empty': value === '' || value === null || value === undefined,
                 'cz-form-control--has-toggle': type == 'password',
                 'cz-form-control--has-append': !!append,
+                'cz-form-control--has-color': color !== null,
             }, inputClass]"
             :disabled="disabled"
             :readonly="readonly"
@@ -29,6 +30,15 @@
             <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
         </button>
         <label v-if="label != null && label != ''" :for="id" class="cz-form-label">{{ label }}</label>
+        <!-- A color square attached to the right of the input (v-model:color), e.g. a tag's name and its color -->
+        <input
+            v-if="color !== null"
+            type="color"
+            class="cz-form-input-color"
+            :value="color"
+            :disabled="disabled"
+            :aria-label="(label || 'Value') + ' color'"
+            @input="$emit('update:color', $event.target.value)">
         <div v-if="!hideDetails || link" class="cz-form-input-footer">
             <ul v-if="!hideDetails" class="form-errors cz-form-errors mb-2">
                 <li v-for="(error, i) in errorList" :key="id+'-error-'+i" class="form-error cz-form-error">{{ error }}</li>
@@ -123,6 +133,8 @@ export default {
         linkText: { type: String, default: '' },
         // Text shown inside the end of the input, e.g. a unit like "mi"
         append: { type: String, default: null },
+        // A color picked alongside the value - set it (v-model:color) to get a color square attached to the input
+        color: { type: String, default: null },
     }
 }
 </script>

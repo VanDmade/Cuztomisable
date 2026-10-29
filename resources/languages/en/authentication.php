@@ -8,6 +8,7 @@ return [
         'errors' => [
             'locked' => 'This account is currently locked.',
             'invalid_credentials' => 'The credentials are invalid.',
+            'admins_only' => 'This website is for administrators only. Please sign in with the app instead.',
             'attempts' => 'Your account is currently disabled due to too many attempts. Please come back later.',
             'verification' => [
                 'email_required' => 'Please verify your email address before continuing.',

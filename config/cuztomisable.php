@@ -55,6 +55,8 @@ return [
         'remember' => false,
         // Name of the cookie used to store the web auth token.
         'cookie_name' => 'api_token',
+        // Only admins may sign in on the website; everyone else is turned away there (the mobile app is unaffected)
+        'admins_only_on_web' => false,
         // Seconds before the session expires. Null for no limit.
         'session_length' => 900,
         'attempts' => [

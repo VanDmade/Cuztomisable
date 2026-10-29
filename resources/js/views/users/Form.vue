@@ -4,7 +4,7 @@
         <template v-if="!loading">
             <div class="card pa-6 mb-4 cz-user-summary">
                 <cz-image
-                    :src="imageUrl"
+                    :src="savedImage || $url+'profile.png'"
                     alt="User Image"
                     img-class="cz-image cz-user-summary-image"
                     v-model="form.image"
@@ -220,7 +220,8 @@ export default {
             loading: false,
             submitting: false,
             errors: [],
-            imageUrl: this.$url+'profile.png',
+            // The photo the user had when the form loaded - removing it (the × on the image) only clears it on save
+            savedImage: null,
             tab: 'details',
             form: {},
             // Snapshot of the Details fields right after load, so editing them (without saving)
@@ -278,6 +279,7 @@ export default {
             let id = this.$route.params.id;
             axios.get(`/user/${id}`).then(({ data }) => {
                 this.form = this.clone(data.user);
+                this.savedImage = data.user?.image || null;
             }).catch((error) => {
 
             }).finally(() => {
@@ -296,7 +298,12 @@ export default {
             let id = this.$route.params.id;
             let formData = new FormData();
             formData.append('name', this.form.name ?? '');
-            formData.append('image', this.form.image ?? '');
+            // Only a newly picked file is sent - a saved photo comes back as its URL, which isn't an upload
+            if (this.form.image instanceof File) {
+                formData.append('image', this.form.image);
+            } else if (this.savedImage && !this.form.image) {
+                formData.append('clear_image', '1');
+            }
             if (!this.$cuztomisable.login_with.email && !this.$cuztomisable.login_with.phone) {
                 formData.append('username', this.form.username ?? '');
             }
@@ -306,18 +313,23 @@ export default {
             formData.append('timezone_auto', this.form.timezone_auto === false ? '0' : '1');
             formData.append('timezone', this.form.timezone_auto === false ? (this.form.timezone ?? '') : '');
             if (this.$cuztomisable.registration.address !== false) {
-                formData.append('address', this.form.address?.address);
-                formData.append('address_two', this.form.address?.address_two);
-                formData.append('address_three', this.form.address?.address_three);
-                formData.append('city', this.form.address?.city);
-                formData.append('state_or_province', this.form.address?.state_or_province);
-                formData.append('zip_or_postal_code', this.form.address?.zip_or_postal_code);
-                formData.append('country', this.form.address?.country);
+                formData.append('address', this.form.address?.address ?? '');
+                formData.append('address_two', this.form.address?.address_two ?? '');
+                formData.append('address_three', this.form.address?.address_three ?? '');
+                formData.append('city', this.form.address?.city ?? '');
+                formData.append('state_or_province', this.form.address?.state_or_province ?? '');
+                formData.append('zip_or_postal_code', this.form.address?.zip_or_postal_code ?? '');
+                formData.append('country', this.form.address?.country ?? '');
             }
             this.submitting = true;
             formData = this.cleanFormData(formData);
-            axios.post(`/user/${id}`, formData).then(({ data }) => {
+            // No id means your own account, which is saved through the profile route
+            axios.post(id ? `/user/${id}` : '/profile', formData).then(({ data }) => {
                 this.$message.push({ text: data.message });
+                if (data.user) {
+                    this.savedImage = data.user.image || null;
+                    this.form.image = data.user.image || '';
+                }
                 this.snapshotDetails();
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
@@ -349,6 +361,7 @@ export default {
                 let id = this.$route.params.id;
                 if (id == '' || typeof(id) == 'undefined') {
                     this.form = user ?? {};
+                    this.savedImage = user?.image || null;
                     setTimeout(() => {
                         this.loading = false;
                         this.$nextTick(() => this.snapshotDetails());

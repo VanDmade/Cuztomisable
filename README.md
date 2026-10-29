@@ -147,6 +147,8 @@ Compose these into a host app's own User model instead of using `Models\Users\Us
 
 A Vue 3 SPA wired through **Inertia.js**, not vue-router — `resources/js/cuztomisable.js` is the real entry point: it resolves pages from `resources/js/views/**/*.vue`, wraps them in a login or portal layout automatically, and implements Inertia-native navigation (`$route`/`$router`/`RouterLinkCompat`) instead of a client router. It also registers the shared `cz-*` component library (table, forms, inputs, modals, uploads, etc.), wires up the Vuex store, and handles auth-check/timezone-sync/guest-redirect on boot.
 
+Charts: `cz-stat-tile` (a headline number with its change against the previous period and a sparkline; pass `to` to make it a link) and `cz-column-chart` (a value per period, one series or stacked, with a hover/focus tooltip, a legend for two or more series and a built-in table view). Both are plain SVG - no chart library.
+
 ## What's left to build
 
 - **OTP/TOTP authenticator support** — not built. A prior scaffold (empty model/services and a migration) was removed; this will be added back as a real feature later.

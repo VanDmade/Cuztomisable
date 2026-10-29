@@ -1,21 +1,19 @@
 <template>
-    <div id="profile-page">
+    <div id="profile-page" class="page">
         <div class="card pa-6" style="max-width: 600px; margin: auto;">
             <div class="d-flex align-items-center position-relative">
-                <div class="position-relative me-3 cz-image-input" style="height: 100px; width: 100px;">
-                    <label for="cz-image-upload" class="position-relative me-3 cz-image-input" style="cursor: pointer; height: inherit; width: inherit;">
-                        <cz-image :src="preview || user?.image"
-                            alt="User Photo"
-                            img-class="rounded-circle cz-image" />
-                        <span class="position-absolute cz-image-toggle translate-middle">✎</span>
-                        <input
-                            type="file"
-                            id="cz-image-upload"
-                            class="d-none"
-                            accept="image/*"
-                            @change="handleChange" />
-                    </label>
-                </div>
+                <label for="cz-image-upload" class="position-relative me-3 cz-image-input" title="Change photo">
+                    <cz-image :src="preview || user?.image || $url+'profile.png'"
+                        alt="User Photo"
+                        img-class="rounded-circle cz-image" />
+                    <span class="cz-image-toggle material-icons" aria-hidden="true">edit</span>
+                    <input
+                        type="file"
+                        id="cz-image-upload"
+                        class="d-none"
+                        accept="image/*"
+                        @change="handleChange" />
+                </label>
                 <div>
                     <h4 class="mb-0">{{ user?.name }}</h4>
                     <small class="text-muted">{{ user?.email }}</small>
@@ -76,53 +74,73 @@
     </div>
 </template>
 <script>
+const ADDRESS_FIELDS = ['address', 'address_two', 'address_three', 'city', 'state_or_province', 'zip_or_postal_code', 'country'];
+
+// Anything missing on the saved user (including old rows saved as the word "null") becomes an empty string, so no
+// field can ever show "null" (or send it back)
+const text = (value) => value === null || value === undefined || value === 'null' || value === 'undefined' ? '' : String(value);
+
 export default {
     data: function() {
         return {
             submitting: false,
             errors: [],
-            preview: this.$url+'profile.png',
+            // Only set once a new photo is picked - until then the saved one (or the placeholder) shows
+            preview: null,
             user: this.$store.state.user,
             form: {},
         }
     },
     methods: {
+        formFrom: function(user) {
+            const address = {};
+            for (const field of ADDRESS_FIELDS) {
+                address[field] = text(user.address?.[field]);
+            }
+            return {
+                name: text(user.name),
+                username: text(user.username),
+                email: text(user.email),
+                phone: { ...(user.phone ?? {}), number: text(user.phone?.number), country_code: text(user.phone?.country_code) },
+                address: address,
+                mfa: !!user.mfa,
+                image: null,
+            };
+        },
         save: function() {
             let formData = new FormData();
-            formData.append('name', this.form.name ?? '');
-            formData.append('image', this.form.image ?? '');
+            formData.append('name', text(this.form.name));
+            // Only a newly picked file is sent - the saved photo is a URL and stays as it is
+            if (this.form.image instanceof File) {
+                formData.append('image', this.form.image);
+            }
             formData.append('mfa', this.form.mfa ? '1' : '0');
             if (!this.$cuztomisable.login_with.email && !this.$cuztomisable.login_with.phone) {
-                formData.append('username', this.form.username ?? '');
+                formData.append('username', text(this.form.username));
             }
-            formData.append('email', this.form.email ?? '');
-            formData.append('phone', this.form.phone.number ?? '');
-            formData.append('country_code', this.form.phone.country_code ?? '');
-            formData.append('password', this.form.password ?? '');
+            formData.append('email', text(this.form.email));
+            formData.append('phone', text(this.form.phone?.number));
+            formData.append('country_code', text(this.form.phone?.country_code));
             if (this.$cuztomisable.registration.address !== false) {
-                formData.append('address', this.form.address.address);
-                formData.append('address_two', this.form.address.address_two);
-                formData.append('address_three', this.form.address.address_three);
-                formData.append('city', this.form.address.city);
-                formData.append('state_or_province', this.form.address.state_or_province);
-                formData.append('zip_or_postal_code', this.form.address.zip_or_postal_code);
-                formData.append('country', this.form.address.country);
+                for (const field of ADDRESS_FIELDS) {
+                    formData.append(field, text(this.form.address?.[field]));
+                }
             }
             this.submitting = true;
-            axios.post('/user', formData).then(({ data }) => {
+            axios.post('/profile', formData).then(({ data }) => {
                 this.$message.success(data.message);
+                this.errors = [];
+                if (data.user) {
+                    this.$store.commit('SET_USER', { ...this.$store.state.user, ...data.user });
+                    this.preview = null;
+                }
             }).catch(({ response }) => {
                 if (response?.data?.errors) {
                     this.errors = response.data.errors;
-                    this.errors['address'] = {
-                        address: this.errors['address'] ?? '',
-                        address_two: this.errors['address_two'] ?? '',
-                        address_three: this.errors['address_three'] ?? '',
-                        city: this.errors['city'] ?? '',
-                        state_or_province: this.errors['state_or_province'] ?? '',
-                        zip_or_postal_code: this.errors['zip_or_postal_code'] ?? '',
-                        country: this.errors['country'] ?? '',
-                    };
+                    this.errors['address'] = {};
+                    for (const field of ADDRESS_FIELDS) {
+                        this.errors['address'][field] = this.errors[field] ?? '';
+                    }
                 }
                 if (response?.data?.message) {
                     this.$message.error(response.data.message);
@@ -149,10 +167,7 @@ export default {
                 if (user == null) {
                     return;
                 }
-                if (user.address == null) {
-                    user.address = this.form.address;
-                }
-                this.form = this.clone(user);
+                this.form = this.formFrom(user);
             },
             deep: true,
         }

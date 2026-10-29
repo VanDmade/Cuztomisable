@@ -27,6 +27,18 @@ vendor/bin/phpunit --filter {test-name}
 
 ## What's covered
 
-Not written yet - per the refactor plan, test content lands at Step 16, once the full new structure (services, new feature areas) is actually built, rather than characterizing the old controller-inline code first. What exists today is scaffolding: one stub `Tests\Feature\*ControllerTest` class per current controller (`tests/Feature/`, `tests/Feature/Authentication/`, `tests/Feature/Users/`), each with an empty method per action and a comment describing the real behavior/gotchas already found while reading the controller - a head start for whoever writes the actual assertions, not a finished suite.
+The admin areas every app shares have real tests. Each one checks that the permission gate turns people away, as well as the happy path and the edge cases:
 
-Update this section for real once Step 16 happens.
+| Area | File | What it pins down |
+|---|---|---|
+| Users | `tests/Feature/Users/UserControllerTest.php` | own profile vs. another user's (view-users / manage-users), table + list, save + validation, email change re-verifies, admin-created users get a temp password, lock / reset attempts / soft delete (never your own account), MFA toggle (toggle-user-mfa for others) |
+| Invitations | `tests/Feature/Authentication/InvitationTest.php` | invite-users gate, invite emails the invitee, no duplicate pending invite, no invite for an existing account, table hides long-expired ones, resend throttle, used invites can't be resent, cancel/restore |
+| Roles | `tests/Feature/RoleControllerTest.php` | manage-roles-permissions gate, CRUD, validation, attaching permissions |
+| Permissions | `tests/Feature/PermissionControllerTest.php` | manage-roles-permissions gate, CRUD, validation |
+| Error logs | `tests/Feature/Logs/ErrorLogTest.php` | view-logs gate, the service logs with context, open-only by default / show_closed, search, closing records who + why, close_duplicates |
+| Questionnaire | `tests/Feature/QuestionnaireTest.php` | manage-questionnaire gate, add (key tidied, blanks become null) / edit / duplicate key / disallowed target table, list order + answer counts, reorder, delete keeps answers and frees the key; users see only pending active questions, answers are final, copied only to allowed_tables columns, bad choice / blank required / unknown key give 422, optional questions don't block completion, turned-off questionnaire asks nothing |
+| Settings | `tests/Feature/SettingsControllerTest.php` | public frontend payload shape, reading a registered key, unregistered keys 404/403, manage-settings vs. per-key settings-{key} permissions, overwrite, value required |
+
+`tests/Concerns/ActsAsAdmin.php` provides `actingAsUserWith('permission-slug', ...)` / `actingAsUserWithout()` / `createUser()`. `TestCase` registers a sqlite `CONCAT()` so the MySQL-flavoured user table search runs in memory.
+
+The other controller test classes (authentication, passwords, registration, etc.) are still stubs with an empty method per action plus notes on the real behaviour. PHPUnit reports those as "risky" (no assertions), not failures.

@@ -8,6 +8,8 @@ import store from './store';
 import Table from './components/UI/Table.vue';
 import Loading from './components/UI/Loading.vue';
 import Upload from './components/UI/Upload.vue';
+import ColumnChart from './components/UI/ColumnChart.vue';
+import StatTile from './components/UI/StatTile.vue';
 import Address from './components/UI/Address.vue';
 import Delete from './components/UI/Delete.vue';
 import Carousel from './components/UI/Carousel.vue';
@@ -216,6 +218,9 @@ router.on('start', (event) => {
     store.commit('SET_LOADING', true);
 });
 router.on('finish', () => {
+    // Every finished visit leaves the route matching the address bar - the start-up redirect from /login to the home
+    // page doesn't always fire 'navigate', which left $route on the login page
+    Object.assign(routeState, parseRouteFromUrl(window.location.pathname + window.location.search));
     if (!routeTransitionLoading) {
         return;
     }
@@ -310,6 +315,8 @@ export async function loadCuztomisableApp() {
                 'cz-multi': Multi,
                 'cz-checkbox': Checkbox,
                 'cz-upload': Upload,
+                'cz-column-chart': ColumnChart,
+                'cz-stat-tile': StatTile,
                 'cz-select': Select,
                 'cz-tags': Tags,
                 'cz-textarea': Textarea,
@@ -432,7 +439,7 @@ export async function loadCuztomisableApp() {
                     cleanFormData: function(fd) {
                         const cleaned = new FormData();
                         for (const [k, v] of fd.entries()) {
-                            const val = (typeof v === 'string' && v.toLowerCase() === 'null') || v == null ? '' : v;
+                            const val = (typeof v === 'string' && ['null', 'undefined'].includes(v.toLowerCase())) || v == null ? '' : v;
                             cleaned.append(k, val);
                         }
                         return cleaned;

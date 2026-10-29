@@ -24,8 +24,9 @@ export default {
         return {
             id: 'cz-file_'+Math.random().toString(36).slice(2),
             key: 0,
-            default: this.$url+'default.png',
-            previewSrc: this.$url+'default.png',
+            // What shows before anything's picked - the form's own placeholder, or the app's default image
+            default: this.placeholderImage || this.$url+'default.png',
+            previewSrc: this.placeholderImage || this.$url+'default.png',
             selected: false,
             details: {},
             total: 0,
@@ -308,6 +309,8 @@ export default {
         description: { type: String, default: null },
         disabled: { type: Boolean, default: false },
         placeholder: { type: String, default: '' },
+        // An image to show until one is picked (falls back to default.png)
+        placeholderImage: { type: String, default: null },
         hideDetails: { type: Boolean, default: false },
     }
 }
