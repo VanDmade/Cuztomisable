@@ -11,7 +11,8 @@ trait NullsToEmpty
     protected function nullsToEmpty(array $data): array
     {
         array_walk_recursive($data, function (&$value): void {
-            if ($value === null || $value === 'null') {
+            // FormData can't send a real null, so frontends send these words instead
+            if ($value === null || $value === 'null' || $value === 'undefined') {
                 $value = '';
             }
         });

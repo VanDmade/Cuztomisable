@@ -46,6 +46,10 @@ class LoginService
     // access/refresh tokens or the cookie-based session token.
     public function establishSession(Model $user, bool $isMobile = false): array
     {
+        // Password, social and (after this) MFA sign-ins all come through here, so this one check covers them all
+        if (!$isMobile && config('cuztomisable.login.admins_only_on_web', false) && !$user->admin) {
+            throw new Exception(__('cuztomisable/authentication.login.errors.admins_only'), 403);
+        }
         // Store IP Address to mark that the user has access to the account based on username/password
         $ipAddress = $user->ipAddresses()->where('ip_address', '=', getIpAddress())->first();
         if (!isset($ipAddress)) {

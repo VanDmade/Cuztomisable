@@ -37,6 +37,16 @@ abstract class TestCase extends Orchestra
         $app['config']->set('auth.guards.sanctum', ['driver' => 'sanctum', 'provider' => 'users']);
     }
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // The package's queries are written for MySQL; SQLite (the throwaway test database) has no CONCAT()
+        $pdo = $this->app['db']->connection()->getPdo();
+        if ($pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            $pdo->sqliteCreateFunction('CONCAT', fn(...$parts) => implode('', $parts));
+        }
+    }
+
     protected function defineDatabaseMigrations(): void
     {
         // Cuztomisable owns and creates its own users table

@@ -1795,6 +1795,11 @@ input:-webkit-autofill {
     }
 }
 .cz-image-input {
+    display: block;
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
     &:hover .cz-image,
     &:active .cz-image,
     &:focus .cz-image {
@@ -1806,11 +1811,24 @@ input:-webkit-autofill {
         object-fit: cover;
         border: 3px solid $color-accent;
     }
+    // Edit badge sitting on top of the accent ring (the image fades in, which would otherwise paint it over the badge)
     .cz-image-toggle {
-        font-size: 1rem;
-        right: -6px;
-        bottom: -6px;
-        cursor: pointer;
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: $color-accent;
+        color: $color-white;
+        border: 2px solid $color-white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        font-size: 16px;
+        pointer-events: none;
     }
 }
 .cz-phone-verified {
@@ -1829,6 +1847,11 @@ input:-webkit-autofill {
 }
 .cz-form-input.cz-new-entry {
     max-width: 140px;
+}
+// In an input group the fields and buttons share one height - the 2px under a field would make the row (and so every
+// button stretched to it) taller than the fields
+.input-group > .cz-form-input {
+    margin-bottom: 0;
 }
 .cz-form-input {
     position: relative;
@@ -2010,8 +2033,67 @@ input:-webkit-autofill {
         }
     }
 }
+// A color input on its own is a square the height of the other fields, filled with the color
+.cz-form-input.cz-color-input {
+    flex: 0 0 auto;
+    width: calc(3.5rem + 2px);
+}
 .cz-color-input .cz-form-control {
-    padding-top: 10px !important;
+    width: calc(3.5rem + 2px);
+    height: calc(3.5rem + 2px);
+    padding: 0 !important;
+    cursor: pointer;
+}
+.cz-color-input .cz-form-control::-webkit-color-swatch-wrapper,
+.cz-form-input-color::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+.cz-color-input .cz-form-control::-webkit-color-swatch {
+    border: none;
+    border-radius: calc(var(--bs-border-radius) - 1px);
+}
+.cz-color-input .cz-form-control::-moz-color-swatch,
+.cz-form-input-color::-moz-color-swatch {
+    border: none;
+}
+// A color square attached to the right of a text input (cz-input's color prop)
+.cz-form-input .cz-form-control.cz-form-control--has-color {
+    width: calc(100% - (3.5rem + 2px));
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.cz-form-input-color {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(3.5rem + 2px);
+    height: calc(3.5rem + 2px);
+    padding: 0;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-left: 0;
+    border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;
+    background: none;
+    cursor: pointer;
+    &::-webkit-color-swatch {
+        border: none;
+        border-radius: 0 calc(var(--bs-border-radius) - 1px) calc(var(--bs-border-radius) - 1px) 0;
+    }
+    &:disabled {
+        cursor: default;
+        opacity: 0.6;
+    }
+}
+// cz-inputs side by side in a Bootstrap .input-group join up like plain inputs do - squared off where they meet
+.input-group > .cz-form-input:not(:last-child) .cz-form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.input-group > .cz-form-input:not(:first-child) {
+    margin-left: calc(-1 * var(--bs-border-width));
+    .cz-form-control {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
 }
 .cz-form-input.cz-no-label {
     input.cz-form-control {
@@ -2090,9 +2172,20 @@ input:-webkit-autofill {
     }
 }
 .input-group > .form-control.cz-form-control-color {
-    // Same height as the floating-label inputs beside it - "inherit" fell back to Bootstrap's shorter color input
+    // A square the height of the floating-label inputs beside it, filled with the color
     height: calc(3.5rem + 2px);
-    flex: 0 0 4em;
+    flex: 0 0 calc(3.5rem + 2px);
+    padding: 0;
+    &::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+    &::-webkit-color-swatch {
+        border: none;
+        border-radius: 0 calc(var(--bs-border-radius) - 1px) calc(var(--bs-border-radius) - 1px) 0;
+    }
+    &::-moz-color-swatch {
+        border: none;
+    }
 }
 .cz-form-phone {
     .cz-form-phone-country-code-input .cz-form-select,
@@ -2458,6 +2551,16 @@ input:-webkit-autofill {
     flex-shrink: 0;
     .button {
         min-width: 100px;
+    }
+}
+// Narrow screens: the message on top, the two buttons sharing a row underneath
+@media (max-width: $small) {
+    .cz-cookie-consent {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .cz-cookie-consent-actions .button {
+        flex: 1;
     }
 }
 .terms-gate-content {

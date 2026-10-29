@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
@@ -26,6 +27,15 @@ class CuztomisableController extends BaseController
 
     public function error(Throwable $error, array $parameters = []): JsonResponse
     {
+        // Validation thrown from inside a try (e.g. by a service) is the user's input, not a server error - answer
+        // it the way Laravel would: 422 with the field errors
+        if ($error instanceof ValidationException) {
+            return response()->json([
+                'success' => false,
+                'message' => $error->getMessage(),
+                'errors' => $error->errors(),
+            ], $error->status);
+        }
         $debug = config('app.debug', false);
         $debugCode = uniqid();
         // Sets the message in a variable to remove server, SQL, and code errors that will make no sense to the user
