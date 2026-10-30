@@ -3,6 +3,7 @@
 namespace VanDmade\Cuztomisable\Http\Requests\Users;
 
 use Illuminate\Validation\Validator;
+use VanDmade\Cuztomisable\Concerns\Validators\Phone;
 use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
 
 /**
@@ -10,6 +11,8 @@ use VanDmade\Cuztomisable\Http\Requests\CuztomisableRequest;
  */
 class UserRequest extends CuztomisableRequest
 {
+
+    use Phone;
 
     public function authorize(): bool
     {
@@ -49,6 +52,8 @@ class UserRequest extends CuztomisableRequest
             'zip_or_postal_code' => trim((string) $this->input('zip_or_postal_code')),
             'country' => trim((string) $this->input('country')),
         ]);
+        // A phone number without its country gets the app's default one (see the Phone trait)
+        $this->merge(['country_code' => $this->countryCodeFor((string) $this->input('phone'))]);
     }
 
     public function rules(): array

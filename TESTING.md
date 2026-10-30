@@ -38,6 +38,7 @@ The admin areas every app shares have real tests. Each one checks that the permi
 | Error logs | `tests/Feature/Logs/ErrorLogTest.php` | view-logs gate, the service logs with context, open-only by default / show_closed, search, closing records who + why, close_duplicates |
 | Questionnaire | `tests/Feature/QuestionnaireTest.php` | manage-questionnaire gate, add (key tidied, blanks become null) / edit / duplicate key / disallowed target table, list order + answer counts, reorder, delete keeps answers and frees the key; users see only pending active questions, answers are final, copied only to allowed_tables columns, bad choice / blank required / unknown key give 422, optional questions don't block completion, turned-off questionnaire asks nothing |
 | Settings | `tests/Feature/SettingsControllerTest.php` | public frontend payload shape, reading a registered key, unregistered keys 404/403, manage-settings vs. per-key settings-{key} permissions, overwrite, value required |
+| Phone numbers | `tests/Feature/PhoneCountryCodeTest.php` | a phone sent without a country code gets `locations.default_country_code` on sign-up and profile save (instead of an error on a field the form doesn't show), a given country code is kept, no phone is fine, a wrong-length number is still rejected on the phone field |
 
 `tests/Concerns/ActsAsAdmin.php` provides `actingAsUserWith('permission-slug', ...)` / `actingAsUserWithout()` / `createUser()`. `TestCase` registers a sqlite `CONCAT()` so the MySQL-flavoured user table search runs in memory.
 
